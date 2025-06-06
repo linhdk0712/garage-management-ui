@@ -1,0 +1,57 @@
+@startuml Authentication Flow
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+
+actor  User
+participant "App" as App
+participant "AuthProvider" as AuthProvider
+participant "useAuthHook" as useAuth
+participant "authApi" as authApi
+database "LocalStorage" as Storage
+database "BackendAPI" as Backend
+
+' Login Flow
+User -> App: Enter credentials
+App -> AuthProvider: login(credentials)
+AuthProvider -> authApi: POST /auth/login
+authApi -> Backend: Validate credentials
+Backend --> authApi: Return JWT + user data
+authApi --> AuthProvider: Return auth response
+AuthProvider -> Storage: Store JWT
+AuthProvider -> Storage: Store user data
+AuthProvider --> App: Update auth state
+App --> User: Redirect to dashboard
+
+' Token Refresh Flow
+AuthProvider -> Storage: Check token expiry
+alt Token expired
+    AuthProvider -> authApi: POST /auth/refresh
+    authApi -> Backend: Validate refresh token
+    Backend --> authApi: Return new JWT
+    authApi --> AuthProvider: Return new token
+    AuthProvider -> Storage: Update JWT
+end
+
+' Protected Route Access
+User -> App: Access protected route
+App -> useAuth: Check auth state
+useAuth -> Storage: Get auth data
+alt Is authenticated
+    Storage --> useAuth: Return auth data
+    useAuth --> App: Allow access
+else Not authenticated
+    Storage --> useAuth: No auth data
+    useAuth --> App: Redirect to login
+end
+
+' Logout Flow
+User -> App: Click logout
+App -> AuthProvider: logout()
+AuthProvider -> Storage: Clear auth data
+AuthProvider --> App: Update auth state
+App --> User: Redirect to login
+
+@enduml 

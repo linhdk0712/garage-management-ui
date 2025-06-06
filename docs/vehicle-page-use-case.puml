@@ -1,0 +1,62 @@
+@startuml Vehicle Management Page Use Case Diagram
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+' Actors
+actor "Customer" as Customer
+actor "System" as System
+
+' Use Cases
+rectangle "Vehicle Management System" {
+    ' Core Features
+    usecase "View Vehicle List" as UC1
+    usecase "View Vehicle Details" as UC2
+    usecase "Add New Vehicle" as UC3
+    usecase "Edit Vehicle" as UC4
+    usecase "Delete Vehicle" as UC5
+    
+    ' Additional Features
+    usecase "View Vehicle Health" as UC6
+    usecase "View Service History" as UC7
+    usecase "Schedule Service" as UC8
+}
+
+' Relationships
+Customer --> UC1
+Customer --> UC2
+Customer --> UC3
+Customer --> UC4
+Customer --> UC5
+Customer --> UC6
+Customer --> UC7
+Customer --> UC8
+
+System --> UC6
+System --> UC7
+System --> UC8
+
+' Include relationships
+UC1 ..> UC2 : <<include>>
+UC2 ..> UC6 : <<include>>
+UC2 ..> UC7 : <<include>>
+
+' Notes
+note right of UC1
+  List all vehicles with
+  basic information
+end note
+
+note right of UC2
+  Detailed vehicle view
+  with specifications
+end note
+
+note right of UC6
+  Vehicle health status
+  and maintenance info
+end note
+
+@enduml 

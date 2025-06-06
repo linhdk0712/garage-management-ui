@@ -1,0 +1,66 @@
+@startuml Login Use Case
+
+' Actors and Participants
+actor User
+participant "LoginForm" as Form
+participant "AuthContext" as Auth
+participant "API Client" as API
+participant "Backend Server" as Server
+database "LocalStorage" as Storage
+
+' Styling
+skinparam sequence {
+    ArrowColor #2B6CB0
+    ActorBorderColor #2B6CB0
+    LifeLineBorderColor #2B6CB0
+    ParticipantBorderColor #2B6CB0
+    ParticipantBackgroundColor #EBF8FF
+}
+
+' === Login Flow ===
+group Login Process
+    User -> Form: Enter credentials
+    User -> Form: Click "Login"
+    
+    Form -> Auth: handleLogin(credentials)
+    activate Auth
+    
+    Auth -> API: login(credentials)
+    activate API
+    API -> Server: POST /api/auth/login
+    activate Server
+    Server --> API: Return auth response
+    deactivate Server
+    API --> Auth: Return response
+    deactivate API
+    
+    Auth -> Storage: setStoredAuth(authData)
+    Auth -> Auth: setUser(userData)
+    Auth -> Auth: navigate(roleBasedPath)
+    Auth --> Form: Return success
+    deactivate Auth
+    
+    Form --> User: Show success message
+end
+
+' === Error Handling ===
+group Error Flow
+    alt Invalid Credentials
+        Server --> API: Return error
+        API --> Auth: Throw error
+        Auth --> Form: Set error state
+        Form --> User: Show error message
+    end
+end
+
+' === Auth State Management ===
+group Auth State
+    Auth -> Auth: Initialize auth state
+    Auth -> Storage: getStoredAuth()
+    alt Has stored auth
+        Storage --> Auth: Return auth data
+        Auth -> Auth: setUser(storedUser)
+    end
+end
+
+@enduml 

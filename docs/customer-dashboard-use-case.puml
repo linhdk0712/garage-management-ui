@@ -1,0 +1,122 @@
+@startuml Customer Dashboard Use Case Diagram
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+' Actors
+actor "Customer" as Customer
+actor "System" as System
+actor "Notification Service" as Notification
+
+' Use Cases
+rectangle "Customer Dashboard System" {
+    ' Main Dashboard Features
+    usecase "View Dashboard Overview" as UC1
+    usecase "View Vehicle Health Status" as UC2
+    usecase "View Upcoming Appointments" as UC3
+    usecase "View Repair History" as UC4
+    usecase "View Payment History" as UC5
+    usecase "View Maintenance Guide" as UC6
+    usecase "View Notifications" as UC7
+    
+    ' Vehicle Management
+    usecase "Manage Vehicles" as UC8
+    usecase "Add New Vehicle" as UC9
+    usecase "Edit Vehicle Details" as UC10
+    usecase "Delete Vehicle" as UC11
+    
+    ' Appointment Management
+    usecase "Schedule Appointment" as UC12
+    usecase "Cancel Appointment" as UC13
+    usecase "Reschedule Appointment" as UC14
+    usecase "View Appointment Details" as UC15
+    
+    ' Payment Management
+    usecase "View Payment Methods" as UC16
+    usecase "Add Payment Method" as UC17
+    usecase "Make Payment" as UC18
+    usecase "View Payment Receipts" as UC19
+}
+
+' Relationships
+Customer --> UC1
+Customer --> UC2
+Customer --> UC3
+Customer --> UC4
+Customer --> UC5
+Customer --> UC6
+Customer --> UC7
+Customer --> UC8
+Customer --> UC12
+Customer --> UC16
+
+System --> UC2
+System --> UC3
+System --> UC4
+System --> UC5
+System --> UC7
+
+Notification --> UC7
+
+' Include relationships
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC3 : <<include>>
+UC1 ..> UC4 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+
+UC8 ..> UC9 : <<include>>
+UC8 ..> UC10 : <<include>>
+UC8 ..> UC11 : <<include>>
+
+UC12 ..> UC15 : <<include>>
+UC13 ..> UC15 : <<include>>
+UC14 ..> UC15 : <<include>>
+
+UC16 ..> UC17 : <<include>>
+UC18 ..> UC16 : <<include>>
+UC19 ..> UC18 : <<include>>
+
+' Extend relationships
+UC9 ..> UC8 : <<extend>>
+UC10 ..> UC8 : <<extend>>
+UC11 ..> UC8 : <<extend>>
+
+UC13 ..> UC12 : <<extend>>
+UC14 ..> UC12 : <<extend>>
+
+' Notes
+note right of UC1
+  Main dashboard view with
+  overview of all features
+  and quick actions
+end note
+
+note right of UC2
+  Real-time vehicle health
+  monitoring and status
+  indicators
+end note
+
+note right of UC8
+  Complete vehicle management
+  including CRUD operations
+  and status tracking
+end note
+
+note right of UC12
+  Appointment scheduling
+  with service selection
+  and time slot booking
+end note
+
+note right of UC16
+  Payment management
+  including methods and
+  transaction history
+end note
+
+@enduml 

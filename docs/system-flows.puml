@@ -1,0 +1,122 @@
+@startuml System Flows
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+
+actor "AwesomeOne" as User
+participant "Frontend" as Frontend
+participant "AuthProvider" as AuthProvider
+participant "API Layer" as API
+database "Backend" as Backend
+database "Database" as DB
+
+' Authentication Flows
+package "Authentication" {
+    ' Login Flow
+    User -> Frontend: Enter credentials
+    Frontend -> AuthProvider: login(credentials)
+    AuthProvider -> API: POST /auth/login
+    API -> Backend: Validate credentials
+    Backend --> API: Return JWT + user data
+    API --> AuthProvider: Return auth response
+    AuthProvider --> Frontend: Update auth state
+    Frontend --> User: Redirect to dashboard
+
+    ' Registration Flow
+    User -> Frontend: Fill registration form
+    Frontend -> AuthProvider: register(data)
+    AuthProvider -> API: POST /auth/register
+    API -> Backend: Create user
+    Backend --> API: Return success
+    API --> AuthProvider: Return auth response
+    AuthProvider --> Frontend: Update auth state
+    Frontend --> User: Redirect to dashboard
+}
+
+' Customer Flows
+package "Customer" {
+    ' Vehicle Management
+    User -> Frontend: Add/Edit Vehicle
+    Frontend -> API: POST/PUT /vehicles
+    API -> Backend: Process vehicle data
+    Backend -> DB: Store vehicle info
+    Backend --> API: Return vehicle data
+    API --> Frontend: Update UI
+
+    ' Appointment Management
+    User -> Frontend: Schedule Appointment
+    Frontend -> API: POST /appointments
+    API -> Backend: Validate & create appointment
+    Backend -> DB: Store appointment
+    Backend --> API: Return appointment
+    API --> Frontend: Update UI
+
+    ' Payment Management
+    User -> Frontend: Make Payment
+    Frontend -> API: POST /payments
+    API -> Backend: Process payment
+    Backend -> DB: Record payment
+    Backend --> API: Return payment status
+    API --> Frontend: Update UI
+}
+
+' Staff Flows
+package "Staff" {
+    ' Work Order Management
+    User -> Frontend: Create/Update Work Order
+    Frontend -> API: POST/PUT /work-orders
+    API -> Backend: Process work order
+    Backend -> DB: Store work order
+    Backend --> API: Return work order
+    API --> Frontend: Update UI
+
+    ' Service Management
+    User -> Frontend: Update Service Status
+    Frontend -> API: PUT /services/{id}/status
+    API -> Backend: Update service
+    Backend -> DB: Update status
+    Backend --> API: Return updated service
+    API --> Frontend: Update UI
+}
+
+' Manager Flows
+package "Manager" {
+    ' Inventory Management
+    User -> Frontend: Manage Inventory
+    Frontend -> API: POST/PUT /inventory
+    API -> Backend: Process inventory
+    Backend -> DB: Update inventory
+    Backend --> API: Return inventory status
+    API --> Frontend: Update UI
+
+    ' Staff Management
+    User -> Frontend: Manage Staff
+    Frontend -> API: POST/PUT /staff
+    API -> Backend: Process staff data
+    Backend -> DB: Update staff info
+    Backend --> API: Return staff data
+    API --> Frontend: Update UI
+
+    ' Reports Generation
+    User -> Frontend: Generate Report
+    Frontend -> API: GET /reports
+    API -> Backend: Generate report
+    Backend -> DB: Fetch data
+    Backend --> API: Return report data
+    API --> Frontend: Display report
+}
+
+' Notification System
+package "Notifications" {
+    User -> Frontend: View notifications
+    Frontend -> API: GET /notifications
+    API -> Backend: Fetch notifications
+    Backend -> DB: Get user notifications
+    Backend --> API: Return notifications
+    API --> Frontend: Display notifications
+
+    Backend -> Frontend: Push notification
+    Frontend --> User: Show notification
+}
+
+@enduml 

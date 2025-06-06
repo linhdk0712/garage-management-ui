@@ -1,0 +1,32 @@
+@startuml Login Use Case Flows
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+' Basic Flow
+start
+:Người dùng truy cập trang đăng nhập;
+:Hiển thị form đăng nhập;
+:Người dùng nhập thông tin đăng nhập;
+:Kiểm tra định dạng dữ liệu;
+if (Dữ liệu hợp lệ?) then (có)
+    :Gửi thông tin đăng nhập đến máy chủ;
+    :Máy chủ xác thực thông tin;
+    if (Thông tin hợp lệ?) then (có)
+        :Tạo JWT token;
+        :Lưu token vào localStorage;
+        :Chuyển hướng đến trang chủ;
+        stop
+    else (không)
+        :Hiển thị lỗi thông tin đăng nhập;
+        :Quay lại form đăng nhập;
+    endif
+else (không)
+    :Hiển thị lỗi định dạng dữ liệu;
+    :Quay lại form đăng nhập;
+endif
+
+
+@enduml 

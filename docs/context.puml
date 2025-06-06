@@ -1,0 +1,13 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(customer, "Khách hàng", "Đăng ký, đăng nhập, và quản lý phương tiện.")
+Person(employee, "Nhân viên", "Xử lý các yêu cầu bảo trì/bảo dưỡng, thông tin xe.")
+Person(manager, "Quản lý", "Theo dõi báo cáo, thống kê và quản lý hệ thống.")
+
+System(gms, "Garage Management System", "Hệ thống quản lý thông tin khách hàng, phương tiện và nghiệp vụ garage.")
+
+Rel(customer, gms, "Sử dụng để đăng nhập, đăng ký, thêm/chỉnh sửa phương tiện", "HTTPS")
+Rel(employee, gms, "Xử lý nghiệp vụ bảo trì/bảo dưỡng", "HTTPS")
+Rel(manager, gms, "Theo dõi hoạt động và báo cáo", "HTTPS")
+@enduml

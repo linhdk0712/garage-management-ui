@@ -1,0 +1,39 @@
+@startuml Register Use Case Flows
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+' Basic Flow
+start
+:Người dùng truy cập trang đăng ký;
+:Hiển thị form đăng ký;
+:Người dùng nhập thông tin cá nhân;
+:Kiểm tra định dạng dữ liệu;
+if (Dữ liệu hợp lệ?) then (có)
+    :Kiểm tra email đã tồn tại;
+    if (Email chưa tồn tại?) then (có)
+        :Kiểm tra mật khẩu khớp;
+        if (Mật khẩu khớp?) then (có)
+            :Mã hóa mật khẩu;
+            :Lưu thông tin người dùng;
+            :Tạo JWT token;
+            :Gửi email xác nhận;
+            :Chuyển hướng đến trang chủ;
+            stop
+        else (không)
+            :Hiển thị lỗi mật khẩu không khớp;
+            :Quay lại form đăng ký;
+        endif
+    else (không)
+        :Hiển thị lỗi email đã tồn tại;
+        :Quay lại form đăng ký;
+    endif
+else (không)
+    :Hiển thị lỗi định dạng dữ liệu;
+    :Quay lại form đăng ký;
+endif
+
+
+@enduml 

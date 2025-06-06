@@ -1,0 +1,155 @@
+@startuml Garage Management System - Component Dependencies
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+
+' Core Components
+package "Core Components" {
+    [App] as App
+    [Router] as Router
+    [ErrorBoundary] as ErrorBoundary
+    [AuthProvider] as AuthProvider
+}
+
+' Layout Components
+package "Layout Components" {
+    [Header] as Header
+    [Sidebar] as Sidebar
+    [Footer] as Footer
+    [Layout] as Layout
+}
+
+' Common Components
+package "Common Components" {
+    [Button] as Button
+    [Input] as Input
+    [Table] as Table
+    [Modal] as Modal
+    [Badge] as Badge
+    [Spinner] as Spinner
+    [Notification] as Notification
+    [Card] as Card
+    [Tabs] as Tabs
+}
+
+' Feature Components
+package "Customer Components" {
+    [CustomerDashboard] as CustomerDashboard
+    [VehicleList] as VehicleList
+    [VehicleForm] as VehicleForm
+    [AppointmentList] as AppointmentList
+    [AppointmentForm] as AppointmentForm
+}
+
+package "Staff Components" {
+    [StaffDashboard] as StaffDashboard
+    [WorkOrderList] as WorkOrderList
+    [WorkOrderForm] as WorkOrderForm
+}
+
+package "Manager Components" {
+    [ManagerDashboard] as ManagerDashboard
+    [InventoryManagement] as InventoryManagement
+    [StaffManagement] as StaffManagement
+    [Reports] as Reports
+}
+
+' API Layer
+package "API Layer" {
+    [apiClient] as apiClient
+    [authApi] as authApi
+    [vehiclesApi] as vehiclesApi
+    [appointmentsApi] as appointmentsApi
+    [workOrdersApi] as workOrdersApi
+    [inventoryApi] as inventoryApi
+}
+
+' Hooks
+package "Custom Hooks" {
+    [useAuth] as useAuth
+    [useAppointments] as useAppointments
+    [useVehicles] as useVehicles
+    [useWorkOrders] as useWorkOrders
+}
+
+' Dependencies
+
+' Core Dependencies
+App --> Router
+App --> ErrorBoundary
+App --> AuthProvider
+Router --> Layout
+
+' Layout Dependencies
+Layout --> Header
+Layout --> Sidebar
+Layout --> Footer
+
+' Header Dependencies
+Header --> useAuth
+Header --> Badge
+Header --> Button
+
+' Common Component Dependencies
+Button --> Spinner
+Input --> Button
+Table --> Spinner
+Modal --> Button
+Notification --> Button
+
+' Customer Component Dependencies
+CustomerDashboard --> VehicleList
+CustomerDashboard --> AppointmentList
+VehicleList --> VehicleForm
+VehicleList --> Modal
+AppointmentList --> AppointmentForm
+AppointmentForm --> Modal
+AppointmentForm --> Input
+AppointmentForm --> Button
+
+' Staff Component Dependencies
+StaffDashboard --> WorkOrderList
+WorkOrderList --> WorkOrderForm
+WorkOrderForm --> Modal
+WorkOrderForm --> Input
+WorkOrderForm --> Button
+
+' Manager Component Dependencies
+ManagerDashboard --> InventoryManagement
+ManagerDashboard --> StaffManagement
+ManagerDashboard --> Reports
+InventoryManagement --> Table
+StaffManagement --> Table
+Reports --> Table
+
+' API Dependencies
+apiClient --> authApi
+apiClient --> vehiclesApi
+apiClient --> appointmentsApi
+apiClient --> workOrdersApi
+apiClient --> inventoryApi
+
+' Hook Dependencies
+useAuth --> authApi
+useAppointments --> appointmentsApi
+useVehicles --> vehiclesApi
+useWorkOrders --> workOrdersApi
+
+' Data Flow
+note right of AuthProvider
+  Manages authentication state
+  and user information
+end note
+
+note right of apiClient
+  Handles API requests and
+  response formatting
+end note
+
+note right of useAuth
+  Provides authentication
+  context and methods
+end note
+
+@enduml 

@@ -1,0 +1,67 @@
+@startuml Vehicle Management Process Flow
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+' Actors
+actor Customer
+participant "CustomerDashboard" as Dashboard
+participant "VehiclesPage" as ListPage
+participant "VehicleForm" as Form
+participant "API Client" as API
+participant "Backend Server" as Server
+
+
+' === List Vehicles Flow ===
+group List Vehicles
+    Customer -> Dashboard: Access dashboard
+    Dashboard -> ListPage: Navigate to vehicles
+    ListPage -> API: fetchCustomerVehicles()
+    API -> Server: GET /api/vehicles
+    Server --> API: Return vehicles list
+    API --> ListPage: Return vehicles data
+    ListPage --> Customer: Display vehicles table
+end
+
+' === Add New Vehicle Flow ===
+group Add New Vehicle
+    Customer -> ListPage: Click "Add Vehicle"
+    ListPage -> Form: Open form (mode: "add")
+    Customer -> Form: Fill vehicle details
+    Customer -> Form: Click "Add Vehicle"
+    Form -> API: addVehicle(vehicleData)
+    API -> Server: POST /api/vehicles
+    Server --> API: Return new vehicle
+    API --> Form: Return success
+    Form --> ListPage: Close form
+    ListPage -> API: fetchCustomerVehicles()
+    API -> Server: GET /api/vehicles
+    Server --> API: Return updated list
+    API --> ListPage: Update vehicles table
+    ListPage --> Customer: Show updated list
+end
+
+' === Edit Vehicle Flow ===
+group Edit Vehicle
+    Customer -> ListPage: Click edit icon
+    ListPage -> Form: Open form (mode: "edit")
+    Form -> API: fetchVehicleDetails(vehicleId)
+    API -> Server: GET /api/vehicles/{id}
+    Server --> API: Return vehicle details
+    API --> Form: Populate form
+    Customer -> Form: Update vehicle details
+    Customer -> Form: Click "Update Vehicle"
+    Form -> API: updateVehicle(vehicleId, data)
+    API -> Server: PUT /api/vehicles/{id}
+    Server --> API: Return updated vehicle
+    API --> Form: Return success
+    Form --> ListPage: Close form
+    ListPage -> API: fetchCustomerVehicles()
+    API -> Server: GET /api/vehicles
+    Server --> API: Return updated list
+    API --> ListPage: Update vehicles table
+    ListPage --> Customer: Show updated list
+end
+
+@enduml 

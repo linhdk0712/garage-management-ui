@@ -1,0 +1,33 @@
+@startuml Customer Dashboard Display Flows
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+' Basic Flow
+start
+:Người dùng truy cập trang chủ;
+:Kiểm tra trạng thái đăng nhập;
+if (Đã đăng nhập?) then (có)
+    :Tải thông tin người dùng;
+    :Tải danh sách xe;
+    if (Có xe?) then (có)
+        :Tải thông tin xe được chọn;
+        :Tải lịch sử bảo dưỡng;
+        :Tải lịch hẹn sắp tới;
+        :Hiển thị thông tin tổng quan;
+        :Hiển thị trạng thái xe;
+        :Hiển thị lịch hẹn;
+        :Hiển thị lịch sử;
+        stop
+    else (không)
+        :Hiển thị thông báo chưa có xe;
+        :Hiển thị nút đăng ký xe mới;
+    endif
+else (không)
+    :Chuyển hướng đến trang đăng nhập;
+endif
+
+
+@enduml 

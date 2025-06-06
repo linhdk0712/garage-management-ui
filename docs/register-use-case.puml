@@ -1,0 +1,73 @@
+@startuml Registration Use Case Diagram
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+' Actors
+actor "New User" as User
+actor "System" as System
+
+
+' Use Cases
+rectangle "Registration System" {
+    usecase "Register New Account" as UC1
+    usecase "Validate Email" as UC2
+    usecase "Complete Profile" as UC4
+    usecase "Set Password" as UC5
+    usecase "Validate Password" as UC6
+    usecase "Check Username Availability" as UC7
+    usecase "Handle Registration Errors" as UC9
+}
+
+' Relationships
+User --> UC1
+User --> UC4
+User --> UC5
+
+System --> UC2
+System --> UC6
+System --> UC7
+System --> UC9
+
+
+
+' Include relationships
+UC1 ..> UC2 : <<include>>
+UC1 ..> UC5 : <<include>>
+UC1 ..> UC6 : <<include>>
+UC1 ..> UC7 : <<include>>
+UC1 ..> UC8 : <<include>>
+UC1 ..> UC9 : <<include>>
+
+UC4 ..> UC2 : <<include>>
+
+' Extend relationships
+UC4 ..> UC1 : <<extend>>
+
+' Notes
+note right of UC1
+  Main registration process
+  including all required
+  validations
+end note
+
+note right of UC2
+  Validates email format
+  and domain
+end note
+
+note right of UC5
+  Ensures password meets
+  security requirements
+end note
+
+note right of UC9
+  Handles various error
+  scenarios like:
+  - Duplicate email
+  - Invalid data
+  - Network errors
+end note
+
+@enduml 

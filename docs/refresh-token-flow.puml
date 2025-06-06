@@ -1,0 +1,86 @@
+@startuml Refresh Token Flow
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+' Actors and Participants
+actor User
+participant "Frontend App" as App
+participant "AuthContext" as Auth
+participant "API Client" as API
+participant "Backend Server" as Server
+database "LocalStorage" as Storage
+
+
+
+' === Token Refresh Flow ===
+group Token Refresh Process
+    App -> Auth: Check token expiration
+    activate Auth
+    
+    alt Token Expired
+        Auth -> Storage: Get refresh token
+        Storage --> Auth: Return refresh token
+        
+        Auth -> API: refreshToken(refreshToken)
+        activate API
+        API -> Server: POST /api/auth/refresh
+        activate Server
+        
+        alt Valid Refresh Token
+            Server --> API: Return new access token
+            deactivate Server
+            API --> Auth: Return new tokens
+            deactivate API
+            
+            Auth -> Storage: Update tokens
+            Auth --> App: Update auth state
+            App --> User: Continue session
+        else Invalid Refresh Token
+            Server --> API: Return 401
+            deactivate Server
+            API --> Auth: Throw error
+            deactivate API
+            
+            Auth -> Storage: Clear tokens
+            Auth --> App: Logout user
+            App --> User: Redirect to login
+        end
+    else Token Valid
+        Auth --> App: Continue session
+    end
+    
+    deactivate Auth
+end
+
+' === Automatic Refresh ===
+group Automatic Refresh
+    App -> Auth: Start refresh timer
+    Auth -> Auth: Schedule refresh
+    note right: Refresh 5 minutes before expiration
+    
+    alt Timer Triggered
+        Auth -> API: refreshToken(refreshToken)
+        API -> Server: POST /api/auth/refresh
+        Server --> API: Return new tokens
+        API --> Auth: Update tokens
+        Auth -> Storage: Store new tokens
+    end
+end
+
+' === Error Handling ===
+group Error Scenarios
+    alt Network Error
+        API --> Auth: Connection failed
+        Auth -> Auth: Retry mechanism
+        note right: Max 3 retries
+    end
+    
+    alt Server Error
+        Server --> API: 500 error
+        API --> Auth: Server error
+        Auth -> Auth: Handle gracefully
+    end
+end
+
+@enduml 

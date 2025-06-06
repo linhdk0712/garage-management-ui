@@ -1,0 +1,20 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(customer, "Khách hàng")
+Person(employee, "Nhân viên")
+Person(manager, "Quản lý")
+
+System_Boundary(gms, "Garage Management System") {
+  Container(webapp, "Web Application", "React", "Giao diện người dùng")
+  Container(api, "Backend API", "Spring Boot", "Xử lý logic hệ thống")
+  ContainerDb(db, "Database", "PostgreSQL", "Lưu trữ thông tin người dùng, phương tiện, bảo trì")
+}
+
+Rel(customer, webapp, "Sử dụng qua trình duyệt", "HTTPS")
+Rel(employee, webapp, "Sử dụng qua trình duyệt", "HTTPS")
+Rel(manager, webapp, "Sử dụng qua trình duyệt", "HTTPS")
+
+Rel(webapp, api, "Gửi yêu cầu REST", "JSON/HTTPS")
+Rel(api, db, "Đọc/Ghi dữ liệu", "JDBC/SQL")
+@enduml

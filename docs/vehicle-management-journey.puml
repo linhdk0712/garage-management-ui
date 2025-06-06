@@ -1,0 +1,149 @@
+@startuml Vehicle Management User Journey
+
+skinparam sequence {
+    ArrowColor #2B6CB0
+    ActorBorderColor #2B6CB0
+    LifeLineBorderColor #2B6CB0
+    ParticipantBorderColor #2B6CB0
+    ParticipantBackgroundColor #EBF8FF
+}
+
+actor "Customer" as Customer
+participant "Vehicle List Page" as ListPage
+participant "Vehicle Details Page" as DetailsPage
+participant "Vehicle Form" as VehicleForm
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+
+' View Vehicle List Journey
+Customer -> ListPage: Access Vehicle List
+activate ListPage
+ListPage -> API: Fetch Vehicles
+activate API
+API -> Server: GET /api/vehicles
+activate Server
+Server -> DB: Query Vehicles
+activate DB
+DB --> Server: Return Vehicle List
+deactivate DB
+Server --> API: Response with Vehicles
+deactivate Server
+API --> ListPage: Return Vehicle Data
+deactivate API
+ListPage --> Customer: Display Vehicle List
+deactivate ListPage
+
+' View Vehicle Details Journey
+Customer -> ListPage: Click Vehicle
+activate ListPage
+ListPage -> DetailsPage: Navigate to Details
+activate DetailsPage
+DetailsPage -> API: Fetch Vehicle Details
+activate API
+API -> Server: GET /api/vehicles/{id}
+activate Server
+Server -> DB: Query Vehicle Details
+activate DB
+DB --> Server: Return Vehicle Data
+deactivate DB
+Server --> API: Response with Details
+deactivate Server
+API --> DetailsPage: Return Vehicle Details
+deactivate API
+DetailsPage --> Customer: Display Vehicle Details
+deactivate DetailsPage
+
+' Add New Vehicle Journey
+Customer -> ListPage: Click Add Vehicle
+activate ListPage
+ListPage -> VehicleForm: Open Add Form
+activate VehicleForm
+Customer -> VehicleForm: Fill Vehicle Details
+VehicleForm -> API: Submit Vehicle Data
+activate API
+API -> Server: POST /api/vehicles
+activate Server
+Server -> DB: Save Vehicle
+activate DB
+DB --> Server: Confirm Save
+deactivate DB
+Server --> API: Response Success
+deactivate Server
+API --> VehicleForm: Return Success
+deactivate API
+VehicleForm --> ListPage: Close Form
+deactivate VehicleForm
+ListPage -> API: Refresh Vehicle List
+activate API
+API --> ListPage: Updated List
+deactivate API
+ListPage --> Customer: Show Updated List
+deactivate ListPage
+
+' Edit Vehicle Journey
+Customer -> DetailsPage: Click Edit
+activate DetailsPage
+DetailsPage -> VehicleForm: Open Edit Form
+activate VehicleForm
+VehicleForm -> API: Fetch Current Data
+activate API
+API -> Server: GET /api/vehicles/{id}
+activate Server
+Server -> DB: Query Vehicle
+activate DB
+DB --> Server: Return Vehicle Data
+deactivate DB
+Server --> API: Response with Data
+deactivate Server
+API --> VehicleForm: Return Vehicle Data
+deactivate API
+Customer -> VehicleForm: Update Details
+VehicleForm -> API: Submit Updates
+activate API
+API -> Server: PUT /api/vehicles/{id}
+activate Server
+Server -> DB: Update Vehicle
+activate DB
+DB --> Server: Confirm Update
+deactivate DB
+Server --> API: Response Success
+deactivate Server
+API --> VehicleForm: Return Success
+deactivate API
+VehicleForm --> DetailsPage: Close Form
+deactivate VehicleForm
+DetailsPage -> API: Refresh Details
+activate API
+API --> DetailsPage: Updated Details
+deactivate API
+DetailsPage --> Customer: Show Updated Details
+deactivate DetailsPage
+
+' Delete Vehicle Journey
+Customer -> DetailsPage: Click Delete
+activate DetailsPage
+DetailsPage -> Customer: Confirm Delete
+Customer -> DetailsPage: Confirm
+DetailsPage -> API: Delete Vehicle
+activate API
+API -> Server: DELETE /api/vehicles/{id}
+activate Server
+Server -> DB: Remove Vehicle
+activate DB
+DB --> Server: Confirm Delete
+deactivate DB
+Server --> API: Response Success
+deactivate Server
+API --> DetailsPage: Return Success
+deactivate API
+DetailsPage --> ListPage: Navigate Back
+deactivate DetailsPage
+ListPage -> API: Refresh Vehicle List
+activate API
+API --> ListPage: Updated List
+deactivate API
+ListPage --> Customer: Show Updated List
+deactivate ListPage
+
+@enduml 

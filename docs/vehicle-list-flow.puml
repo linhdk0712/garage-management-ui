@@ -1,0 +1,62 @@
+@startuml Vehicle List Display Flows
+
+skin rose 
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+|#LightBlue|Khách hàng|
+start
+:Người dùng truy cập trang danh sách xe;
+
+|#LightGreen|Hệ thống|
+:Kiểm tra trạng thái đăng nhập;
+if (Đã đăng nhập?) then (có)
+    :Tải danh sách xe của khách hàng;
+    if (Có xe?) then (có)
+        :Hiển thị danh sách xe;
+        :Hiển thị thông tin cơ bản mỗi xe;
+        :Hiển thị trạng thái xe;
+        :Hiển thị nút thao tác;
+        stop
+    else (không)
+        :Hiển thị thông báo chưa có xe;
+        :Hiển thị nút thêm xe mới;
+    endif
+else (không)
+    :Chuyển hướng đến trang đăng nhập;
+endif
+
+
+
+|#LightBlue|Khách hàng|
+' Search Vehicles
+if (Người dùng tìm kiếm?) then (có)
+    :Nhập từ khóa tìm kiếm;
+
+|#LightGreen|Hệ thống|
+    :Hiển thị ô tìm kiếm;
+    :Lọc danh sách theo từ khóa;
+    :Hiển thị kết quả tìm kiếm;
+endif
+
+|#LightBlue|Khách hàng|
+' Filter Vehicles
+if (Người dùng áp dụng bộ lọc?) then (có)
+    :Chọn tiêu chí lọc;
+
+|#LightGreen|Hệ thống|
+    :Hiển thị tùy chọn lọc;
+    if (Lọc theo trạng thái?) then (có)
+        :Lọc theo trạng thái xe;
+    else if (Lọc theo hãng xe?) then (có)
+        :Lọc theo hãng xe;
+    else if (Lọc theo năm sản xuất?) then (có)
+        :Lọc theo năm sản xuất;
+    endif
+    :Cập nhật hiển thị danh sách;
+endif
+
+
+
+@enduml 

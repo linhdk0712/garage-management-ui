@@ -1,0 +1,38 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container(api, "Backend API", "Spring Boot")
+
+Component(authCtrl, "AuthController", "Xử lý đăng nhập/đăng ký/Xử lý làm mới token")
+Component(vehicleCtrl, "VehicleController", "Xử lý thông tin phương tiện")
+Component(userSvc, "UserService", "Xử lý logic người dùng")
+Component(vehicleSvc, "VehicleService", "Xử lý logic phương tiện")
+Component(userRepo, "UserRepository", "Giao tiếp DB cho người dùng")
+Component(vehicleRepo, "VehicleRepository", "Giao tiếp DB cho phương tiện")
+Component(securityCfg, "SecurityConfig", "Cấu hình Spring Security")
+Component(authMgr, "AuthenticationManager", "Xác thực người dùng")
+Component(jwtTokenUtil, "JWTTokenUtil", "Tạo và kiểm tra JWT Token")
+Component(jwtFilter, "JWTAuthenticationFilter", "Lọc và xác thực JWT Token trong request")
+Component(refreshTokenUtil, "RefreshTokenUtil", "Tạo và kiểm tra Refresh Token")
+
+' Luồng gọi giữa các component
+Rel(authCtrl, userSvc, "Gọi UserService")
+Rel(vehicleCtrl, vehicleSvc, "Gọi VehicleService")
+Rel(userSvc, userRepo, "Truy xuất dữ liệu")
+Rel(vehicleSvc, vehicleRepo, "Truy xuất dữ liệu")
+
+' Spring Security
+Rel(authCtrl, authMgr, "Gọi để xác thực tài khoản")
+Rel(vehicleCtrl, securityCfg, "Được bảo vệ bởi cấu hình bảo mật")
+Rel(authCtrl, securityCfg, "Được bảo vệ bởi cấu hình bảo mật")
+
+' JWT Flow
+Rel(authCtrl, jwtTokenUtil, "Tạo JWT Token sau khi xác thực thành công")
+Rel(authCtrl, jwtFilter, "Trả JWT token cho client")
+Rel(jwtFilter, securityCfg, "Lọc và xác thực JWT token trong request")
+Rel(jwtFilter, authMgr, "Xác thực JWT trong mỗi request")
+
+' Refresh Token Flow
+Rel(authCtrl, refreshTokenUtil, "Tạo và kiểm tra Refresh Token")
+Rel(authCtrl, jwtTokenUtil, "Tạo Access Token mới sau khi Refresh Token hợp lệ")
+@enduml

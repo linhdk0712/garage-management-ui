@@ -1,0 +1,42 @@
+export const ROUTES = {
+    auth: {
+        login: '/auth/login',
+        register: '/auth/register',
+        logout: '/auth/logout',
+        refresh: '/auth/refresh-token',
+        me: '/auth/me',
+        forgotPassword: '/auth/forgot-password',
+        resetPassword: '/auth/reset-password',
+        changePassword: '/auth/change-password',
+    },
+    vehicle: {
+        list: '/vehicles',
+        create: '/vehicles',
+        update: '/vehicles/:id',
+        delete: '/vehicles/:id',
+        details: '/vehicles/:id',
+        history: '/vehicles/:id/history',
+        health: '/vehicles/:id/health',
+        maintenanceSchedule: '/vehicles/:id/maintenance-schedule',
+    },
+    customer: {
+        dashboard: '/customer/dashboard',
+        vehicles: '/customer/vehicles',
+        appointments: '/customer/appointments',
+        payments: '/customer/payments',
+        profile: '/customer/profile',
+        history: '/customer/history',
+        notifications: '/customer/notifications',
+        repairHistory: '/customer/repair-history',
+    },
+    staff: {
+        appointments: '/staff/appointments',
+        workOrders: '/staff/work-orders',
+    },
+    manager: {
+        inventory: '/manager/inventory',
+        purchaseOrders: '/manager/purchase-orders',
+        staffManagement: '/manager/staff-management',
+        reports: '/manager/reports',
+    },
+} as const;

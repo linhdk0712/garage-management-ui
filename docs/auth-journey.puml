@@ -1,0 +1,88 @@
+@startuml Authentication User Journey
+
+skinparam sequence {
+    ArrowColor #2B6CB0
+    ActorBorderColor #2B6CB0
+    LifeLineBorderColor #2B6CB0
+    ParticipantBorderColor #2B6CB0
+    ParticipantBackgroundColor #EBF8FF
+}
+
+actor "User" as User
+participant "Login Page" as LoginPage
+participant "Register Page" as RegisterPage
+participant "API Client" as API
+participant "Auth Service" as AuthService
+participant "Backend Server" as Server
+database "Database" as DB
+
+' Login Journey
+User -> LoginPage: Access Login Page
+activate LoginPage
+LoginPage --> User: Display Login Form
+User -> LoginPage: Enter Credentials
+LoginPage -> API: Submit Login
+activate API
+API -> AuthService: Authenticate User
+activate AuthService
+AuthService -> Server: POST /api/auth/login
+activate Server
+Server -> DB: Validate Credentials
+activate DB
+DB --> Server: Return User Data
+deactivate DB
+Server -> AuthService: Generate JWT Token
+AuthService --> API: Return Token & User Data
+deactivate AuthService
+API --> LoginPage: Return Auth Response
+deactivate API
+LoginPage -> LoginPage: Store Token
+LoginPage --> User: Redirect to Dashboard
+deactivate LoginPage
+
+' Registration Journey
+User -> RegisterPage: Access Register Page
+activate RegisterPage
+RegisterPage --> User: Display Register Form
+User -> RegisterPage: Fill Registration Data
+RegisterPage -> API: Submit Registration
+activate API
+API -> Server: POST /api/auth/register
+activate Server
+Server -> DB: Check Existing User
+activate DB
+DB --> Server: User Not Found
+deactivate DB
+Server -> DB: Create New User
+activate DB
+DB --> Server: Confirm User Creation
+deactivate DB
+Server -> AuthService: Generate JWT Token
+AuthService --> API: Return Token & User Data
+deactivate AuthService
+API --> RegisterPage: Return Auth Response
+deactivate API
+RegisterPage -> RegisterPage: Store Token
+RegisterPage --> User: Redirect to Dashboard
+deactivate RegisterPage
+
+' Error Scenarios
+alt Invalid Credentials
+    Server --> API: Return Error
+    API --> LoginPage: Show Error Message
+    LoginPage --> User: Display Error
+end
+
+alt Email Already Exists
+    DB --> Server: User Found
+    Server --> API: Return Error
+    API --> RegisterPage: Show Error Message
+    RegisterPage --> User: Display Error
+end
+
+alt Network Error
+    API --> LoginPage: Connection Error
+    LoginPage --> User: Show Error Message
+end
+
+@enduml 
