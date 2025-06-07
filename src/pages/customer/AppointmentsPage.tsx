@@ -19,6 +19,7 @@ import { Appointment } from '../../types/appointment.types';
 import AppointmentList from '../../components/customer/appointments/AppointmentList';
 import Modal from '../../components/common/Modal';
 import { cancelAppointment } from '../../api/appointments';
+import { ROUTES } from '../../config/routes';
 
 const AppointmentsPage: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -42,7 +43,7 @@ const AppointmentsPage: React.FC = () => {
 
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
-      await cancelAppointment(appointmentId);
+      await cancelAppointment(ROUTES.customer.appointments, appointmentId);
       setNotification({
         type: 'success',
         message: 'Appointment cancelled successfully.'

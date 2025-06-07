@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Appointment, TimeSlot } from '../types/appointment.types';
 import { fetchAppointments, fetchAppointmentDetails, fetchAvailableTimeSlots, cancelAppointment } from '../api/appointments';
+import { ROUTES } from '../config/routes';
 
 interface UseAppointmentsProps {
     initialFetch?: boolean;
@@ -16,7 +17,7 @@ const useAppointments = ({ initialFetch = false }: UseAppointmentsProps = {}) =>
     const fetchAllAppointments = async (customFilters?: { status?: string; from?: string; to?: string }) => {
         try {
             setIsLoading(true);
-            const data = await fetchAppointments(customFilters);
+            const data = await fetchAppointments(ROUTES.customer.appointments, customFilters);
             setAppointments(data);
         } catch (err) {
             setError('Failed to fetch appointments');
@@ -32,7 +33,7 @@ const useAppointments = ({ initialFetch = false }: UseAppointmentsProps = {}) =>
             return;
         }
 
-        fetchAppointmentDetails(appointmentId)
+        fetchAppointmentDetails(ROUTES.customer.appointments, appointmentId)
             .then(setSelectedAppointment)
             .catch(err => {
                 console.error('Error fetching appointment details:', err);
@@ -42,7 +43,7 @@ const useAppointments = ({ initialFetch = false }: UseAppointmentsProps = {}) =>
 
     const fetchSlots = async (date: string) => {
         try {
-            const slots = await fetchAvailableTimeSlots(date);
+            const slots = await fetchAvailableTimeSlots(ROUTES.customer.appointments, date);
             setAvailableSlots(slots);
         } catch (err) {
             console.error('Error fetching available slots:', err);
@@ -52,7 +53,7 @@ const useAppointments = ({ initialFetch = false }: UseAppointmentsProps = {}) =>
 
     const handleCancelAppointment = async (appointmentId: number) => {
         try {
-            await cancelAppointment(appointmentId);
+            await cancelAppointment(ROUTES.customer.appointments, appointmentId);
             setAppointments(appointments.filter(apt => apt.appointmentId !== appointmentId));
         } catch (err) {
             console.error('Error canceling appointment:', err);

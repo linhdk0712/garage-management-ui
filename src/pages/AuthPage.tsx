@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import LoginForm from '../components/auth/LoginForm';
 import RegisterForm from '../components/auth/RegisterForm';
@@ -10,16 +10,10 @@ const AuthPage: React.FC = () => {
     const { authType } = useParams<{ authType: string }>();
     const { user, isLoading } = useAuth();
 
-    useEffect(() => {
-        console.log('AuthPage mounted with authType:', authType);
-    }, [authType]);
-
-    // If user is already authenticated, redirect to dashboard
     if (user && !isLoading) {
         return <Navigate to="/" replace />;
     }
 
-    // Show loading state
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -29,7 +23,6 @@ const AuthPage: React.FC = () => {
     }
 
     const renderAuthForm = () => {
-        console.log('Rendering auth form for type:', authType);
         switch (authType) {
             case 'login':
                 return <LoginForm />;
@@ -38,7 +31,6 @@ const AuthPage: React.FC = () => {
             case 'forgot-password':
                 return <ForgotPasswordForm />;
             default:
-                console.log('Invalid auth type, redirecting to login');
                 return <Navigate to={ROUTES.auth.login} replace />;
         }
     };
@@ -46,11 +38,6 @@ const AuthPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                {/* <img
-                    className="mx-auto h-12 w-auto"
-                    src="/assets/images/logo.svg"
-                    alt="Garage Management System"
-                /> */}
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                     {authType === 'login' && 'Sign in to your account'}
                     {authType === 'register' && 'Create a new account'}

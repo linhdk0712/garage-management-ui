@@ -25,27 +25,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(true);
       setError(null);
       const response = await login(credentials);
-      console.log('AuthContext handleLogin response:', response);
 
       const userData: User = {
         id: response.id,
         username: response.username,
         email: response.email,
         roles: response.roles,
-        firstName: '', // These will be populated when user updates their profile
-        lastName: ''
+        firstName: response.firstName,
+        lastName: response.lastName
       };
-      console.log('AuthContext userData:', userData);
       
       setUser(userData);
       const authData = {
         token: response.token,
         user: userData,
       };
-      console.log('AuthContext storing auth data:', authData);
       setStoredAuth(authData);
       
-      // Navigate based on the first role (assuming a user has at least one role)
       const role = response.roles[0];
       navigate(getInitialRoutePath(role));
     } catch (err: unknown) {
@@ -72,29 +68,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleLogout = useCallback(async () => {
     try {
-      const auth = getStoredAuth();
-      console.log("handleLogout - stored auth:", auth);
-      
-      if (user?.id && auth?.token) {
-        // Call the API first, before clearing local state
-        const response = await logout(user.id, auth.token);
-        console.log("Logout response:", response);
-        
-        if (response.errorCode !== 'SUCCESS') {
-          console.error("Logout failed:", response.errorMessage);
+      getStoredAuth();
+      if (user?.id) {
+        try {
+          await logout(user.id);
+        } catch (error) {
+          console.error("Error during logout API call:", error);
         }
       }
-    } catch (error) {
-      console.error("Error during logout API call:", error);
     } finally {
-      // Always clear local state, even if API call fails
       setUser(null);
       removeStoredAuth();
       navigate('/auth/login');
     }
   }, [navigate, user?.id]);
 
-  // Initialize auth
   useEffect(() => {
     const initAuth = async () => {
       setIsLoading(true);

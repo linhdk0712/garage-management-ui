@@ -34,6 +34,7 @@ export const ROUTES = {
         workOrders: '/staff/work-orders',
     },
     manager: {
+        appointments: '/manager/appointments',
         inventory: '/manager/inventory',
         purchaseOrders: '/manager/purchase-orders',
         staffManagement: '/manager/staff-management',

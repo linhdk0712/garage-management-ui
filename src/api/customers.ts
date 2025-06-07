@@ -5,8 +5,8 @@ import { CustomerProfile } from '../types/customer.types';
  * Fetch the current customer's profile
  * @returns Customer profile data
  */
-export const fetchCustomerProfile = async (): Promise<CustomerProfile> => {
-    return apiClient.get<CustomerProfile>('/customers/profile');
+export const fetchCustomerProfile = async (userId: string): Promise<CustomerProfile> => {
+    return apiClient.get<CustomerProfile>(`/customers/profile/${userId}`);
 };
 
 /**

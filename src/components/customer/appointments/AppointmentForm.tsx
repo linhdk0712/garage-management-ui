@@ -7,6 +7,7 @@ import { Vehicle } from '../../../types/vehicle.types';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
 import Select from '../../common/Select';
+import { ROUTES } from '../../../config/routes';
 
 interface AppointmentFormProps {
     onClose: () => void;
@@ -23,7 +24,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
     const loadAppointment = useCallback(async () => {
         try {
             setIsLoading(true);
-            const appointment = await fetchAppointmentDetails(appointmentId!);
+            const appointment = await fetchAppointmentDetails(ROUTES.customer.appointments, appointmentId!);
             reset({
                 vehicleId: appointment.vehicle.vehicleId,
                 serviceType: appointment.serviceType,
@@ -64,9 +65,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
             setError(null);
 
             if (mode === 'add') {
-                await scheduleAppointment(data);
+                await scheduleAppointment(ROUTES.customer.appointments, data);
             } else if (appointmentId) {
-                await updateAppointment(appointmentId, data);
+                await updateAppointment(ROUTES.customer.appointments, data);
             }
 
             onClose();

@@ -47,6 +47,13 @@ const Header: React.FC = () => {
     const [showNotifications, setShowNotifications] = useState(false);
     const location = useLocation();
 
+    const getProfileRoute = () => {
+        if (user?.roles[0] === 'CUSTOMER') return '/customer/profile';
+        if (user?.roles[0] === 'STAFF') return '/staff/profile';
+        if (user?.roles[0] === 'MANAGER') return '/manager/profile';
+        return '/profile';
+    };
+
     const toggleUserMenu = () => {
         setShowUserMenu(!showUserMenu);
         if (showNotifications) setShowNotifications(false);
@@ -240,7 +247,7 @@ const Header: React.FC = () => {
                                 <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                                     <div className="py-1">
                                         <Link
-                                            to="/profile"
+                                            to={getProfileRoute()}
                                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         >
                                             <User className="mr-3 h-4 w-4 text-gray-500" />

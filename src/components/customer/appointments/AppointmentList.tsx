@@ -3,6 +3,7 @@ import { Calendar, Clock, DollarSign, Car } from 'lucide-react';
 import { fetchAppointments, cancelAppointment } from '../../../api/appointments';
 import { Appointment } from '../../../types/appointment.types';
 import Button from '../../common/Button';
+import { ROUTES } from '../../../config/routes';
 
 interface AppointmentListProps {
     onEditAppointment: (appointmentId: number) => void;
@@ -20,8 +21,10 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
     const loadAppointments = async () => {
         try {
             setIsLoading(true);
-            const data = await fetchAppointments();
+            const data = await fetchAppointments(ROUTES.customer.appointments);
+            console.log("data", data);
             setAppointments(data);
+            console.log("appointments.length", appointments.length);
         } catch (err) {
             setError('Failed to load appointments. Please try again later.');
             console.error('Error loading appointments:', err);
@@ -36,7 +39,7 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
         }
 
         try {
-            await cancelAppointment(appointmentId);
+            await cancelAppointment(ROUTES.customer.appointments, appointmentId);
             setAppointments(appointments.filter(apt => apt.appointmentId !== appointmentId));
         } catch (err) {
             console.error('Error canceling appointment:', err);

@@ -7,12 +7,12 @@ import { Appointment, AppointmentFormData, TimeSlot } from '../types/appointment
  * @param params Optional filter parameters
  * @returns Array of appointments
  */
-export const fetchAppointments = async (params?: {
+export const fetchAppointments = async (apiUrl: string,params?: {
     status?: string;
     from?: string;
     to?: string;
 }): Promise<Appointment[]> => {
-    return await apiClient.get<Appointment[]>('/appointments', { params });
+    return await apiClient.get<Appointment[]>(apiUrl, { params });
 };
 
 /**
@@ -20,8 +20,8 @@ export const fetchAppointments = async (params?: {
  * @param appointmentId ID of the appointment
  * @returns Appointment details
  */
-export const fetchAppointmentDetails = async (appointmentId: number): Promise<Appointment> => {
-    return await apiClient.get<Appointment>(`/appointments/${appointmentId}`);
+export const fetchAppointmentDetails = async (apiUrl: string,appointmentId: number): Promise<Appointment> => {
+    return await apiClient.get<Appointment>(apiUrl, { params: { appointmentId } });
 };
 
 /**
@@ -29,8 +29,8 @@ export const fetchAppointmentDetails = async (appointmentId: number): Promise<Ap
  * @param appointmentData Appointment form data
  * @returns Newly created appointment
  */
-export const scheduleAppointment = async (appointmentData: AppointmentFormData): Promise<Appointment> => {
-    return await apiClient.post<Appointment>('/appointments', appointmentData);
+export const scheduleAppointment = async (apiUrl: string,appointmentData: AppointmentFormData): Promise<Appointment> => {
+    return await apiClient.post<Appointment>(apiUrl, appointmentData);
 };
 
 /**
@@ -39,8 +39,8 @@ export const scheduleAppointment = async (appointmentData: AppointmentFormData):
  * @param appointmentData Updated appointment data
  * @returns Updated appointment
  */
-export const updateAppointment = async (appointmentId: number, data: AppointmentFormData): Promise<Appointment> => {
-    return await apiClient.put<Appointment>(`/appointments/${appointmentId}`, data);
+export const updateAppointment = async (apiUrl: string, data: AppointmentFormData): Promise<Appointment> => {
+    return await apiClient.put<Appointment>(apiUrl, data);
 };
 
 /**
@@ -48,8 +48,8 @@ export const updateAppointment = async (appointmentId: number, data: Appointment
  * @param appointmentId ID of the appointment to cancel
  * @returns Success message
  */
-export const cancelAppointment = async (appointmentId: number): Promise<void> => {
-    await apiClient.delete(`/appointments/${appointmentId}`);
+export const cancelAppointment = async (apiUrl: string,appointmentId: number): Promise<void> => {
+    await apiClient.delete(apiUrl, { params: { appointmentId } });
 };
 
 /**
@@ -57,8 +57,8 @@ export const cancelAppointment = async (appointmentId: number): Promise<void> =>
  * @param date Date to check (YYYY-MM-DD)
  * @returns Array of available time slots
  */
-export const fetchAvailableTimeSlots = async (date: string): Promise<TimeSlot[]> => {
-    return await apiClient.get<TimeSlot[]>('/appointments/available', { params: { date } });
+export const fetchAvailableTimeSlots = async (apiUrl: string,date: string): Promise<TimeSlot[]> => {
+    return await apiClient.get<TimeSlot[]>(apiUrl, { params: { date } });
 };
 
 /**
@@ -66,13 +66,13 @@ export const fetchAvailableTimeSlots = async (date: string): Promise<TimeSlot[]>
  * @param params Optional filter parameters
  * @returns Array of appointments assigned to staff
  */
-export const fetchStaffAppointments = async (params?: {
+export const fetchStaffAppointments = async (apiUrl: string,params?: {
     status?: string;
     date?: string;
     from?: string;
     to?: string;
 }): Promise<Appointment[]> => {
-    return await apiClient.get<Appointment[]>('/staff/appointments', { params });
+    return await apiClient.get<Appointment[]>(apiUrl, { params });
 };
 
 /**
@@ -82,11 +82,12 @@ export const fetchStaffAppointments = async (params?: {
  * @returns Updated appointment
  */
 export const updateAppointmentStatus = async (
-    appointmentId: number,
+    apiUrl: string,
     data: {
+        appointmentId: number,
         status: string;
         estimatedCompletion?: string;
     }
 ): Promise<Appointment> => {
-    return await apiClient.put<Appointment>(`/staff/appointments/${appointmentId}/status`, data);
+    return await apiClient.put<Appointment>(apiUrl, data);
 };

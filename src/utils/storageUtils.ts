@@ -14,16 +14,9 @@ type ThemeType = 'light' | 'dark' | 'system';
 export const getStoredAuth = (): AuthData | null => {
     try {
         const authData = localStorage.getItem(AUTH_STORAGE_KEY);
-        console.log('getStoredAuth raw data:', authData);
         if (!authData) return null;
 
         const parsedData = JSON.parse(authData) as AuthData;
-        console.log('getStoredAuth parsed data:', {
-            hasToken: !!parsedData.token,
-            hasUser: !!parsedData.user,
-            user: parsedData.user,
-            token: parsedData.token ? parsedData.token.substring(0, 10) + '...' : null
-        });
         return parsedData;
     } catch (error: unknown) {
         console.error('Error retrieving auth data from localStorage:', error);
@@ -37,18 +30,7 @@ export const getStoredAuth = (): AuthData | null => {
  */
 export const setStoredAuth = (authData: AuthData): void => {
     try {
-        console.log('setStoredAuth input:', {
-            hasToken: !!authData.token,
-            hasUser: !!authData.user,
-            userId: authData.user?.id,
-            token: authData.token ? authData.token.substring(0, 10) + '...' : null
-        });
         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authData));
-        const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-        console.log('setStoredAuth verification:', {
-            stored: !!stored,
-            data: stored ? JSON.parse(stored) : null
-        });
     } catch (error: unknown) {
         console.error('Error storing auth data in localStorage:', error);
     }

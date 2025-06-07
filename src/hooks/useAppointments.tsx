@@ -8,6 +8,7 @@ import {
     fetchAvailableTimeSlots
 } from '../api/appointments';
 import { Appointment, AppointmentFormData, TimeSlot } from '../types/appointment.types';
+import { ROUTES } from '../config/routes';
 
 interface UseAppointmentsOptions {
     initialFetch?: boolean;
@@ -38,7 +39,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
             setIsLoading(true);
             setError(null);
             const queryFilters = customFilters || filters;
-            const data = await fetchAppointments(queryFilters);
+            const data = await fetchAppointments(ROUTES.customer.appointments, queryFilters);
             setAppointments(data);
             return data;
         } catch (err: unknown) {
@@ -54,7 +55,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         try {
             setIsLoading(true);
             setError(null);
-            const data = await fetchAppointmentDetails(appointmentId);
+            const data = await fetchAppointmentDetails(ROUTES.customer.appointments, appointmentId);
             setSelectedAppointment(data);
             return data;
         } catch (err: unknown) {
@@ -70,7 +71,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         try {
             setIsLoading(true);
             setError(null);
-            const newAppointment = await scheduleAppointment(appointmentData);
+            const newAppointment = await scheduleAppointment(ROUTES.customer.appointments, appointmentData);
             setAppointments((prev) => [...prev, newAppointment]);
             return newAppointment;
         } catch (err: unknown) {
@@ -86,7 +87,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         try {
             setIsLoading(true);
             setError(null);
-            const updatedAppointment = await updateAppointment(appointmentId, appointmentData);
+            const updatedAppointment = await updateAppointment(ROUTES.customer.appointments, appointmentData as AppointmentFormData);
             setAppointments((prev) =>
                 prev.map((appointment) =>
                     appointment.appointmentId === appointmentId ? updatedAppointment : appointment
@@ -109,7 +110,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         try {
             setIsLoading(true);
             setError(null);
-            await cancelAppointment(appointmentId);
+            await cancelAppointment(ROUTES.customer.appointments, appointmentId);
             setAppointments((prev) =>
                 prev.filter((appointment) => appointment.appointmentId !== appointmentId)
             );
@@ -130,7 +131,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         try {
             setIsLoading(true);
             setError(null);
-            const slots = await fetchAvailableTimeSlots(date);
+            const slots = await fetchAvailableTimeSlots(ROUTES.customer.appointments, date);
             setAvailableSlots(slots);
             return slots;
         } catch (err: unknown) {

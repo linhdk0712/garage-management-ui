@@ -59,10 +59,10 @@ function useForm<T extends Record<string, any>>({
         // Validate field on blur if validate function exists
         if (validate) {
             const validationErrors = validate(values);
-            if (validationErrors[name as keyof T]) {
+            if (validationErrors[name as keyof typeof validationErrors]) {
                 setErrors((prev) => ({
                     ...prev,
-                    [name]: validationErrors[name as keyof T],
+                    [name]: validationErrors[name as keyof typeof validationErrors],
                 }));
             }
         }
