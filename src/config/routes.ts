@@ -30,14 +30,22 @@ export const ROUTES = {
         repairHistory: '/customer/repair-history',
     },
     staff: {
+        list: '/staff',
+        dashboard: '/staff/dashboard',
         appointments: '/staff/appointments',
+        profile: '/staff/profile',
         workOrders: '/staff/work-orders',
     },
     manager: {
+        list: '/managers',
+        dashboard: '/manager/dashboard',
         appointments: '/manager/appointments',
+        staff: '/manager/staffs',
+        createStaff: '/manager/staff/new',
         inventory: '/manager/inventory',
         purchaseOrders: '/manager/purchase-orders',
         staffManagement: '/manager/staff-management',
         reports: '/manager/reports',
+        profile: '/manager/profile',
     },
 } as const;

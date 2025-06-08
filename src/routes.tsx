@@ -27,6 +27,7 @@ import CustomerAppointmentsPage from './pages/customer/AppointmentsPage';
 // Manager Pages
 import ManagerDashboard from './components/manager/ManagerDashboard';
 import ProfilePage from './pages/ProfilePage';
+import CreateStaffPage from './pages/manager/CreateStaffPage';
 
 // Protected route wrapper component
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -125,6 +126,14 @@ const AppRoutes: React.FC = () => {
                     element={
                         <ProtectedRoute allowedRoles={['MANAGER']}>
                             <ManagerDashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="manager/staff/new"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <CreateStaffPage />
                         </ProtectedRoute>
                     }
                 />

@@ -1,10 +1,11 @@
 import apiClient from './apiClient';
 import { ManagerProfile } from '../types/manager.types';
+import { ROUTES } from '../config/routes';
 
 export const fetchManagerProfile = async (userId: string): Promise<ManagerProfile> => {
-    return apiClient.get(`/managers/profile/${userId}`);
+    return apiClient.get(`${ROUTES.manager.profile}/${userId}`);
 };
 
 export const updateManagerProfile = async (profile: ManagerProfile): Promise<ManagerProfile> => {
-    return apiClient.put('/managers/profile', profile);
+    return apiClient.put(`${ROUTES.manager.profile}`, profile);
 };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, CheckCircle, Edit, Key } from 'lucide-react';
+import { User, Mail, Phone, MapPin, CheckCircle, Edit, Key, Car, Calendar } from 'lucide-react';
 import { fetchCustomerProfile, updateCustomerProfile } from '../../api/customers';
+import { fetchCustomerVehicles } from '../../api/vehicles';
+import useAppointments from '../../hooks/useAppointments';
 import { useAuth } from '../../hooks/useAuth';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -9,6 +11,10 @@ import Select from '../../components/common/Select';
 import Tabs from '../../components/common/Tabs';
 import Spinner from '../../components/common/Spinner';
 import Notification from '../../components/common/Notification';
+import VehicleList from '../../components/customer/vehicles/VehicleList';
+import AppointmentList from '../../components/customer/appointments/AppointmentList';
+import { Vehicle } from '../../types/vehicle.types';
+import { Appointment } from '../../types/appointment.types';
 
 interface CustomerProfile {
     customerId: number;
@@ -31,13 +37,16 @@ const ProfilePage: React.FC = () => {
     const [editedProfile, setEditedProfile] = useState<CustomerProfile | null>(null);
     const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    const [isVehiclesLoading, setIsVehiclesLoading] = useState(true);
     const { user } = useAuth();
+    const { appointments, isLoading: isAppointmentsLoading, error: appointmentsError } = useAppointments({ initialFetch: true });
 
     useEffect(() => {
         const loadProfile = async () => {
             try {
                 setIsLoading(true);
-                const data = await fetchCustomerProfile();
+                const data = await fetchCustomerProfile(user?.username || '');
                 setProfile(data);
                 setEditedProfile(data);
             } catch (error) {
@@ -51,7 +60,24 @@ const ProfilePage: React.FC = () => {
             }
         };
 
+        const loadVehicles = async () => {
+            try {
+                setIsVehiclesLoading(true);
+                const vehiclesData = await fetchCustomerVehicles();
+                setVehicles(vehiclesData);
+            } catch (error) {
+                console.error('Error loading vehicles:', error);
+                setNotification({
+                    type: 'error',
+                    message: 'Failed to load vehicles. Please try again.',
+                });
+            } finally {
+                setIsVehiclesLoading(false);
+            }
+        };
+
         loadProfile();
+        loadVehicles();
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -195,7 +221,7 @@ const ProfilePage: React.FC = () => {
                                 { value: 'PHONE', label: 'Phone' },
                             ]}
                             value={editedProfile?.preferredContactMethod || 'EMAIL'}
-                            onChange={handleInputChange}
+                            onChange={(value) => handleInputChange({ target: { name: 'preferredContactMethod', value } } as React.ChangeEvent<HTMLInputElement>)}
                             fullWidth
                         />
                     </div>
@@ -211,7 +237,7 @@ const ProfilePage: React.FC = () => {
                         <Button
                             type="submit"
                             variant="primary"
-                            icon={CheckCircle}
+                            icon={<CheckCircle className="w-5 h-5" />}
                             isLoading={isSubmitting}
                         >
                             Save Changes
@@ -275,10 +301,94 @@ const ProfilePage: React.FC = () => {
                     </div>
 
                     <div className="flex justify-end pt-4">
-                        <Button variant="primary" icon={Edit} onClick={handleEdit}>
+                        <Button variant="primary" icon={<Edit className="w-5 h-5" />} onClick={handleEdit}>
                             Edit Profile
                         </Button>
                     </div>
+                </div>
+            )}
+        </div>
+    );
+
+    const vehiclesTab = (
+        <div className="space-y-6">
+            <div>
+                <h3 className="text-lg font-medium">My Vehicles</h3>
+                <p className="text-sm text-gray-500 mt-1">Manage your registered vehicles</p>
+            </div>
+
+            {isVehiclesLoading ? (
+                <Spinner size="md" text="Loading vehicles..." />
+            ) : vehicles.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {vehicles.map((vehicle) => (
+                        <div key={vehicle.vehicleId} className="bg-white rounded-lg shadow p-4">
+                            <h4 className="font-medium text-lg">
+                                {vehicle.year} {vehicle.make} {vehicle.model}
+                            </h4>
+                            <p className="text-sm text-gray-500 mt-1">License Plate: {vehicle.licensePlate}</p>
+                            {vehicle.vin && (
+                                <p className="text-sm text-gray-500">VIN: {vehicle.vin}</p>
+                            )}
+                            {vehicle.color && (
+                                <p className="text-sm text-gray-500">Color: {vehicle.color}</p>
+                            )}
+                            <p className="text-sm text-gray-500">
+                                Mileage: {vehicle.mileage.toLocaleString()} miles
+                            </p>
+                            {vehicle.lastServiceDate && (
+                                <p className="text-sm text-gray-500">
+                                    Last Service: {new Date(vehicle.lastServiceDate).toLocaleDateString()}
+                                </p>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <Car className="w-12 h-12 mx-auto text-gray-400" />
+                    <p className="mt-2 text-gray-600">No vehicles registered yet</p>
+                    <Button
+                        variant="primary"
+                        className="mt-4"
+                        onClick={() => window.location.href = '/customer/vehicles/add'}
+                    >
+                        Register a Vehicle
+                    </Button>
+                </div>
+            )}
+        </div>
+    );
+
+    const appointmentsTab = (
+        <div className="space-y-6">
+            <div>
+                <h3 className="text-lg font-medium">My Appointments</h3>
+                <p className="text-sm text-gray-500 mt-1">View and manage your service appointments</p>
+            </div>
+
+            {isAppointmentsLoading ? (
+                <Spinner size="md" text="Loading appointments..." />
+            ) : appointmentsError ? (
+                <Notification
+                    type="error"
+                    title="Error"
+                    message={appointmentsError}
+                    onClose={() => {}}
+                />
+            ) : appointments.length > 0 ? (
+                <AppointmentList onEditAppointment={(id) => window.location.href = `/customer/appointments/${id}`} />
+            ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                    <Calendar className="w-12 h-12 mx-auto text-gray-400" />
+                    <p className="mt-2 text-gray-600">No appointments scheduled yet</p>
+                    <Button
+                        variant="primary"
+                        className="mt-4"
+                        onClick={() => window.location.href = '/customer/appointments'}
+                    >
+                        Schedule an Appointment
+                    </Button>
                 </div>
             )}
         </div>
@@ -334,6 +444,8 @@ const ProfilePage: React.FC = () => {
                 <Tabs
                     tabs={[
                         { id: 'personal', label: 'Personal Information', content: personalInfoTab },
+                        { id: 'vehicles', label: 'Vehicles', content: vehiclesTab },
+                        { id: 'appointments', label: 'Appointments', content: appointmentsTab },
                         { id: 'security', label: 'Security', content: securityTab },
                     ]}
                     defaultTabId="personal"

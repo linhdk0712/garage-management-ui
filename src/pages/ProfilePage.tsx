@@ -118,22 +118,23 @@ const ProfilePage: React.FC = () => {
 
                 switch (user?.roles[0]) {
                     case 'CUSTOMER':
-                        profileData = await fetchCustomerProfile(user?.id.toString());
+                        profileData = await fetchCustomerProfile(user?.username);
                         vehiclesData = await fetchCustomerVehicles();
                         appointmentsData = await fetchAppointments(ROUTES.customer.appointments);
                         break;
                     case 'STAFF':
-                        profileData = await fetchStaffProfile(user?.id.toString());
+                        profileData = await fetchStaffProfile(user?.username);
                         appointmentsData = await fetchAppointments(ROUTES.staff.appointments); // All appointments
                         break;
                     case 'MANAGER':
-                        profileData = await fetchManagerProfile(user?.id.toString());
+                        profileData = await fetchManagerProfile(user?.username);
                         appointmentsData = await fetchAppointments(ROUTES.manager.appointments); // All appointments
-                        staffData = await fetchAllStaff();
+                        staffData = await fetchAllStaff(ROUTES.manager.staff);
                         break;
                     default:
                         throw new Error('Invalid user role');
                 }
+                console.log('Profile data:', profileData);
 
                 setProfile(profileData);
                 setEditedProfile(profileData);
@@ -338,7 +339,7 @@ const ProfilePage: React.FC = () => {
                         <Button
                             type="submit"
                             variant="primary"
-                            icon={<CheckCircle />}
+                            icon={<CheckCircle className="w-5 h-5" />}
                             isLoading={isSubmitting}
                         >
                             Save Changes
@@ -375,7 +376,7 @@ const ProfilePage: React.FC = () => {
                         </div>
                         <Button
                             variant="outline"
-                            icon={<Edit />}
+                            icon={<Edit className="w-5 h-5" />}
                             onClick={handleEdit}
                         >
                             Edit Profile
@@ -432,7 +433,7 @@ const ProfilePage: React.FC = () => {
                         <h3 className="text-lg font-medium">My Vehicles</h3>
                         <Button
                             variant="primary"
-                            icon={<Plus />}
+                            icon={<Plus className="w-5 h-5" />}
                             onClick={() => navigate('/customer/vehicles')}
                         >
                             Add Vehicle
@@ -494,7 +495,7 @@ const ProfilePage: React.FC = () => {
                 {user?.roles[0] === 'CUSTOMER' && (
                     <Button
                         variant="primary"
-                        icon={<Plus />}
+                        icon={<Plus className="w-5 h-5" />}
                         onClick={() => navigate('/customer/appointments/new')}
                     >
                         Schedule Appointment
@@ -565,7 +566,7 @@ const ProfilePage: React.FC = () => {
                 <h3 className="text-lg font-medium">Staff Members</h3>
                 <Button
                     variant="primary"
-                    icon={<Plus />}
+                    icon={<Plus className="w-5 h-5" />}
                     onClick={() => navigate('/manager/staff/new')}
                 >
                     Add Staff Member

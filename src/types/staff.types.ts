@@ -27,4 +27,55 @@ export interface Staff {
     department: string;
     hireDate: string;
     memberSince: string;
+    username: string;
+    preferredContactMethod: 'EMAIL' | 'PHONE' | 'SMS';
+    specialization: string;
+    hourlyRate: number;
+    employmentStatus: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE';
+    managerId?: number;
+    isActive: boolean;
+    lastLoginDate?: string;
+    createdAt: string;
+    updatedAt: string;
+} 
+
+export interface CreateStaffFormData {
+    username: string;
+    email: string;
+    phone: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    preferredContactMethod: 'EMAIL' | 'PHONE' | 'SMS';
+    position: string;
+    specialization: string;
+    hireDate: string;
+    hourlyRate: number;
+}
+
+export interface StaffAccount {
+    staffId: number;
+    username: string;
+    email: string;
+    phone: string;
+    preferredContactMethod: 'EMAIL' | 'PHONE' | 'SMS';
+    isActive: boolean;
+    lastLoginDate?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface StaffEmployment {
+    staffId: number;
+    position: string;
+    specialization: string;
+    department: string;
+    hireDate: string;
+    hourlyRate: number;
+    employmentStatus: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE';
+    managerId?: number;
 } 

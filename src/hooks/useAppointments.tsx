@@ -4,6 +4,7 @@ import {
     fetchAppointmentDetails,
     scheduleAppointment,
     updateAppointment,
+    updateAppointmentStatus,
     cancelAppointment,
     fetchAvailableTimeSlots
 } from '../api/appointments';
@@ -105,6 +106,32 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         }
     }, [selectedAppointment]);
 
+    // Update appointment status
+    const updateStatus = useCallback(async (appointmentId: number, status: string) => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            const updatedAppointment = await updateAppointmentStatus(ROUTES.customer.appointments, {
+                appointmentId,
+                status
+            });
+            setAppointments((prev) =>
+                prev.map((appointment) =>
+                    appointment.appointmentId === appointmentId ? updatedAppointment : appointment
+                )
+            );
+            if (selectedAppointment?.appointmentId === appointmentId) {
+                setSelectedAppointment(updatedAppointment);
+            }
+            return updatedAppointment;
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to update appointment status');
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, [selectedAppointment]);
+
     // Cancel an appointment
     const removeAppointment = useCallback(async (appointmentId: number) => {
         try {
@@ -170,6 +197,7 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
         fetchAppointment,
         createAppointment,
         editAppointment,
+        updateStatus,
         removeAppointment,
         fetchTimeSlots,
         selectAppointment,

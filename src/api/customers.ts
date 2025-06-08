@@ -1,12 +1,13 @@
 import apiClient from './apiClient';
 import { CustomerProfile } from '../types/customer.types';
+import { ROUTES } from '../config/routes';
 
 /**
  * Fetch the current customer's profile
  * @returns Customer profile data
  */
 export const fetchCustomerProfile = async (userId: string): Promise<CustomerProfile> => {
-    return apiClient.get<CustomerProfile>(`/customers/profile/${userId}`);
+    return apiClient.get<CustomerProfile>(`${ROUTES.customer.profile}/${userId}`);
 };
 
 /**
@@ -15,7 +16,7 @@ export const fetchCustomerProfile = async (userId: string): Promise<CustomerProf
  * @returns Success message
  */
 export const updateCustomerProfile = async (profileData: Partial<CustomerProfile>): Promise<{ message: string }> => {
-    return apiClient.put<{ message: string }>('/customers/profile', profileData);
+    return apiClient.put<{ message: string }>(`${ROUTES.customer.profile}`, profileData);
 };
 
 /**
