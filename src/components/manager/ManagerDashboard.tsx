@@ -130,7 +130,7 @@ const ManagerDashboard: React.FC = () => {
                     </div>
                     <Button
                         variant="primary"
-                        icon={BarChart2}
+                        icon={<BarChart2 className="h-4 w-4" />}
                         onClick={() => navigate('/manager/reports')}
                     >
                         View All Reports
@@ -364,7 +364,7 @@ const ManagerDashboard: React.FC = () => {
                                     <div
                                         key={index}
                                         className="p-3 border rounded-lg mb-2 hover:bg-gray-50 cursor-pointer"
-                                        onClick={() => navigate(`/manager/inventory/${item.id}`)}
+                                        onClick={() => navigate(`/manager/inventory/${item.partId}`)}
                                     >
                                         <div className="flex justify-between items-start">
                                             <div>
