@@ -16,7 +16,7 @@ import {
   Filter,
   Download
 } from 'lucide-react';
-import useAppointments from '../../hooks/useAppointments.tsx';
+import useManagerAppointments from '../../hooks/useManagerAppointments';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Spinner from '../../components/common/Spinner';
@@ -35,7 +35,7 @@ const ManagerAppointmentsPage: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const navigate = useNavigate();
   
-  // Custom filter object for the useAppointments hook
+  // Custom filter object for the useManagerAppointments hook
   const getDateRange = () => {
     const today = new Date();
     switch (dateRangeFilter) {
@@ -68,13 +68,13 @@ const ManagerAppointmentsPage: React.FC = () => {
     error, 
     fetchAllAppointments,
     updateStatus
-  } = useAppointments({ 
+  } = useManagerAppointments({ 
     initialFetch: true
   });
 
   // Fetch appointments when filters change
   useEffect(() => {
-    fetchAllAppointments(getDateRange());
+    fetchAllAppointments();
   }, [currentDate, dateRangeFilter, fetchAllAppointments]);
 
   const goToNextPeriod = () => {
@@ -98,7 +98,7 @@ const ManagerAppointmentsPage: React.FC = () => {
       });
       
       // Refresh appointments
-      fetchAllAppointments(getDateRange());
+      fetchAllAppointments();
     } catch (err: unknown) {
       setNotification({
         type: 'error',

@@ -110,6 +110,9 @@ const Header: React.FC = () => {
             <FeatureGate feature="enableAppointments">
                 <NavLink to="/manager/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
             </FeatureGate>
+            <FeatureGate feature="enableVehicleManagement">
+                <NavLink to="/manager/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>Vehicles</NavLink>
+            </FeatureGate>
             <FeatureGate feature="enableWorkOrders">
                 <NavLink to="/manager/work-orders" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Work Orders</NavLink>
             </FeatureGate>

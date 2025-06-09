@@ -23,12 +23,12 @@ export const defaultFeatureFlags: FeatureFlags = {
     enablePayments: false, // Example of a disabled feature
     enableNotifications: false,
     enableMaintenanceGuide: false,
-    enableWorkOrders: true,
+    enableWorkOrders: false,
     enableCustomerManagement: true,
-    enableInventory: true,
-    enablePurchaseOrders: true,
+    enableInventory: false,
+    enablePurchaseOrders: false,
     enableStaffManagement: true,
-    enableReports: true,
+    enableReports: false,
 };
 
 // Feature flag context type

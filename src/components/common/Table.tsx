@@ -44,11 +44,14 @@ function Table<T extends Record<string, unknown>>({
     const [sortField, setSortField] = useState<keyof T | null>(null);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredData, setFilteredData] = useState<T[]>(data);
+    
+    // Ensure data is always an array to prevent undefined errors
+    const safeData = Array.isArray(data) ? data : [];
+    const [filteredData, setFilteredData] = useState<T[]>(safeData);
 
     // Update filtered data when data, search term, or sort changes
     useEffect(() => {
-        let result = [...data];
+        let result = [...safeData];
 
         // Apply search if searchable
         if (searchable && searchTerm) {
@@ -83,7 +86,7 @@ function Table<T extends Record<string, unknown>>({
         setFilteredData(result);
         // Reset to first page when filtering data
         setCurrentPage(1);
-    }, [data, searchTerm, sortField, sortDirection, searchable]);
+    }, [safeData, searchTerm, sortField, sortDirection, searchable]);
 
     // Handle sorting
     const handleSort = (accessor: keyof T) => {

@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import { CustomerProfile } from '../types/customer.types';
+import { CustomerProfile, CustomerStatistics } from '../types/customer.types';
 import { ROUTES } from '../config/routes';
 
 /**
@@ -58,7 +58,7 @@ export const fetchAllCustomers = async (params?: {
     page?: number;
     limit?: number;
 }): Promise<{ customers: CustomerProfile[]; total: number; page: number; limit: number }> => {
-    return apiClient.get('/manager/customers', { params });
+    return apiClient.get<{ customers: CustomerProfile[]; total: number; page: number; limit: number }>('/manager/customers', { params });
 };
 
 /**
@@ -66,6 +66,6 @@ export const fetchAllCustomers = async (params?: {
  * @param period Time period for statistics
  * @returns Customer statistics data
  */
-export const fetchCustomerStatistics = async (period: 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR') => {
-    return apiClient.get('/manager/reports/customers', { params: { period } });
+export const fetchCustomerStatistics = async (period: 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR'): Promise<CustomerStatistics> => {
+    return apiClient.get<CustomerStatistics>('/manager/reports/customers', { params: { period } });
 };

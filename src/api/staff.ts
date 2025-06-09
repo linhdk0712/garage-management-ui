@@ -12,5 +12,5 @@ export const updateStaffProfile = async (profile: StaffProfile): Promise<StaffPr
 };
 
 export const fetchAllStaff = async (apiUrl: string): Promise<Staff[]> => {
-    return apiClient.get(`${apiUrl}`);
+    return apiClient.get(apiUrl);
 }; 

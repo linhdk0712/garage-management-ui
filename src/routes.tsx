@@ -28,11 +28,15 @@ import CustomerAppointmentsPage from './pages/customer/AppointmentsPage';
 import ManagerDashboard from './components/manager/ManagerDashboard';
 import ProfilePage from './pages/ProfilePage';
 import CreateStaffPage from './pages/manager/CreateStaffPage';
+import CustomersPage from './pages/manager/CustomersPage';
+import StaffManagementPage from './pages/manager/StaffManagementPage';
+import VehiclesPage from './pages/manager/VehiclesPage';
 
 // Protected route wrapper component
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AddVehiclePage from './pages/customer/AddVehiclePage';
 import EditVehiclePage from './pages/customer/EditVehiclePage';
+import AppointmentsPage from './pages/manager/AppointmentsPage';
 const AppRoutes: React.FC = () => {
     return (
         <Routes>
@@ -134,6 +138,38 @@ const AppRoutes: React.FC = () => {
                     element={
                         <ProtectedRoute allowedRoles={['MANAGER']}>
                             <CreateStaffPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="manager/customers"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <CustomersPage />
+                        </ProtectedRoute>
+                    }
+                />
+                 <Route
+                    path="manager/appointments"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <AppointmentsPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="manager/staff"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <StaffManagementPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="manager/vehicles"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <VehiclesPage />
                         </ProtectedRoute>
                     }
                 />

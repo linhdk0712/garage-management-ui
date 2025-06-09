@@ -12,6 +12,16 @@ export interface Vehicle {
     registrationDate: string;
 }
 
+export interface VehicleWithCustomer extends Vehicle {
+    customer: {
+        customerId: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone: string;
+    };
+}
+
 export interface VehicleFormData {
     vehicleId?: number;
     make: string;

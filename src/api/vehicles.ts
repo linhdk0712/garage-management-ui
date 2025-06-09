@@ -112,3 +112,24 @@ export const fetchAllVehicles = async (params?: {
     console.log("fetchAllVehicles",response);
     return response;
 };
+
+/**
+ * For manager: Fetch all vehicles with customer information
+ * @param params Optional filter parameters
+ * @returns Array of vehicles with customer details
+ */
+export const fetchAllVehiclesWithCustomers = async (params?: {
+    search?: string;
+    make?: string;
+    model?: string;
+    year?: number;
+    customerId?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+    page?: number;
+    limit?: number;
+}) => {
+    const response = await apiClient.get(ROUTES.manager.vehicles, { params });
+    console.log("fetchAllVehiclesWithCustomers", response);
+    return response;
+};
