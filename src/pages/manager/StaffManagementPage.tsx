@@ -20,11 +20,13 @@ import Badge from '../../components/common/Badge';
 import Notification from '../../components/common/Notification';
 import Modal from '../../components/common/Modal';
 import { Staff } from '../../types/staff.types';
+import { PaginatedResponse } from '../../types/response.types';
 import { ROUTES } from '../../config/routes';
 import { fetchAllStaff } from '../../api/staff';
 
 const StaffManagementPage: React.FC = () => {
     const [staff, setStaff] = useState<Staff[]>([]);
+    const [pagination, setPagination] = useState<PaginatedResponse<Staff> | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -40,8 +42,10 @@ const StaffManagementPage: React.FC = () => {
     const fetchStaff = async () => {
         try {
             setLoading(true);
-            const staffData = await fetchAllStaff(ROUTES.manager.staff);
-            setStaff(staffData);
+            const response = await fetchAllStaff(ROUTES.manager.staff);
+            // The response is already the PaginatedResponse<Staff> from apiClient
+            setPagination(response);
+            setStaff(response.content || []);
             setError(null);
         } catch (err) {
             setError('Failed to fetch staff data');

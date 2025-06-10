@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 import { CustomerProfile, CustomerStatistics } from '../types/customer.types';
-import { PaginatedResponseData } from '../types/response.types';
+import { PaginatedResponseData, PaginatedResponse } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 
 /**
@@ -58,8 +58,8 @@ export const fetchAllCustomers = async (params?: {
     sortDirection?: 'asc' | 'desc';
     page?: number;
     size?: number;
-}): Promise<PaginatedResponseData<CustomerProfile>> => {
-    return apiClient.get<PaginatedResponseData<CustomerProfile>>('/manager/customers', { params });
+}): Promise<PaginatedResponse<CustomerProfile>> => {
+    return apiClient.get<PaginatedResponse<CustomerProfile>>('/manager/customers', { params });
 };
 
 /**

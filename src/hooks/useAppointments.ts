@@ -17,8 +17,12 @@ const useAppointments = ({ initialFetch = false }: UseAppointmentsProps = {}) =>
     const fetchAllAppointments = async (customFilters?: { status?: string; from?: string; to?: string }) => {
         try {
             setIsLoading(true);
-            const data = await fetchAppointments(ROUTES.customer.appointments, customFilters);
-            setAppointments(data);
+            const response = await fetchAppointments(ROUTES.customer.appointments, customFilters);
+            if (response && response.content) {
+                setAppointments(response.content);
+            } else {
+                setAppointments([]);
+            }
         } catch (err) {
             setError('Failed to fetch appointments');
             console.error('Error fetching appointments:', err);

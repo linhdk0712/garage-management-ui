@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
@@ -14,7 +14,7 @@ import {
   Clipboard,
   ArrowRight
 } from 'lucide-react';
-import useAppointments from '../../hooks/useAppointments';
+import useStaffAppointments from '../../hooks/useStaffAppointments';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Spinner from '../../components/common/Spinner';
@@ -32,19 +32,19 @@ const AppointmentsPage: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const navigate = useNavigate();
   
-  // Custom filter object for the useAppointments hook
-  const dateRange = {
+  // Memoize the date range to prevent unnecessary re-renders
+  const dateRange = useMemo(() => ({
     from: format(startOfDay(currentDate), 'yyyy-MM-dd'),
     to: format(endOfDay(addDays(currentDate, 6)), 'yyyy-MM-dd'),
-  };
+  }), [currentDate]);
   
   const { 
     appointments, 
     isLoading, 
     error, 
     fetchAllAppointments, 
-    updateAppointmentStatus 
-  } = useAppointments({ 
+    updateStatus
+  } = useStaffAppointments({ 
     initialFetch: true,
     filters: dateRange
   });
@@ -52,7 +52,7 @@ const AppointmentsPage: React.FC = () => {
   // Fetch appointments when date range changes
   useEffect(() => {
     fetchAllAppointments(dateRange);
-  }, [currentDate, fetchAllAppointments]);
+  }, [dateRange]);
 
   const goToNextPeriod = () => {
     setCurrentDate(addDays(currentDate, 7));
@@ -68,7 +68,7 @@ const AppointmentsPage: React.FC = () => {
 
   const handleStatusChange = async (appointmentId: number, status: string) => {
     try {
-      await updateAppointmentStatus(appointmentId, { status });
+      await updateStatus(appointmentId, status);
       setNotification({
         type: 'success',
         message: `Appointment status updated to ${status}`
@@ -95,11 +95,9 @@ const AppointmentsPage: React.FC = () => {
   // Filter appointments based on search term and status
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = 
-      appointment.customerInfo.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.customerInfo.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.vehicleInfo.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.vehicleInfo.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.vehicleInfo.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (appointment.vehicle?.make?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (appointment.vehicle?.model?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (appointment.vehicle?.licensePlate?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       appointment.serviceType.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = 
@@ -165,9 +163,11 @@ const AppointmentsPage: React.FC = () => {
             <div>
               <div className="text-sm font-medium">Customer</div>
               <div className="text-sm text-gray-600">
-                {appointment.customerInfo.firstName} {appointment.customerInfo.lastName}
+                <span className="text-gray-400">Customer information not available</span>
               </div>
-              <div className="text-sm text-gray-600">{appointment.customerInfo.phone}</div>
+              <div className="text-sm text-gray-600">
+                Customer ID: {appointment.vehicle?.customerId || 'N/A'}
+              </div>
             </div>
           </div>
           
@@ -176,9 +176,17 @@ const AppointmentsPage: React.FC = () => {
             <div>
               <div className="text-sm font-medium">Vehicle</div>
               <div className="text-sm text-gray-600">
-                {appointment.vehicleInfo.year} {appointment.vehicleInfo.make} {appointment.vehicleInfo.model}
+                {appointment.vehicle ? (
+                  <>
+                    {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model}
+                  </>
+                ) : (
+                  <span className="text-gray-400">No vehicle information</span>
+                )}
               </div>
-              <div className="text-sm text-gray-600">{appointment.vehicleInfo.licensePlate}</div>
+              <div className="text-sm text-gray-600">
+                {appointment.vehicle?.licensePlate || 'No license plate'}
+              </div>
             </div>
           </div>
         </div>
@@ -189,7 +197,7 @@ const AppointmentsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                icon={CheckCircle}
+                icon={<CheckCircle className="w-4 h-4" />}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleStatusChange(appointment.appointmentId, 'CONFIRMED');
@@ -203,7 +211,7 @@ const AppointmentsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                icon={CheckCircle}
+                icon={<CheckCircle className="w-4 h-4" />}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleStatusChange(appointment.appointmentId, 'IN_PROGRESS');
@@ -217,7 +225,7 @@ const AppointmentsPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                icon={CheckCircle}
+                icon={<CheckCircle className="w-4 h-4" />}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleStatusChange(appointment.appointmentId, 'COMPLETED');
@@ -228,31 +236,17 @@ const AppointmentsPage: React.FC = () => {
             )}
           </div>
           
-          {(appointment.status === 'CONFIRMED' || appointment.status === 'IN_PROGRESS') && !appointment.workOrder && (
+          {(appointment.status === 'CONFIRMED' || appointment.status === 'IN_PROGRESS') && (
             <Button
               variant="primary"
               size="sm"
-              icon={Clipboard}
+              icon={<Clipboard className="w-4 h-4" />}
               onClick={(e) => {
                 e.stopPropagation();
                 handleCreateWorkOrder(appointment.appointmentId);
               }}
             >
               Create Work Order
-            </Button>
-          )}
-          
-          {appointment.workOrder && (
-            <Button
-              variant="primary"
-              size="sm"
-              icon={ArrowRight}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/staff/work-orders/${appointment.workOrder.workOrderId}`);
-              }}
-            >
-              View Work Order
             </Button>
           )}
         </div>
@@ -281,19 +275,20 @@ const AppointmentsPage: React.FC = () => {
     );
   }
 
-  const weekStart = startOfWeek(currentDate);
-  const dateRangeText = `${format(weekStart, 'MMM d')} - ${format(addDays(weekStart, 6), 'MMM d, yyyy')}`;
+  const getDateRangeText = () => {
+    const weekStart = startOfWeek(currentDate);
+    return `${format(weekStart, 'MMM d')} - ${format(addDays(weekStart, 6), 'MMM d, yyyy')}`;
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">Appointments</h1>
-        <div className="flex mt-4 sm:mt-0">
+        <h1 className="text-2xl font-bold">Staff Appointments</h1>
+        <div className="flex mt-4 sm:mt-0 space-x-2">
           <Button
             variant={viewMode === 'calendar' ? 'primary' : 'outline'}
             size="sm"
-            icon={Calendar}
-            className="mr-2"
+            icon={<Calendar className="w-4 h-4" />}
             onClick={() => setViewMode('calendar')}
           >
             Calendar
@@ -301,7 +296,7 @@ const AppointmentsPage: React.FC = () => {
           <Button
             variant={viewMode === 'list' ? 'primary' : 'outline'}
             size="sm"
-            icon={List}
+            icon={<List className="w-4 h-4" />}
             onClick={() => setViewMode('list')}
           >
             List
@@ -310,17 +305,13 @@ const AppointmentsPage: React.FC = () => {
       </div>
 
       {notification && (
-        <div className={`bg-${notification.type === 'success' ? 'green' : 'red'}-50 border-l-4 border-${notification.type === 'success' ? 'green' : 'red'}-400 p-4`}>
+        <div className="bg-green-50 border-l-4 border-green-400 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              {notification.type === 'success' ? (
-                <CheckCircle className="h-5 w-5 text-green-400" />
-              ) : (
-                <AlertCircle className="h-5 w-5 text-red-400" />
-              )}
+              <CheckCircle className="h-5 w-5 text-green-400" />
             </div>
             <div className="ml-3">
-              <p className={`text-sm text-${notification.type === 'success' ? 'green' : 'red'}-700`}>{notification.message}</p>
+              <p className="text-sm text-green-700">{notification.message}</p>
             </div>
           </div>
         </div>
@@ -328,19 +319,25 @@ const AppointmentsPage: React.FC = () => {
 
       <Card>
         <div className="p-4">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
             <div className="flex items-center space-x-4">
               <Button
-                              variant="outline"
-                              size="sm"
-                              icon={ChevronLeft}
-                              onClick={goToPrevPeriod} children={undefined}              />
-              <div className="text-lg font-medium">{dateRangeText}</div>
+                variant="outline"
+                size="sm"
+                icon={<ChevronLeft className="w-4 h-4" />}
+                onClick={goToPrevPeriod}
+              >
+                Previous
+              </Button>
+              <div className="text-lg font-medium">{getDateRangeText()}</div>
               <Button
-                              variant="outline"
-                              size="sm"
-                              icon={ChevronRight}
-                              onClick={goToNextPeriod} children={undefined}              />
+                variant="outline"
+                size="sm"
+                icon={<ChevronRight className="w-4 h-4" />}
+                onClick={goToNextPeriod}
+              >
+                Next
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -350,39 +347,35 @@ const AppointmentsPage: React.FC = () => {
               </Button>
             </div>
             
-            <div className="flex mt-4 md:mt-0">
-              <div className="relative mr-4">
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search appointments..."
                   className="pl-10 pr-4 py-2 w-64 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               
-              <div className="w-40">
-                <Select
-                  id="statusFilter"
-                  options={[
-                    { value: 'all', label: 'All Statuses' },
-                    { value: 'PENDING', label: 'Pending' },
-                    { value: 'CONFIRMED', label: 'Confirmed' },
-                    { value: 'IN_PROGRESS', label: 'In Progress' },
-                    { value: 'COMPLETED', label: 'Completed' },
-                    { value: 'CANCELLED', label: 'Cancelled' },
-                  ]}
-                  value={statusFilter}
-                  onChange={(value) => setStatusFilter(value)}
-                />
-              </div>
+              <Select
+                id="statusFilter"
+                options={[
+                  { value: 'all', label: 'All Statuses' },
+                  { value: 'PENDING', label: 'Pending' },
+                  { value: 'CONFIRMED', label: 'Confirmed' },
+                  { value: 'IN_PROGRESS', label: 'In Progress' },
+                  { value: 'COMPLETED', label: 'Completed' },
+                  { value: 'CANCELLED', label: 'Cancelled' },
+                ]}
+                value={statusFilter}
+                onChange={(value) => setStatusFilter(value)}
+              />
             </div>
           </div>
 
-          {viewMode === 'calendar' ? (
-            <AppointmentCalendar />
-          ) : (
+          {viewMode === 'list' && (
             <div className="space-y-4">
               {filteredAppointments.length > 0 ? (
                 filteredAppointments.map(appointment => renderAppointmentCard(appointment))
@@ -393,6 +386,10 @@ const AppointmentsPage: React.FC = () => {
                 </div>
               )}
             </div>
+          )}
+
+          {viewMode === 'calendar' && (
+            <AppointmentCalendar />
           )}
         </div>
       </Card>

@@ -4,11 +4,11 @@ import { fetchCustomerProfile, updateCustomerProfile } from '../../api/customers
 import { fetchCustomerVehicles } from '../../api/vehicles';
 import useAppointments from '../../hooks/useAppointments';
 import { useAuth } from '../../hooks/useAuth';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
-import Select from '../../components/common/Select';
-import Tabs from '../../components/common/Tabs';
+import { Card, CardHeader, CardContent, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import Spinner from '../../components/common/Spinner';
 import Notification from '../../components/common/Notification';
 import VehicleList from '../../components/customer/vehicles/VehicleList';
@@ -64,7 +64,7 @@ const ProfilePage: React.FC = () => {
             try {
                 setIsVehiclesLoading(true);
                 const vehiclesData = await fetchCustomerVehicles();
-                setVehicles(vehiclesData);
+                setVehicles(vehiclesData.data?.content || []);
             } catch (error) {
                 console.error('Error loading vehicles:', error);
                 setNotification({
@@ -211,19 +211,20 @@ const ProfilePage: React.FC = () => {
                         />
                     </div>
                     <div>
+                        <label className="text-sm font-medium">Preferred Contact Method</label>
                         <Select
-                            id="preferredContactMethod"
-                            name="preferredContactMethod"
-                            label="Preferred Contact Method"
-                            options={[
-                                { value: 'EMAIL', label: 'Email' },
-                                { value: 'SMS', label: 'SMS' },
-                                { value: 'PHONE', label: 'Phone' },
-                            ]}
                             value={editedProfile?.preferredContactMethod || 'EMAIL'}
-                            onChange={(value) => handleInputChange({ target: { name: 'preferredContactMethod', value } } as React.ChangeEvent<HTMLInputElement>)}
-                            fullWidth
-                        />
+                            onValueChange={(value: string) => handleInputChange({ target: { name: 'preferredContactMethod', value } } as React.ChangeEvent<HTMLInputElement>)}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select contact method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="EMAIL">Email</SelectItem>
+                                <SelectItem value="SMS">SMS</SelectItem>
+                                <SelectItem value="PHONE">Phone</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="flex justify-end space-x-3 pt-4">
                         <Button
@@ -441,15 +442,18 @@ const ProfilePage: React.FC = () => {
             )}
 
             <Card>
-                <Tabs
-                    tabs={[
-                        { id: 'personal', label: 'Personal Information', content: personalInfoTab },
-                        { id: 'vehicles', label: 'Vehicles', content: vehiclesTab },
-                        { id: 'appointments', label: 'Appointments', content: appointmentsTab },
-                        { id: 'security', label: 'Security', content: securityTab },
-                    ]}
-                    defaultTabId="personal"
-                />
+                <Tabs defaultValue="personal">
+                    <TabsList>
+                        <TabsTrigger value="personal">Personal Information</TabsTrigger>
+                        <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+                        <TabsTrigger value="appointments">Appointments</TabsTrigger>
+                        <TabsTrigger value="security">Security</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="personal">{personalInfoTab}</TabsContent>
+                    <TabsContent value="vehicles">{vehiclesTab}</TabsContent>
+                    <TabsContent value="appointments">{appointmentsTab}</TabsContent>
+                    <TabsContent value="security">{securityTab}</TabsContent>
+                </Tabs>
             </Card>
         </div>
     );

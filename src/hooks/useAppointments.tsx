@@ -40,11 +40,19 @@ const useAppointments = (options: UseAppointmentsOptions = {}) => {
             setIsLoading(true);
             setError(null);
             const queryFilters = customFilters || filters;
-            const data = await fetchAppointments(ROUTES.customer.appointments, queryFilters);
-            setAppointments(data);
-            return data;
+            const response = await fetchAppointments(ROUTES.customer.appointments, queryFilters);
+            
+            // Extract the appointments array from the paginated response
+            if (response && response.content) {
+                setAppointments(response.content);
+                return response.content;
+            } else {
+                setAppointments([]);
+                return [];
+            }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Failed to fetch appointments');
+            setAppointments([]);
             return [];
         } finally {
             setIsLoading(false);

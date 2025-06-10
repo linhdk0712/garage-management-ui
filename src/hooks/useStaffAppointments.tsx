@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
-    fetchAppointments,
+    fetchStaffAppointments,
     fetchAppointmentDetails,
     updateAppointmentStatus,
 } from '../api/appointments';
 import { Appointment } from '../types/appointment.types';
 import { ROUTES } from '../config/routes';
 
-interface UseManagerAppointmentsOptions {
+interface UseStaffAppointmentsOptions {
     initialFetch?: boolean;
     filters?: {
         status?: string;
@@ -17,12 +17,12 @@ interface UseManagerAppointmentsOptions {
 }
 
 /**
- * Custom hook for managing appointments in the manager interface
- * Uses the manager-specific API endpoint /api/v1/manager/appointments
+ * Custom hook for managing appointments in the staff interface
+ * Uses the staff-specific API endpoint /api/v1/staff/appointments
  * @param options Hook configuration options
  * @returns Appointments state and methods
  */
-const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => {
+const useStaffAppointments = (options: UseStaffAppointmentsOptions = {}) => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,13 +34,13 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
     // Memoize filters to prevent unnecessary re-renders
     const filters = useMemo(() => initialFilters, [initialFilters]);
 
-    // Fetch all appointments for manager
+    // Fetch all appointments for staff
     const fetchAllAppointments = useCallback(async (customFilters?: typeof filters) => {
         try {
             setIsLoading(true);
             setError(null);
             const queryFilters = customFilters || filters;
-            const response = await fetchAppointments(ROUTES.manager.appointments, queryFilters);
+            const response = await fetchStaffAppointments(ROUTES.staff.appointments, queryFilters);
             
             // Extract the appointments array from the paginated response
             if (response && response.content) {
@@ -64,7 +64,7 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
         try {
             setIsLoading(true);
             setError(null);
-            const data = await fetchAppointmentDetails(ROUTES.manager.appointments, appointmentId);
+            const data = await fetchAppointmentDetails(ROUTES.staff.appointments, appointmentId);
             setSelectedAppointment(data);
             return data;
         } catch (err: unknown) {
@@ -80,7 +80,7 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
         try {
             setIsLoading(true);
             setError(null);
-            const updatedAppointment = await updateAppointmentStatus(ROUTES.manager.appointments, {
+            const updatedAppointment = await updateAppointmentStatus(ROUTES.staff.appointments, {
                 appointmentId,
                 status
             });
@@ -132,4 +132,4 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
     };
 };
 
-export default useManagerAppointments; 
+export default useStaffAppointments; 

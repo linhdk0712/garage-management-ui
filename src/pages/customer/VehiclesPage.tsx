@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { fetchCustomerVehicles, deleteVehicle } from '../../api/vehicles';
 import { Vehicle } from '../../types/vehicle.types';
-import Button from '../../components/common/Button';
+import { Button } from '../../components/ui/button';
 import { toast } from 'react-hot-toast';
 
 const VehiclesPage: React.FC = () => {
@@ -15,7 +15,7 @@ const VehiclesPage: React.FC = () => {
         try {
             setIsLoading(true);
             const data = await fetchCustomerVehicles();
-            setVehicles(data);
+            setVehicles(data.data?.content || []);
         } catch (error) {
             console.error('Error loading vehicles:', error);
             toast.error('Failed to load vehicles');
@@ -113,12 +113,14 @@ const VehiclesPage: React.FC = () => {
                                                 navigate(`/customer/vehicles/edit/${vehicle.vehicleId}`);
                                             }}
                                             className="text-blue-600 hover:text-blue-900 mr-4"
+                                            aria-label={`Edit ${vehicle.make} ${vehicle.model}`}
                                         >
                                             <Pencil className="w-4 h-4" />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(vehicle.vehicleId)}
                                             className="text-red-600 hover:text-red-900"
+                                            aria-label={`Delete ${vehicle.make} ${vehicle.model}`}
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>

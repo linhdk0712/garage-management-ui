@@ -7,6 +7,7 @@ import StaffDashboard from '../components/staff/StaffDashboard';
 import Spinner from '../components/common/Spinner';
 import { USER_ROLES } from '../config/constants';
 import { ROUTES } from '../config/routes';
+
 const DashboardPage: React.FC = () => {
     const { user, isLoading } = useAuth();
 

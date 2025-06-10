@@ -8,16 +8,15 @@ import {
 } from 'lucide-react';
 import useAppointments from '../../hooks/useAppointments';
 import useVehicles from '../../hooks/useVehicles';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
-import Tabs from '../../components/common/Tabs';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import Spinner from '../../components/common/Spinner';
-import Notification from '../../components/common/Notification';
 import AppointmentForm from '../../components/customer/appointments/AppointmentForm';
 import { Appointment } from '../../types/appointment.types';
 import AppointmentList from '../../components/customer/appointments/AppointmentList';
-import Modal from '../../components/common/Modal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { cancelAppointment } from '../../api/appointments';
 import { ROUTES } from '../../config/routes';
 
@@ -63,18 +62,18 @@ const AppointmentsPage: React.FC = () => {
     navigate(`/customer/appointments/${appointmentId}`);
   };
 
-  const getStatusColor = (status: string): 'primary' | 'success' | 'warning' | 'danger' | 'secondary' => {
+  const getStatusColor = (status: string): 'default' | 'success' | 'warning' | 'destructive' | 'secondary' => {
     switch (status) {
       case 'PENDING':
         return 'warning';
       case 'CONFIRMED':
-        return 'primary';
+        return 'default';
       case 'IN_PROGRESS':
-        return 'primary';
+        return 'default';
       case 'COMPLETED':
         return 'success';
       case 'CANCELLED':
-        return 'danger';
+        return 'destructive';
       default:
         return 'secondary';
     }
@@ -132,17 +131,22 @@ const AppointmentsPage: React.FC = () => {
                 <div className="flex items-center mt-1 text-gray-700">
                   <Car className="w-4 h-4 mr-1" />
                   <span>
-                    {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model} ({appointment.vehicle.licensePlate})
+                    {appointment.vehicle ? (
+                      <>
+                        {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model} ({appointment.vehicle.licensePlate})
+                      </>
+                    ) : (
+                      <span className="text-gray-400">No vehicle information</span>
+                    )}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col items-end">
                 <Badge
-                  label={appointment.status}
                   variant={getStatusColor(appointment.status)}
-                  size="md"
-                  rounded
-                />
+                >
+                  {appointment.status}
+                </Badge>
                 {appointment.status === 'PENDING' && (
                   <button
                     className="mt-2 text-sm text-red-700 hover:text-red-800 font-medium"
@@ -169,12 +173,16 @@ const AppointmentsPage: React.FC = () => {
   if (error) {
     return (
       <div className="p-4">
-        <Notification
-          type="error"
-          title="Error"
-          message={error}
-          onClose={() => {}}
-        />
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>{error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -212,67 +220,89 @@ const AppointmentsPage: React.FC = () => {
       </div>
 
       {notification && (
-        <Notification
-          type={notification.type}
-          title={notification.type === 'success' ? 'Success' : 'Error'}
-          message={notification.message}
-          onClose={() => setNotification(null)}
-        />
+        <div className={`p-4 rounded-md ${notification.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className={`text-sm font-medium ${notification.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
+                {notification.type === 'success' ? 'Success' : 'Error'}
+              </h3>
+              <div className="mt-2 text-sm text-gray-700">
+                <p>{notification.message}</p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {vehicles.length === 0 ? (
         <Card>{noVehiclesMessage}</Card>
       ) : (
         <Card>
-          <Tabs
-            tabs={[
-              {
-                id: 'upcoming',
-                label: `Upcoming (${upcomingAppointments.length})`,
-                content: renderAppointmentList(upcomingAppointments),
-              },
-              {
-                id: 'inProgress',
-                label: `In Progress (${inProgressAppointments.length})`,
-                content: renderAppointmentList(inProgressAppointments),
-              },
-              {
-                id: 'past',
-                label: `Past (${pastAppointments.length})`,
-                content: renderAppointmentList(pastAppointments),
-              },
-            ]}
-            defaultTabId="upcoming"
-          />
+          <Tabs defaultValue="upcoming">
+            <TabsList>
+              <TabsTrigger value="upcoming">Upcoming ({upcomingAppointments.length})</TabsTrigger>
+              <TabsTrigger value="inProgress">In Progress ({inProgressAppointments.length})</TabsTrigger>
+              <TabsTrigger value="past">Past ({pastAppointments.length})</TabsTrigger>
+            </TabsList>
+            <TabsContent value="upcoming">
+              {renderAppointmentList(upcomingAppointments)}
+            </TabsContent>
+            <TabsContent value="inProgress">
+              {renderAppointmentList(inProgressAppointments)}
+            </TabsContent>
+            <TabsContent value="past">
+              {renderAppointmentList(pastAppointments)}
+            </TabsContent>
+          </Tabs>
         </Card>
       )}
 
       <AppointmentList onEditAppointment={handleEditAppointment} />
 
       {/* Add Appointment Modal */}
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={handleCloseModal}
-        title="Schedule New Appointment"
+      <Dialog
+        open={isAddModalOpen}
+        onOpenChange={handleCloseModal}
       >
-        <AppointmentForm
-          onClose={handleCloseModal}
-          mode="add"
-        />
-      </Modal>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Schedule New Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <DialogContent className="col-span-4">
+                <AppointmentForm
+                  onClose={handleCloseModal}
+                  mode="add"
+                />
+              </DialogContent>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Appointment Modal */}
-      <Modal
-        isOpen={!!editingAppointment}
-        onClose={handleCloseModal}
-        title="Edit Appointment"
+      <Dialog
+        open={!!editingAppointment}
+        onOpenChange={handleCloseModal}
       >
-        <AppointmentForm
-          onClose={handleCloseModal}
-          mode="edit"
-          appointmentId={editingAppointment!}
-        />
-      </Modal>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <DialogContent className="col-span-4">
+                <AppointmentForm
+                  onClose={handleCloseModal}
+                  mode="edit"
+                  appointmentId={editingAppointment!}
+                />
+              </DialogContent>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

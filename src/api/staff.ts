@@ -1,6 +1,6 @@
 import { ROUTES } from '../config/routes';
 import { Staff, StaffProfile, CreateStaffFormData } from '../types/staff.types';
-import { PaginatedResponseData } from '../types/response.types';
+import { PaginatedResponse } from '../types/response.types';
 import apiClient from './apiClient';
 
 
@@ -17,8 +17,8 @@ export const fetchAllStaff = async (apiUrl: string, params?: {
     size?: number;
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
-}): Promise<PaginatedResponseData<Staff>> => {
-    return apiClient.get<PaginatedResponseData<Staff>>(apiUrl, { params });
+}): Promise<PaginatedResponse<Staff>> => {
+    return apiClient.get<PaginatedResponse<Staff>>(apiUrl, { params });
 };
 
 /**

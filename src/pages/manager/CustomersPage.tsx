@@ -36,7 +36,7 @@ const CustomersPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
-    const [sortBy, setSortBy] = useState<string>('memberSince');
+    const [sortBy, setSortBy] = useState<string>('');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
@@ -56,14 +56,20 @@ const CustomersPage: React.FC = () => {
             });
             
             console.log('fetchAllCustomers response:', response);
+            console.log('Response type:', typeof response);
+            console.log('Response keys:', response ? Object.keys(response) : 'null');
             
-            if (!response || !response.data) {
+            if (!response) {
                 setError('Invalid response from server - no data received');
                 setCustomers([]);
                 return;
             }
             
-            const paginatedData = response.data as PaginatedResponse<CustomerProfile>;
+            // The apiClient already extracts the data field, so response is directly the PaginatedResponse
+            const paginatedData = response;
+            console.log('Paginated data:', paginatedData);
+            console.log('Content length:', paginatedData.content?.length || 0);
+            
             setPagination(paginatedData);
             setCustomers(paginatedData.content as CustomerProfileWithIndex[]);
             
@@ -97,7 +103,7 @@ const CustomersPage: React.FC = () => {
 
     const fetchStats = async () => {
         try {
-            const stats = await fetchCustomerStatistics('MONTH') as CustomerStatistics;
+            const stats = await fetchCustomerStatistics('MONTH');
             setStatistics(stats);
         } catch (err) {
             console.error('Failed to fetch customer statistics:', err);
@@ -106,7 +112,7 @@ const CustomersPage: React.FC = () => {
 
     useEffect(() => {
         fetchCustomers();
-        //fetchStats();
+        fetchStats();
     }, [searchTerm, statusFilter, sortBy, sortDirection, currentPage, pageSize]);
 
     const handleSort = (column: string) => {

@@ -19,11 +19,11 @@ import { fetchCustomerProfile, updateCustomerProfile } from '../api/customers';
 import { fetchCustomerVehicles } from '../api/vehicles';
 import { fetchAppointments } from '../api/appointments';
 import { fetchStaffProfile, updateStaffProfile, fetchAllStaff } from '../api/staff';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
-import Input from '../components/common/Input';
-import Select from '../components/common/Select';
-import Tabs from '../components/common/Tabs';
+import { Card, CardHeader, CardContent, CardTitle } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import Spinner from '../components/common/Spinner';
 import Notification from '../components/common/Notification';
 import Badge from '../components/common/Badge';
@@ -138,9 +138,9 @@ const ProfilePage: React.FC = () => {
 
                 setProfile(profileData);
                 setEditedProfile(profileData);
-                if (vehiclesData) setVehicles(vehiclesData);
-                if (appointmentsData) setAppointments(appointmentsData);
-                if (staffData) setStaff(staffData);
+                if (vehiclesData) setVehicles(vehiclesData.data?.content || []);
+                if (appointmentsData) setAppointments(appointmentsData.data?.content || []);
+                if (staffData) setStaff(staffData.data?.content || []);
             } catch (error) {
                 console.error('Error loading profile data:', error);
                 setNotification({
@@ -313,19 +313,22 @@ const ProfilePage: React.FC = () => {
                         />
                     </div>
                     {user?.roles[0] === 'CUSTOMER' && (
-                        <Select
-                            id="preferredContactMethod"
-                            name="preferredContactMethod"
-                            label="Preferred Contact Method"
-                            options={[
-                                { value: 'EMAIL', label: 'Email' },
-                                { value: 'SMS', label: 'SMS' },
-                                { value: 'PHONE', label: 'Phone' },
-                            ]}
-                            value={(editedProfile as CustomerProfile)?.preferredContactMethod || 'EMAIL'}
-                            onChange={(value) => handleInputChange({ target: { name: 'preferredContactMethod', value } } as React.ChangeEvent<HTMLInputElement>)}
-                            fullWidth
-                        />
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Preferred Contact Method</label>
+                            <Select 
+                                value={(editedProfile as CustomerProfile)?.preferredContactMethod || 'EMAIL'}
+                                onValueChange={(value: string) => handleInputChange({ target: { name: 'preferredContactMethod', value } } as React.ChangeEvent<HTMLInputElement>)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select contact method" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="EMAIL">Email</SelectItem>
+                                    <SelectItem value="SMS">SMS</SelectItem>
+                                    <SelectItem value="PHONE">Phone</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     )}
                     <div className="flex justify-end space-x-3 pt-4">
                         <Button
@@ -525,7 +528,13 @@ const ProfilePage: React.FC = () => {
                                 <div className="flex items-center mt-1 text-gray-700">
                                     <Car className="w-4 h-4 mr-1" />
                                     <span>
-                                        {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model} ({appointment.vehicle.licensePlate})
+                                        {appointment.vehicle ? (
+                                          <>
+                                            {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model} ({appointment.vehicle.licensePlate})
+                                          </>
+                                        ) : (
+                                          <span className="text-gray-400">No vehicle information</span>
+                                        )}
                                     </span>
                                 </div>
                                 {user?.roles[0] !== 'CUSTOMER' && (
@@ -655,7 +664,21 @@ const ProfilePage: React.FC = () => {
             </div>
 
             <Card>
-                <Tabs tabs={tabs} defaultTabId="personal" />
+                <Tabs defaultValue="personal">
+                    <TabsList>
+                        {tabs.map(tab => (
+                            <TabsTrigger key={tab.id} value={tab.id}>
+                                {tab.icon}
+                                {tab.label}
+                            </TabsTrigger>
+                        ))}
+                    </TabsList>
+                    {tabs.map(tab => (
+                        <TabsContent key={tab.id} value={tab.id}>
+                            {tab.content}
+                        </TabsContent>
+                    ))}
+                </Tabs>
             </Card>
         </div>
     );

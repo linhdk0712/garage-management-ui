@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
@@ -35,8 +35,8 @@ const ManagerAppointmentsPage: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const navigate = useNavigate();
   
-  // Custom filter object for the useManagerAppointments hook
-  const getDateRange = () => {
+  // Memoize the date range to prevent unnecessary re-renders
+  const dateRange = useMemo(() => {
     const today = new Date();
     switch (dateRangeFilter) {
       case 'today':
@@ -60,7 +60,7 @@ const ManagerAppointmentsPage: React.FC = () => {
           to: format(endOfDay(addDays(currentDate, 6)), 'yyyy-MM-dd'),
         };
     }
-  };
+  }, [currentDate, dateRangeFilter]);
   
   const { 
     appointments, 
@@ -69,13 +69,14 @@ const ManagerAppointmentsPage: React.FC = () => {
     fetchAllAppointments,
     updateStatus
   } = useManagerAppointments({ 
-    initialFetch: true
+    initialFetch: true,
+    filters: dateRange
   });
 
   // Fetch appointments when filters change
   useEffect(() => {
-    fetchAllAppointments();
-  }, [currentDate, dateRangeFilter, fetchAllAppointments]);
+    fetchAllAppointments(dateRange);
+  }, [dateRange]);
 
   const goToNextPeriod = () => {
     setCurrentDate(addDays(currentDate, dateRangeFilter === 'month' ? 30 : 7));
@@ -98,7 +99,7 @@ const ManagerAppointmentsPage: React.FC = () => {
       });
       
       // Refresh appointments
-      fetchAllAppointments();
+      fetchAllAppointments(dateRange);
     } catch (err: unknown) {
       setNotification({
         type: 'error',
@@ -126,9 +127,9 @@ const ManagerAppointmentsPage: React.FC = () => {
   // Filter appointments based on search term and status
   const filteredAppointments = appointments.filter(appointment => {
     const matchesSearch = 
-      appointment.vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      appointment.vehicle.licensePlate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (appointment.vehicle?.make?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (appointment.vehicle?.model?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+      (appointment.vehicle?.licensePlate?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       appointment.serviceType.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = 
@@ -194,9 +195,17 @@ const ManagerAppointmentsPage: React.FC = () => {
             <div>
               <div className="text-sm font-medium">Vehicle</div>
               <div className="text-sm text-gray-600">
-                {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model}
+                {appointment.vehicle ? (
+                  <>
+                    {appointment.vehicle.year} {appointment.vehicle.make} {appointment.vehicle.model}
+                  </>
+                ) : (
+                  <span className="text-gray-400">No vehicle information</span>
+                )}
               </div>
-              <div className="text-sm text-gray-600">{appointment.vehicle.licensePlate}</div>
+              <div className="text-sm text-gray-600">
+                {appointment.vehicle?.licensePlate || 'No license plate'}
+              </div>
             </div>
           </div>
           
@@ -204,10 +213,10 @@ const ManagerAppointmentsPage: React.FC = () => {
             <div>
               <div className="text-sm font-medium">Service Details</div>
               <div className="text-sm text-gray-600">
-                Duration: {appointment.estimatedDuration} minutes
+                Duration: {appointment.estimatedDuration || 0} minutes
               </div>
               <div className="text-sm text-gray-600">
-                Estimated Cost: ${appointment.estimatedCost}
+                Estimated Cost: ${appointment.estimatedCost?.toFixed(2) || '0.00'}
               </div>
             </div>
           </div>

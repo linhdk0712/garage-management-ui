@@ -5,16 +5,17 @@ import {
   Search, 
   Eye, 
   CheckCircle, 
-  AlertCircle 
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import { getPaymentHistory, getPaymentReceipt } from '../../api/payments';
 import { Payment } from '../../types/payment.types';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import Spinner from '../../components/common/Spinner';
-import Table, { TableColumn } from '../../components/common/Table';
-import Badge from '../../components/common/Badge';
-import Select from '../../components/common/Select';
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '../../components/ui/table';
+import { Badge } from '../../components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import PaymentModal from '../../components/customer/PaymentModal';
 
 const PaymentsPage: React.FC = () => {
@@ -32,7 +33,7 @@ const PaymentsPage: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await getPaymentHistory();
-        setPayments(data);
+        setPayments(data||[]);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch payment history');
       } finally {
@@ -89,121 +90,61 @@ const PaymentsPage: React.FC = () => {
     return matchesSearch && matchesStatus && matchesMethod;
   });
 
-  // Define table columns
-  const columns: TableColumn<Payment>[] = [
-    {
-      header: 'Date',
-      accessor: (payment) => new Date(payment.paymentDate).toLocaleDateString(),
-      className: 'min-w-[120px]',
-    },
-    {
-      header: 'Service',
-      accessor: 'serviceType',
-      className: 'min-w-[200px]',
-    },
-    {
-      header: 'Vehicle',
-      accessor: (payment) => `${payment.vehicleInfo.make} ${payment.vehicleInfo.model} (${payment.vehicleInfo.licensePlate})`,
-      className: 'min-w-[200px]',
-    },
-    {
-      header: 'Amount',
-      accessor: (payment) => `$${payment.amount.toFixed(2)}`,
-      className: 'text-right min-w-[100px]',
-    },
-    {
-      header: 'Method',
-      accessor: 'paymentMethod',
-      cell: (payment) => {
-        const methodIcons = {
-          'CREDIT_CARD': <CreditCard className="h-4 w-4 mr-1" />,
-          'DEBIT_CARD': <CreditCard className="h-4 w-4 mr-1" />,
-          'CASH': <CreditCard className="h-4 w-4 mr-1" />,
-          'BANK_TRANSFER': <CreditCard className="h-4 w-4 mr-1" />,
-          'CHECK': <CreditCard className="h-4 w-4 mr-1" />,
-        };
-        
-        const displayNames = {
-          'CREDIT_CARD': 'Credit Card',
-          'DEBIT_CARD': 'Debit Card',
-          'CASH': 'Cash',
-          'BANK_TRANSFER': 'Bank Transfer',
-          'CHECK': 'Check',
-        };
-        
-        return (
-          <div className="flex items-center">
-            {methodIcons[payment.paymentMethod as keyof typeof methodIcons]}
-            <span>{displayNames[payment.paymentMethod as keyof typeof displayNames]}</span>
-          </div>
-        );
-      },
-      className: 'min-w-[150px]',
-    },
-    {
-      header: 'Status',
-      accessor: 'status',
-      cell: (payment) => {
-        let variant: 'success' | 'warning' | 'danger' | 'secondary' = 'secondary';
-        let icon = null;
-        
-        switch (payment.status) {
-          case 'COMPLETED':
-            variant = 'success';
-            icon = <CheckCircle className="h-4 w-4 mr-1" />;
-            break;
-          case 'PENDING':
-            variant = 'warning';
-            icon = <Clock className="h-4 w-4 mr-1" />;
-            break;
-          case 'FAILED':
-            variant = 'danger';
-            icon = <AlertCircle className="h-4 w-4 mr-1" />;
-            break;
-          case 'REFUNDED':
-            variant = 'secondary';
-            icon = <AlertCircle className="h-4 w-4 mr-1" />;
-            break;
-        }
-        
-        return (
-          <Badge
-            label={payment.status}
-            variant={variant}
-            icon={icon}
-            size="sm"
-          />
-        );
-      },
-      className: 'min-w-[120px]',
-    },
-    {
-      header: 'Actions',
-      accessor: (payment) => payment,
-      cell: (payment) => (
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            icon={Eye}
-            onClick={() => viewPaymentDetails(payment)}
-          >
-            View
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            icon={Download}
-            onClick={() => downloadReceipt(payment.paymentId)}
-            disabled={payment.status !== 'COMPLETED'}
-          >
-            Receipt
-          </Button>
-        </div>
-      ),
-      className: 'min-w-[180px]',
-    },
-  ];
+  const getStatusBadge = (status: string) => {
+    let variant: 'success' | 'warning' | 'destructive' | 'secondary' = 'secondary';
+    let icon = null;
+    
+    switch (status) {
+      case 'COMPLETED':
+        variant = 'success';
+        icon = <CheckCircle className="h-4 w-4 mr-1" />;
+        break;
+      case 'PENDING':
+        variant = 'warning';
+        icon = <Clock className="h-4 w-4 mr-1" />;
+        break;
+      case 'FAILED':
+        variant = 'destructive';
+        icon = <AlertCircle className="h-4 w-4 mr-1" />;
+        break;
+      case 'REFUNDED':
+        variant = 'secondary';
+        icon = <AlertCircle className="h-4 w-4 mr-1" />;
+        break;
+    }
+    
+    return (
+      <Badge variant={variant}>
+        {icon}
+        {status}
+      </Badge>
+    );
+  };
+
+  const getPaymentMethodDisplay = (method: string) => {
+    const methodIcons = {
+      'CREDIT_CARD': <CreditCard className="h-4 w-4 mr-1" />,
+      'DEBIT_CARD': <CreditCard className="h-4 w-4 mr-1" />,
+      'CASH': <CreditCard className="h-4 w-4 mr-1" />,
+      'BANK_TRANSFER': <CreditCard className="h-4 w-4 mr-1" />,
+      'CHECK': <CreditCard className="h-4 w-4 mr-1" />,
+    };
+    
+    const displayNames = {
+      'CREDIT_CARD': 'Credit Card',
+      'DEBIT_CARD': 'Debit Card',
+      'CASH': 'Cash',
+      'BANK_TRANSFER': 'Bank Transfer',
+      'CHECK': 'Check',
+    };
+    
+    return (
+      <div className="flex items-center">
+        {methodIcons[method as keyof typeof methodIcons]}
+        <span>{displayNames[method as keyof typeof displayNames]}</span>
+      </div>
+    );
+  };
 
   if (isLoading) {
     return <Spinner size="lg" text="Loading payment history..." />;
@@ -229,36 +170,36 @@ const PaymentsPage: React.FC = () => {
             
             <div className="flex space-x-4">
               <div className="w-40">
-                <Select
-                  id="statusFilter"
-                  label="Status"
-                  options={[
-                    { value: 'all', label: 'All Statuses' },
-                    { value: 'COMPLETED', label: 'Completed' },
-                    { value: 'PENDING', label: 'Pending' },
-                    { value: 'FAILED', label: 'Failed' },
-                    { value: 'REFUNDED', label: 'Refunded' },
-                  ]}
-                  value={filterStatus}
-                  onChange={(value) => setFilterStatus(value)}
-                />
+                <label className="text-sm font-medium">Status</label>
+                <Select value={filterStatus} onValueChange={(value: string) => setFilterStatus(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                    <SelectItem value="PENDING">Pending</SelectItem>
+                    <SelectItem value="FAILED">Failed</SelectItem>
+                    <SelectItem value="REFUNDED">Refunded</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="w-40">
-                <Select
-                  id="methodFilter"
-                  label="Payment Method"
-                  options={[
-                    { value: 'all', label: 'All Methods' },
-                    { value: 'CREDIT_CARD', label: 'Credit Card' },
-                    { value: 'DEBIT_CARD', label: 'Debit Card' },
-                    { value: 'CASH', label: 'Cash' },
-                    { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-                    { value: 'CHECK', label: 'Check' },
-                  ]}
-                  value={filterMethod}
-                  onChange={(value) => setFilterMethod(value)}
-                />
+                <label className="text-sm font-medium">Payment Method</label>
+                <Select value={filterMethod} onValueChange={(value: string) => setFilterMethod(value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Methods" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Methods</SelectItem>
+                    <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
+                    <SelectItem value="DEBIT_CARD">Debit Card</SelectItem>
+                    <SelectItem value="CASH">Cash</SelectItem>
+                    <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                    <SelectItem value="CHECK">Check</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -282,14 +223,56 @@ const PaymentsPage: React.FC = () => {
               <p className="mt-2 text-gray-500">No payment records found</p>
             </div>
           ) : (
-            <Table
-              columns={columns}
-              data={filteredPayments}
-              keyField="paymentId"
-              pagination
-              pageSize={10}
-              emptyMessage="No payments match your filters"
-            />
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Vehicle</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPayments.map((payment) => (
+                    <TableRow key={payment.paymentId}>
+                      <TableCell>{new Date(payment.paymentDate).toLocaleDateString()}</TableCell>
+                      <TableCell>{payment.serviceType}</TableCell>
+                      <TableCell>
+                        {payment.vehicleInfo.make} {payment.vehicleInfo.model} ({payment.vehicleInfo.licensePlate})
+                      </TableCell>
+                      <TableCell className="text-right">${payment.amount.toFixed(2)}</TableCell>
+                      <TableCell>{getPaymentMethodDisplay(payment.paymentMethod)}</TableCell>
+                      <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => viewPaymentDetails(payment)}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => downloadReceipt(payment.paymentId)}
+                            disabled={payment.status !== 'COMPLETED'}
+                          >
+                            <Download className="h-4 w-4 mr-1" />
+                            Receipt
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
       </Card>

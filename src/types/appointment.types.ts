@@ -2,13 +2,13 @@ import { Vehicle } from './vehicle.types';
 
 export interface Appointment {
     appointmentId: number;
-    vehicle: Vehicle;
+    vehicle?: Vehicle;
     serviceType: string;
     description: string;
     appointmentDate: string;
     status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-    estimatedDuration: number;
-    estimatedCost: number;
+    estimatedDuration?: number;
+    estimatedCost?: number;
     notes?: string;
 }
 

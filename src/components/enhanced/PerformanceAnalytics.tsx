@@ -62,10 +62,48 @@ const PerformanceAnalytics: React.FC = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const data = await fetchPerformanceAnalytics({ period: dateRange });
-                setAnalyticsData(data as AnalyticsData);
+                const response = await fetchPerformanceAnalytics({ period: dateRange });
+                const data = (response as any)?.data || response;
+                // Ensure the data has the expected structure with default values
+                const normalizedData: AnalyticsData = {
+                    revenue: {
+                        daily: (data as any)?.revenue?.daily || [],
+                        weekly: (data as any)?.revenue?.weekly || [],
+                        monthly: (data as any)?.revenue?.monthly || []
+                    },
+                    customers: {
+                        newCustomers: (data as any)?.customers?.newCustomers || 0,
+                        returningCustomers: (data as any)?.customers?.returningCustomers || 0,
+                        customerSatisfaction: (data as any)?.customers?.customerSatisfaction || 0,
+                        customersByService: (data as any)?.customers?.customersByService || []
+                    },
+                    repairs: {
+                        totalRepairs: (data as any)?.repairs?.totalRepairs || 0,
+                        avgCompletionTime: (data as any)?.repairs?.avgCompletionTime || 0,
+                        repairsByType: (data as any)?.repairs?.repairsByType || [],
+                        repairStatus: (data as any)?.repairs?.repairStatus || []
+                    },
+                    inventory: {
+                        partsUsage: (data as any)?.inventory?.partsUsage || [],
+                        lowStockItems: (data as any)?.inventory?.lowStockItems || 0,
+                        inventoryValue: (data as any)?.inventory?.inventoryValue || 0
+                    },
+                    staffPerformance: {
+                        staffUtilization: (data as any)?.staffPerformance?.staffUtilization || [],
+                        avgTimePerRepair: (data as any)?.staffPerformance?.avgTimePerRepair || []
+                    }
+                };
+                setAnalyticsData(normalizedData);
             } catch (error) {
                 console.error('Error fetching analytics data:', error);
+                // Set default data structure on error
+                setAnalyticsData({
+                    revenue: { daily: [], weekly: [], monthly: [] },
+                    customers: { newCustomers: 0, returningCustomers: 0, customerSatisfaction: 0, customersByService: [] },
+                    repairs: { totalRepairs: 0, avgCompletionTime: 0, repairsByType: [], repairStatus: [] },
+                    inventory: { partsUsage: [], lowStockItems: 0, inventoryValue: 0 },
+                    staffPerformance: { staffUtilization: [], avgTimePerRepair: [] }
+                });
             } finally {
                 setIsLoading(false);
             }
@@ -79,13 +117,13 @@ const PerformanceAnalytics: React.FC = () => {
 
         switch (revenueView) {
             case 'daily':
-                return analyticsData.revenue.daily;
+                return analyticsData.revenue.daily || [];
             case 'weekly':
-                return analyticsData.revenue.weekly;
+                return analyticsData.revenue.weekly || [];
             case 'monthly':
-                return analyticsData.revenue.monthly;
+                return analyticsData.revenue.monthly || [];
             default:
-                return analyticsData.revenue.weekly;
+                return analyticsData.revenue.weekly || [];
         }
     };
 
@@ -146,17 +184,20 @@ const PerformanceAnalytics: React.FC = () => {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                                <p className="text-2xl font-bold">${analyticsData.revenue.weekly.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}</p>
+                                <p className="text-2xl font-bold">${(analyticsData.revenue.weekly || []).reduce((sum, item) => sum + item.amount, 0).toLocaleString()}</p>
                                 <div className="flex items-center text-sm">
                   <span className={`${
-                      calculateChange(analyticsData.revenue.weekly[analyticsData.revenue.weekly.length - 1].amount,
-                          analyticsData.revenue.weekly[0].amount) > 0
+                      (analyticsData.revenue.weekly || []).length > 1 && 
+                      calculateChange(
+                          (analyticsData.revenue.weekly || [])[(analyticsData.revenue.weekly || []).length - 1]?.amount || 0,
+                          (analyticsData.revenue.weekly || [])[0]?.amount || 0
+                      ) > 0
                           ? 'text-green-500'
                           : 'text-red-500'
                   }`}>
                     {calculateChange(
-                        analyticsData.revenue.weekly[analyticsData.revenue.weekly.length - 1].amount,
-                        analyticsData.revenue.weekly[0].amount
+                        (analyticsData.revenue.weekly || [])[(analyticsData.revenue.weekly || []).length - 1]?.amount || 0,
+                        (analyticsData.revenue.weekly || [])[0]?.amount || 0
                     ).toFixed(1)}%
                   </span>
                                     <span className="text-gray-500 ml-1">vs last period</span>
@@ -285,7 +326,7 @@ const PerformanceAnalytics: React.FC = () => {
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
-                                    data={analyticsData.repairs.repairsByType}
+                                    data={analyticsData.repairs.repairsByType || []}
                                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                     barSize={20}
                                 >
@@ -310,7 +351,7 @@ const PerformanceAnalytics: React.FC = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={analyticsData.repairs.repairStatus}
+                                        data={analyticsData.repairs.repairStatus || []}
                                         cx="50%"
                                         cy="50%"
                                         labelLine={false}
@@ -320,7 +361,7 @@ const PerformanceAnalytics: React.FC = () => {
                                         nameKey="status"
                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                     >
-                                        {analyticsData.repairs.repairStatus.map((entry, index) => (
+                                        {(analyticsData.repairs.repairStatus || []).map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -337,7 +378,7 @@ const PerformanceAnalytics: React.FC = () => {
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart
-                                data={analyticsData.staffPerformance.avgTimePerRepair}
+                                data={analyticsData.staffPerformance.avgTimePerRepair || []}
                                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                 barSize={20}
                                 layout="vertical"
@@ -366,7 +407,7 @@ const PerformanceAnalytics: React.FC = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={analyticsData.customers.customersByService}
+                                        data={analyticsData.customers.customersByService || []}
                                         cx="50%"
                                         cy="50%"
                                         labelLine={false}
@@ -376,7 +417,7 @@ const PerformanceAnalytics: React.FC = () => {
                                         nameKey="service"
                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                     >
-                                        {analyticsData.customers.customersByService.map((entry, index) => (
+                                        {(analyticsData.customers.customersByService || []).map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -391,7 +432,7 @@ const PerformanceAnalytics: React.FC = () => {
                         <div className="h-64">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart
-                                    data={analyticsData.inventory.partsUsage}
+                                    data={analyticsData.inventory.partsUsage || []}
                                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                                     layout="vertical"
                                 >

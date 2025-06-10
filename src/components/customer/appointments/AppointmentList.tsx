@@ -21,13 +21,21 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
     const loadAppointments = async () => {
         try {
             setIsLoading(true);
-            const data = await fetchAppointments(ROUTES.customer.appointments);
-            console.log("data", data);
-            setAppointments(data);
-            console.log("appointments.length", appointments.length);
+            const response = await fetchAppointments(ROUTES.customer.appointments);
+            console.log("response", response);
+            
+            // Extract the appointments array from the paginated response
+            if (response && response.content) {
+                setAppointments(response.content);
+                console.log("appointments.length", response.content.length);
+            } else {
+                setAppointments([]);
+                console.log("appointments.length", 0);
+            }
         } catch (err) {
             setError('Failed to load appointments. Please try again later.');
             console.error('Error loading appointments:', err);
+            setAppointments([]);
         } finally {
             setIsLoading(false);
         }
@@ -111,7 +119,7 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
                         </div>
                         <div className="text-right">
                             <p className="text-lg font-semibold text-gray-900">
-                                ${appointment.estimatedCost.toFixed(2)}
+                                ${appointment.estimatedCost?.toFixed(2) || '0.00'}
                             </p>
                             <p className="text-sm text-gray-500">Estimated Cost</p>
                         </div>
@@ -120,7 +128,15 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
                     <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-500">
                         <div className="flex items-center">
                             <Car className="h-4 w-4 mr-2" />
-                            <span>{appointment.vehicle.make} {appointment.vehicle.model}</span>
+                            <span>
+                                {appointment.vehicle ? (
+                                  <>
+                                    {appointment.vehicle.make} {appointment.vehicle.model}
+                                  </>
+                                ) : (
+                                  <span className="text-gray-400">No vehicle information</span>
+                                )}
+                            </span>
                         </div>
                         <div className="flex items-center">
                             <Calendar className="h-4 w-4 mr-2" />
@@ -128,11 +144,11 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
                         </div>
                         <div className="flex items-center">
                             <Clock className="h-4 w-4 mr-2" />
-                            <span>{appointment.estimatedDuration} hours</span>
+                            <span>{appointment.estimatedDuration || 0} hours</span>
                         </div>
                         <div className="flex items-center">
                             <DollarSign className="h-4 w-4 mr-2" />
-                            <span>${appointment.estimatedCost.toFixed(2)} estimated</span>
+                            <span>${appointment.estimatedCost?.toFixed(2) || '0.00'} estimated</span>
                         </div>
                     </div>
 

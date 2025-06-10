@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 import { Appointment, AppointmentFormData, TimeSlot } from '../types/appointment.types';
-import { PaginatedResponseData } from '../types/response.types';
+import { PaginatedResponse } from '../types/response.types';
 
 /**
  * Fetch appointments for a customer or staff member with pagination
@@ -16,8 +16,8 @@ export const fetchAppointments = async (apiUrl: string, params?: {
     size?: number;
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
-}): Promise<PaginatedResponseData<Appointment>> => {
-    return await apiClient.get<PaginatedResponseData<Appointment>>(apiUrl, { params });
+}): Promise<PaginatedResponse<Appointment>> => {
+    return await apiClient.get<PaginatedResponse<Appointment>>(apiUrl, { params });
 };
 
 /**
@@ -81,8 +81,8 @@ export const fetchStaffAppointments = async (apiUrl: string, params?: {
     size?: number;
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
-}): Promise<PaginatedResponseData<Appointment>> => {
-    return await apiClient.get<PaginatedResponseData<Appointment>>(apiUrl, { params });
+}): Promise<PaginatedResponse<Appointment>> => {
+    return await apiClient.get<PaginatedResponse<Appointment>>(apiUrl, { params });
 };
 
 /**

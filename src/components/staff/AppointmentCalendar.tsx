@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { format, startOfWeek, addDays, isSameDay, parseISO, isToday, addWeeks, subWeeks } from 'date-fns';
 import { ChevronLeft, ChevronRight, Clock, User, Car, ArrowRight } from 'lucide-react';
-    import { fetchStaffAppointments, updateAppointmentStatus } from '../../api/appointments';
+import { fetchStaffAppointments, updateAppointmentStatus } from '../../api/appointments';
 import { Appointment } from '../../types/appointment.types';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../config/routes';
 
 const AppointmentCalendar: React.FC = () => {
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -22,13 +23,20 @@ const AppointmentCalendar: React.FC = () => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const data = await fetchStaffAppointments({
+                const response = await fetchStaffAppointments(ROUTES.staff.appointments, {
                     from: format(dates[0], 'yyyy-MM-dd'),
                     to: format(dates[6], 'yyyy-MM-dd')
                 });
-                setAppointments(data);
+                
+                // Extract the appointments array from the paginated response
+                if (response && response.content) {
+                    setAppointments(response.content);
+                } else {
+                    setAppointments([]);
+                }
             } catch (error) {
                 console.error('Error fetching appointments:', error);
+                setAppointments([]);
             } finally {
                 setIsLoading(false);
             }
@@ -70,7 +78,10 @@ const AppointmentCalendar: React.FC = () => {
 
     const handleStatusChange = async (appointmentId: number, newStatus: string) => {
         try {
-            await updateAppointmentStatus(appointmentId, { status: newStatus });
+            await updateAppointmentStatus(ROUTES.staff.appointments, {
+                appointmentId,
+                status: newStatus
+            });
 
             // Update local state
             setAppointments(prevAppointments =>
@@ -103,12 +114,14 @@ const AppointmentCalendar: React.FC = () => {
                     <button
                         className="p-1.5 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30"
                         onClick={prevWeek}
+                        title="Previous week"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                         className="p-1.5 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30"
                         onClick={nextWeek}
+                        title="Next week"
                     >
                         <ChevronRight className="w-5 h-5" />
                     </button>
@@ -166,13 +179,13 @@ const AppointmentCalendar: React.FC = () => {
                                                         <div className="flex items-center mt-1">
                                                             <User className="w-3 h-3 mr-1" />
                                                             <span className="truncate">
-                                {apt.customerInfo.firstName} {apt.customerInfo.lastName}
+                                Customer Info
                               </span>
                                                         </div>
                                                         <div className="flex items-center mt-1">
                                                             <Car className="w-3 h-3 mr-1" />
                                                             <span className="truncate">
-                                {apt.vehicleInfo.make} {apt.vehicleInfo.model}
+                                {apt.vehicle.make} {apt.vehicle.model}
                               </span>
                                                         </div>
 
