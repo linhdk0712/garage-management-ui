@@ -21,10 +21,13 @@ import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
 import Select from '../../components/common/Select';
 import { CreateStaffFormData } from '../../types/staff.types';
+import { createStaff } from '../../api/staff';
+import Notification from '../../components/common/Notification';
 
 const CreateStaffPage: React.FC = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
     const {
         control,
@@ -41,12 +44,21 @@ const CreateStaffPage: React.FC = () => {
     const onSubmit = async (data: CreateStaffFormData) => {
         try {
             setIsSubmitting(true);
-            // TODO: Implement API call to create staff
-            console.log('Form data:', data);
-            // Navigate back to staff list on success
-            navigate(ROUTES.manager.staff);
+            await createStaff(data);
+            setNotification({
+                type: 'success',
+                message: 'Staff member created successfully!'
+            });
+            // Navigate back to staff list on success after a short delay
+            setTimeout(() => {
+                navigate(ROUTES.manager.staff);
+            }, 1500);
         } catch (error) {
             console.error('Error creating staff:', error);
+            setNotification({
+                type: 'error',
+                message: 'Failed to create staff member. Please try again.'
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -63,6 +75,15 @@ const CreateStaffPage: React.FC = () => {
                     Back to Staff List
                 </Button>
             </div>
+
+            {notification && (
+                <Notification
+                    type={notification.type}
+                    title={notification.type === 'success' ? 'Success' : 'Error'}
+                    message={notification.message}
+                    onClose={() => setNotification(null)}
+                />
+            )}
 
             <Card>
                 <div className="p-6">
@@ -137,17 +158,12 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="phone"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Phone number is required',
-                                        minLength: {
-                                            value: 10,
-                                            message: 'Phone number must be at least 10 digits'
-                                        }
-                                    }}
+                                    rules={{ required: 'Phone number is required' }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
-                                            label="Phone"
+                                            type="tel"
+                                            label="Phone Number"
                                             leftIcon={Phone}
                                             error={errors.phone?.message}
                                             fullWidth
@@ -163,7 +179,7 @@ const CreateStaffPage: React.FC = () => {
                                 <MapPin className="w-5 h-5" />
                                 Address Information
                             </h2>
-                            <div className="space-y-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 <Controller
                                     name="address"
                                     control={control}
@@ -210,17 +226,11 @@ const CreateStaffPage: React.FC = () => {
                                     <Controller
                                         name="zipCode"
                                         control={control}
-                                        rules={{ 
-                                            required: 'Zip code is required',
-                                            minLength: {
-                                                value: 5,
-                                                message: 'Zip code must be at least 5 characters'
-                                            }
-                                        }}
+                                        rules={{ required: 'ZIP code is required' }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
-                                                label="Zip Code"
+                                                label="ZIP Code"
                                                 leftIcon={MapPin}
                                                 error={errors.zipCode?.message}
                                                 fullWidth
@@ -351,17 +361,18 @@ const CreateStaffPage: React.FC = () => {
                                         required: 'Hourly rate is required',
                                         min: {
                                             value: 0,
-                                            message: 'Hourly rate must be positive'
+                                            message: 'Hourly rate cannot be negative'
                                         }
                                     }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
                                             type="number"
+                                            step="0.01"
+                                            min="0"
                                             label="Hourly Rate"
                                             leftIcon={DollarSign}
                                             error={errors.hourlyRate?.message}
-                                            onChange={(e) => field.onChange(parseFloat(e.target.value))}
                                             fullWidth
                                         />
                                     )}

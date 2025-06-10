@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Search, Filter, ChevronDown, ChevronUp, UserPlus, Mail, Phone } from 'lucide-react';
 import { fetchAllCustomers, fetchCustomerStatistics } from '../../api/customers';
 import { CustomerProfile, CustomerStatistics } from '../../types/customer.types';
+import { PaginatedResponse } from '../../types/response.types';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -9,6 +10,7 @@ import Select from '../../components/common/Select';
 import Table, { TableColumn } from '../../components/common/Table';
 import Spinner from '../../components/common/Spinner';
 import Notification from '../../components/common/Notification';
+import Pagination from '../../components/Pagination';
 import { formatDate } from '../../utils/dateUtils.ts';
 
 // Extend CustomerProfile to satisfy Record<string, unknown>
@@ -18,6 +20,17 @@ interface CustomerProfileWithIndex extends CustomerProfile {
 
 const CustomersPage: React.FC = () => {
     const [customers, setCustomers] = useState<CustomerProfileWithIndex[]>([]);
+    const [pagination, setPagination] = useState<PaginatedResponse<CustomerProfile>>({
+        content: [],
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrevious: false,
+        isFirst: true,
+        isLast: true
+    });
     const [statistics, setStatistics] = useState<CustomerStatistics | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -25,14 +38,13 @@ const CustomersPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
     const [sortBy, setSortBy] = useState<string>('memberSince');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [itemsPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
 
     const fetchCustomers = async () => {
         try {
             setLoading(true);
-            setError(null); // Clear any previous errors
+            setError(null);
             
             const response = await fetchAllCustomers({
                 search: searchTerm,
@@ -40,76 +52,24 @@ const CustomersPage: React.FC = () => {
                 sortBy,
                 sortDirection,
                 page: currentPage,
-                limit: itemsPerPage
+                size: pageSize
             });
             
             console.log('fetchAllCustomers response:', response);
             
-            // Add proper null checks and validation
-            if (!response) {
+            if (!response || !response.data) {
                 setError('Invalid response from server - no data received');
                 setCustomers([]);
-                setTotalPages(1);
                 return;
             }
             
-            // Ensure response has the expected structure
-            if (typeof response !== 'object') {
-                setError('Invalid response format from server');
-                setCustomers([]);
-                setTotalPages(1);
-                return;
-            }
+            const paginatedData = response.data as PaginatedResponse<CustomerProfile>;
+            setPagination(paginatedData);
+            setCustomers(paginatedData.content as CustomerProfileWithIndex[]);
             
-            // Handle different possible response structures
-            let customers: CustomerProfile[] = [];
-            let total = 0;
-            
-            // Check if response has the expected structure
-            if ('customers' in response && 'total' in response) {
-                customers = (response as any).customers || [];
-                total = (response as any).total || 0;
-            } 
-            // Fallback: if response is an array, treat it as the customers array
-            else if (Array.isArray(response)) {
-                customers = response as CustomerProfile[];
-                total = (response as CustomerProfile[]).length;
-            }
-            // Fallback: if response has a 'data' property, check if it's an array
-            else if ('data' in response && Array.isArray((response as any).data)) {
-                customers = (response as any).data;
-                total = (response as any).data.length;
-            }
-            // Fallback: if response has a 'content' property (Spring Boot pagination)
-            else if ('content' in response && Array.isArray((response as any).content)) {
-                customers = (response as any).content;
-                total = (response as any).totalElements || (response as any).content.length;
-            }
-            else {
-                setError('Unexpected response structure from server');
-                setCustomers([]);
-                setTotalPages(1);
-                return;
-            }
-            
-            console.log('Processed customers:', customers);
-            console.log('Total:', total);
-            
-            // Validate that customers is an array
-            if (!Array.isArray(customers)) {
-                setError('Invalid customers data format from server');
-                setCustomers([]);
-                setTotalPages(1);
-                return;
-            }
-            
-            // Cast the response to CustomerProfileWithIndex[]
-            setCustomers(customers as CustomerProfileWithIndex[]);
-            setTotalPages(Math.ceil(total / itemsPerPage));
         } catch (err) {
             console.error('Error fetching customers:', err);
             
-            // Provide more specific error messages based on error type
             let errorMessage = 'Failed to fetch customers. Please try again later.';
             
             if (err instanceof Error) {
@@ -130,7 +90,6 @@ const CustomersPage: React.FC = () => {
             
             setError(errorMessage);
             setCustomers([]);
-            setTotalPages(1);
         } finally {
             setLoading(false);
         }
@@ -148,7 +107,7 @@ const CustomersPage: React.FC = () => {
     useEffect(() => {
         fetchCustomers();
         //fetchStats();
-    }, [searchTerm, statusFilter, sortBy, sortDirection, currentPage]);
+    }, [searchTerm, statusFilter, sortBy, sortDirection, currentPage, pageSize]);
 
     const handleSort = (column: string) => {
         if (sortBy === column) {
@@ -157,6 +116,15 @@ const CustomersPage: React.FC = () => {
             setSortBy(column);
             setSortDirection('asc');
         }
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const handleSizeChange = (size: number) => {
+        setPageSize(size);
+        setCurrentPage(0); // Reset to first page when changing page size
     };
 
     const columns: TableColumn<CustomerProfileWithIndex>[] = [
@@ -321,12 +289,16 @@ const CustomersPage: React.FC = () => {
                         columns={columns}
                         data={customers || []}
                         keyField="customerId"
-                        pagination
-                        pageSize={itemsPerPage}
                         hoverable
                         striped
                         bordered
                         emptyMessage="No customers found"
+                    />
+                    <Pagination
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                        onSizeChange={handleSizeChange}
+                        showSizeSelector={true}
                     />
                 </Card>
             )}

@@ -1,18 +1,23 @@
 import apiClient from './apiClient';
 import { Appointment, AppointmentFormData, TimeSlot } from '../types/appointment.types';
-
+import { PaginatedResponseData } from '../types/response.types';
 
 /**
- * Fetch appointments for a customer or staff member
- * @param params Optional filter parameters
- * @returns Array of appointments
+ * Fetch appointments for a customer or staff member with pagination
+ * @param apiUrl The API endpoint URL
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of appointments
  */
-export const fetchAppointments = async (apiUrl: string,params?: {
+export const fetchAppointments = async (apiUrl: string, params?: {
     status?: string;
     from?: string;
     to?: string;
-}): Promise<Appointment[]> => {
-    return await apiClient.get<Appointment[]>(apiUrl, { params });
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+}): Promise<PaginatedResponseData<Appointment>> => {
+    return await apiClient.get<PaginatedResponseData<Appointment>>(apiUrl, { params });
 };
 
 /**
@@ -62,17 +67,22 @@ export const fetchAvailableTimeSlots = async (apiUrl: string,date: string): Prom
 };
 
 /**
- * For staff: Fetch staff appointments
- * @param params Optional filter parameters
- * @returns Array of appointments assigned to staff
+ * For staff: Fetch staff appointments with pagination
+ * @param apiUrl The API endpoint URL
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of appointments assigned to staff
  */
-export const fetchStaffAppointments = async (apiUrl: string,params?: {
+export const fetchStaffAppointments = async (apiUrl: string, params?: {
     status?: string;
     date?: string;
     from?: string;
     to?: string;
-}): Promise<Appointment[]> => {
-    return await apiClient.get<Appointment[]>(apiUrl, { params });
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+}): Promise<PaginatedResponseData<Appointment>> => {
+    return await apiClient.get<PaginatedResponseData<Appointment>>(apiUrl, { params });
 };
 
 /**

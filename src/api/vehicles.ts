@@ -1,12 +1,18 @@
 import apiClient from './apiClient';
 import { Vehicle, VehicleFormData, HealthData, MaintenanceItem } from '../types/vehicle.types';
+import { PaginatedResponseData } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 /**
  * Fetch all vehicles for the current customer
  * @returns Array of vehicles
  */
-export const fetchCustomerVehicles = async (): Promise<Vehicle[]> => {
-    const response = await apiClient.get<Vehicle[]>(ROUTES.vehicle.list);
+export const fetchCustomerVehicles = async (params?: {
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+}): Promise<PaginatedResponseData<Vehicle>> => {
+    const response = await apiClient.get<PaginatedResponseData<Vehicle>>(ROUTES.vehicle.list, { params });
     console.log("fetchCustomerVehicles", response);
     return response;
 };
@@ -93,9 +99,9 @@ export const fetchMaintenanceSchedule = async (vehicleId: number): Promise<Maint
 };
 
 /**
- * For staff: Fetch all vehicles
- * @param params Optional filter parameters
- * @returns Array of vehicles
+ * For staff: Fetch all vehicles with pagination
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of vehicles
  */
 export const fetchAllVehicles = async (params?: {
     search?: string;
@@ -106,17 +112,17 @@ export const fetchAllVehicles = async (params?: {
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
     page?: number;
-    limit?: number;
-}) => {
-    const response = await apiClient.get(ROUTES.vehicle.list, { params });
+    size?: number;
+}): Promise<PaginatedResponseData<Vehicle>> => {
+    const response = await apiClient.get<PaginatedResponseData<Vehicle>>(ROUTES.vehicle.list, { params });
     console.log("fetchAllVehicles",response);
     return response;
 };
 
 /**
- * For manager: Fetch all vehicles with customer information
- * @param params Optional filter parameters
- * @returns Array of vehicles with customer details
+ * For manager: Fetch all vehicles with customer information and pagination
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of vehicles with customer details
  */
 export const fetchAllVehiclesWithCustomers = async (params?: {
     search?: string;
@@ -127,9 +133,9 @@ export const fetchAllVehiclesWithCustomers = async (params?: {
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
     page?: number;
-    limit?: number;
-}) => {
-    const response = await apiClient.get(ROUTES.manager.vehicles, { params });
+    size?: number;
+}): Promise<PaginatedResponseData<Vehicle>> => {
+    const response = await apiClient.get<PaginatedResponseData<Vehicle>>(ROUTES.manager.vehicles, { params });
     console.log("fetchAllVehiclesWithCustomers", response);
     return response;
 };

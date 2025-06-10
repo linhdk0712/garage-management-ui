@@ -1,5 +1,6 @@
 import apiClient from './apiClient';
 import { CustomerProfile, CustomerStatistics } from '../types/customer.types';
+import { PaginatedResponseData } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 
 /**
@@ -46,9 +47,9 @@ export const fetchCustomerDetails = async (customerId: number): Promise<Customer
 };
 
 /**
- * For manager: Fetch list of all customers
- * @param params Optional filter parameters
- * @returns Array of customers
+ * For manager: Fetch list of all customers with pagination
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of customers
  */
 export const fetchAllCustomers = async (params?: {
     search?: string;
@@ -56,9 +57,9 @@ export const fetchAllCustomers = async (params?: {
     sortBy?: string;
     sortDirection?: 'asc' | 'desc';
     page?: number;
-    limit?: number;
-}): Promise<{ customers: CustomerProfile[]; total: number; page: number; limit: number }> => {
-    return apiClient.get<{ customers: CustomerProfile[]; total: number; page: number; limit: number }>('/manager/customers', { params });
+    size?: number;
+}): Promise<PaginatedResponseData<CustomerProfile>> => {
+    return apiClient.get<PaginatedResponseData<CustomerProfile>>('/manager/customers', { params });
 };
 
 /**

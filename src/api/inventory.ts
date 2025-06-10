@@ -5,18 +5,23 @@ import {
     PurchaseOrder,
     PurchaseOrderInput
 } from '../types/inventory.types';
+import { PaginatedResponseData } from '../types/response.types';
 
 /**
- * Fetch spare parts inventory
- * @param params Optional filter parameters
- * @returns Array of spare parts
+ * Fetch spare parts inventory with pagination
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of spare parts
  */
 export const fetchSpareParts = async (params?: {
     category?: string;
     search?: string;
     stockStatus?: string;
-}): Promise<SparePart[]> => {
-    return apiClient.get<SparePart[]>('/inventory/parts', { params });
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+}): Promise<PaginatedResponseData<SparePart>> => {
+    return apiClient.get<PaginatedResponseData<SparePart>>('/inventory/parts', { params });
 };
 
 /**
@@ -51,11 +56,17 @@ export const updateSparePart = async (
 };
 
 /**
- * Fetch items that are below minimum stock level
- * @returns Array of spare parts with low stock
+ * Fetch items that are below minimum stock level with pagination
+ * @param params Optional pagination parameters
+ * @returns Paginated response of spare parts with low stock
  */
-export const fetchLowStockItems = async (): Promise<SparePart[]> => {
-    return apiClient.get<SparePart[]>('/inventory/low-stock');
+export const fetchLowStockItems = async (params?: {
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+}): Promise<PaginatedResponseData<SparePart>> => {
+    return apiClient.get<PaginatedResponseData<SparePart>>('/inventory/low-stock', { params });
 };
 
 /**
