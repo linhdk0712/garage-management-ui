@@ -1,14 +1,15 @@
 import apiClient from './apiClient';
 import { CustomerProfile, CustomerStatistics } from '../types/customer.types';
-import {  PaginatedResponse } from '../types/response.types';
+import { PaginatedResponse } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 
 /**
- * Fetch the current customer's profile
+ * Fetch the current customer's profile by username
+ * @param userName Username of the customer
  * @returns Customer profile data
  */
-export const fetchCustomerProfile = async (userId: string): Promise<CustomerProfile> => {
-    return apiClient.get<CustomerProfile>(`${ROUTES.customer.profile}/${userId}`);
+export const fetchCustomerProfile = async (userName: string): Promise<CustomerProfile> => {
+    return apiClient.get<CustomerProfile>(`${ROUTES.customer.profile}/${userName}`);
 };
 
 /**
@@ -52,14 +53,14 @@ export const fetchCustomerDetails = async (customerId: number): Promise<Customer
  * @returns Paginated response of customers
  */
 export const fetchAllCustomers = async (params?: {
-    search?: string;
-    status?: 'ACTIVE' | 'INACTIVE';
-    sortBy?: string;
-    sortDirection?: 'asc' | 'desc';
     page?: number;
     size?: number;
+    sortBy?: string;
+    sortDir?: 'asc' | 'desc';
+    search?: string;
+    status?: string;
 }): Promise<PaginatedResponse<CustomerProfile>> => {
-    return apiClient.get<PaginatedResponse<CustomerProfile>>('/manager/customers', { params });
+    return apiClient.get<PaginatedResponse<CustomerProfile>>(ROUTES.customer.profile, { params });
 };
 
 /**

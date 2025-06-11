@@ -2,14 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, 
-  Filter, 
   Clipboard, 
-  Clock, 
   CheckCircle, 
   AlertTriangle, 
   User, 
   Car, 
-  ArrowRight
 } from 'lucide-react';
 import useWorkOrders from '../../hooks/useWorkOrders';
 import { Card } from '../../components/ui/card';
@@ -35,8 +32,7 @@ const WorkOrdersPage: React.FC = () => {
     fetchAllWorkOrders, 
     updateStatus,
     calculatePartsCost,
-    calculateLaborCost,
-    calculateTotalCost
+    calculateLaborCost
   } = useWorkOrders({ initialFetch: true });
   
   const navigate = useNavigate();
@@ -49,9 +45,9 @@ const WorkOrdersPage: React.FC = () => {
         message: `Work order status updated to ${status}`
       });
       
-      // Refresh work orders
       fetchAllWorkOrders();
-    } catch (err: unknown) {
+    } catch (err) {
+      console.error('Failed to update work order status:', err);
       setNotification({
         type: 'error',
         message: 'Failed to update work order status'
@@ -63,7 +59,6 @@ const WorkOrdersPage: React.FC = () => {
     navigate(`/staff/work-orders/${workOrderId}`);
   };
 
-  // Filter and sort work orders
   const filteredAndSortedWorkOrders = [...workOrders]
     .filter(workOrder => {
       const matchesSearch = 
@@ -132,22 +127,7 @@ const WorkOrdersPage: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: WorkOrderStatus) => {
-    switch (status) {
-      case 'PENDING':
-        return <Clock className="w-4 h-4 mr-1" />;
-      case 'IN_PROGRESS':
-        return <Clipboard className="w-4 h-4 mr-1" />;
-      case 'ON_HOLD':
-        return <AlertTriangle className="w-4 h-4 mr-1" />;
-      case 'COMPLETED':
-        return <CheckCircle className="w-4 h-4 mr-1" />;
-      default:
-        return null;
-    }
-  };
 
-  // Table columns for table view
   const columns: TableColumn<WorkOrder>[] = [
     {
       header: 'ID',

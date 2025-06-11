@@ -14,10 +14,9 @@ export interface LoginCredentials {
 
 export interface RegisterData {
     username: string;
-    password: string;
-    confirmPassword: string;
     email: string;
     phone: string;
+    password: string;
     firstName: string;
     lastName: string;
     address: string;
@@ -25,6 +24,7 @@ export interface RegisterData {
     state: string;
     zipCode: string;
     preferredContactMethod: string;
+    roles: string[];
 }
 
 export interface BackendResponse<T> {
@@ -36,6 +36,7 @@ export interface BackendResponse<T> {
 
 export interface AuthResponseData {
     token: string;
+    refreshToken: string;
     type: string;
     id: number;
     username: string;
@@ -52,6 +53,15 @@ export type AuthResponse = {
 export interface AuthData {
     token: string;
     user: User;
+}
+
+export interface TokenRefreshRequest {
+    refreshToken: string;
+}
+
+export interface TokenRefreshResponse {
+    accessToken: string;
+    refreshToken: string;
 }
 
 export interface ForgotPasswordData {

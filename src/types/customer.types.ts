@@ -1,17 +1,18 @@
 export interface CustomerProfile {
-    customerId: number;
     userId: number;
-    firstName: string;
-    lastName: string;
+    username: string;
     email: string;
     phone: string;
+    createdAt: string;
+    lastLogin: string;
+    isActive: boolean;
+    firstName: string;
+    lastName: string;
     address: string;
     city: string;
     state: string;
     zipCode: string;
-    preferredContactMethod: string;
-    memberSince: string;
-    notes?: string;
+    notes: string;
 }
 
 export interface CustomerSummary {

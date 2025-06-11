@@ -115,14 +115,7 @@ const CustomersPage: React.FC = () => {
         fetchStats();
     }, [searchTerm, statusFilter, sortBy, sortDirection, currentPage, pageSize]);
 
-    const handleSort = (column: string) => {
-        if (sortBy === column) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortBy(column);
-            setSortDirection('asc');
-        }
-    };
+   
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -176,7 +169,7 @@ const CustomersPage: React.FC = () => {
         },
         {
             header: 'Actions',
-            accessor: (customer) => (
+            accessor: (_customer) => (
                 <div className="flex gap-2">
                     <Button
                         variant="secondary"

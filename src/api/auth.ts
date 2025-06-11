@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import { LoginCredentials, RegisterData, AuthResponseData, User } from '../types/auth.types';
+import { LoginCredentials, RegisterData, AuthResponseData, TokenRefreshRequest, TokenRefreshResponse, User } from '../types/auth.types';
 import { ROUTES } from '../config/routes';
 
 /**
@@ -20,23 +20,32 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
 /**
  * Register a new user account
  * @param data Registration form data
- * @returns User ID object
+ * @returns Customer DTO object
  */
-export const register = async (data: RegisterData): Promise<{ userId: number }> => {
-    const response = await apiClient.post<{ userId: number }>(ROUTES.auth.register, data);
+export const register = async (data: RegisterData): Promise<any> => {
+    const response = await apiClient.post<any>(ROUTES.auth.register, data);
     return response; 
 };
 
 /**
+ * Refresh authentication token
+ * @param request Token refresh request
+ * @returns Token refresh response
+ */
+export const refreshToken = async (request: TokenRefreshRequest): Promise<TokenRefreshResponse> => {
+    const response = await apiClient.post<TokenRefreshResponse>(ROUTES.auth.refresh, request);
+    return response;
+};
+
+/**
  * Log out the current user from the backend.
- * @param userId ID of the user to logout
+ * @param userId User ID to logout
  * @returns Success message string from backend if successful
  */
 export const logout = async (userId: number): Promise<string> => {
     try {
-        // const message = await apiClient.post<string>(ROUTES.auth.logout, { userId });
-        const message = "logout successful";
-        return message;
+        const response = await apiClient.post<string>(ROUTES.auth.logout, null, { params: { userId } });
+        return response;
     } catch (error) {
         console.error('Error during API logout call in auth.ts:', error);
         throw error;

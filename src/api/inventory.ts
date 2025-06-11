@@ -19,7 +19,7 @@ export const fetchSpareParts = async (params?: {
     page?: number;
     size?: number;
     sortBy?: string;
-    sortDirection?: 'asc' | 'desc';
+    sortDir?: 'asc' | 'desc';
 }): Promise<PaginatedResponseData<SparePart>> => {
     return apiClient.get<PaginatedResponseData<SparePart>>('/inventory/parts', { params });
 };
@@ -64,7 +64,7 @@ export const fetchLowStockItems = async (params?: {
     page?: number;
     size?: number;
     sortBy?: string;
-    sortDirection?: 'asc' | 'desc';
+    sortDir?: 'asc' | 'desc';
 }): Promise<PaginatedResponseData<SparePart>> => {
     return apiClient.get<PaginatedResponseData<SparePart>>('/inventory/low-stock', { params });
 };

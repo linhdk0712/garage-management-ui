@@ -256,7 +256,7 @@ const ManagerDashboard: React.FC = () => {
                                     dataKey="value"
                                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                                 >
-                                    {stats.servicesByType.map((entry, index) => (
+                                    {stats.servicesByType.map((_entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>

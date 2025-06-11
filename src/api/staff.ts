@@ -27,5 +27,35 @@ export const fetchAllStaff = async (apiUrl: string, params?: {
  * @returns Newly created staff member
  */
 export const createStaff = async (staffData: CreateStaffFormData): Promise<Staff> => {
-    return apiClient.post<Staff>('/staff', staffData);
+    return apiClient.post<Staff>(ROUTES.staff.list, staffData);
+};
+
+/**
+ * Get work orders for the current staff member
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of work orders
+ */
+export const getWorkOrders = async (params?: {
+    page?: number;
+    size?: number;
+    status?: string;
+    from?: string;
+    to?: string;
+}): Promise<any> => {
+    return apiClient.get(ROUTES.staff.workOrders, { params });
+};
+
+/**
+ * Get appointments for the current staff member
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of appointments
+ */
+export const getAppointments = async (params?: {
+    page?: number;
+    size?: number;
+    status?: string;
+    from?: string;
+    to?: string;
+}): Promise<any> => {
+    return apiClient.get(ROUTES.staff.appointments, { params });
 }; 

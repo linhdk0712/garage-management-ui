@@ -217,7 +217,7 @@ const VehicleHealthDashboard: React.FC<VehicleHealthDashboardProps> = ({ vehicle
                       dataKey="value"
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
-                      {healthStatusPieData.map((entry, index) => (
+                      {healthStatusPieData.map((_entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>

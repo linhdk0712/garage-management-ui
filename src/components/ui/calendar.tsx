@@ -106,7 +106,6 @@ function Calendar({
           {/* Cells for each day of the month */}
           {daysInMonth.map(day => {
             const dateEvents = getEventsForDate(day)
-            const isCurrentMonth = true // Always show current month days
             const isSelectedToday = isToday(day)
 
             return (

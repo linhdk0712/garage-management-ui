@@ -73,7 +73,7 @@ const getVehicleColumns = (): TableColumn<VehicleWithCustomerIndex>[] => [
     },
     {
         header: 'Actions',
-        accessor: (vehicle) => (
+        accessor: (_vehicle) => (
             <div className="flex gap-2">
                 <Button
                     variant="secondary"
@@ -114,8 +114,8 @@ const VehiclesPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [makeFilter, setMakeFilter] = useState('');
     const [yearFilter, setYearFilter] = useState('');
-    const [sortBy, setSortBy] = useState<string>('registrationDate');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [sortBy] = useState<string>('registrationDate');
+    const [sortDirection] = useState<'asc' | 'desc'>('desc');
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
 
@@ -136,7 +136,6 @@ const VehiclesPage: React.FC = () => {
             
             console.log('fetchAllVehiclesWithCustomers response:', response);
             
-            // Handle different possible response structures
             let vehicles: VehicleWithCustomer[] = [];
             let paginationData: PaginatedResponse<VehicleWithCustomer> | null = null;
             
@@ -174,12 +173,10 @@ const VehiclesPage: React.FC = () => {
                 return;
             }
             
-            // Check if response has the expected PaginatedResponseData structure
             if ('data' in response && response.data && 'content' in response.data) {
                 paginationData = response.data as PaginatedResponse<VehicleWithCustomer>;
                 vehicles = paginationData.content || [];
             }
-            // Check if response has the expected structure
             else if ('vehicles' in response && 'total' in response) {
                 vehicles = (response as any).vehicles || [];
                 paginationData = {
@@ -330,10 +327,8 @@ const VehiclesPage: React.FC = () => {
         setCurrentPage(0); // Reset to first page when changing page size
     };
 
-    // Generate unique makes for filter dropdown
     const uniqueMakes = Array.from(new Set(vehicles.map(v => v.make))).sort();
     
-    // Generate year options for filter dropdown
     const currentYear = new Date().getFullYear();
     const yearOptions = Array.from({ length: 30 }, (_, i) => currentYear - i);
 

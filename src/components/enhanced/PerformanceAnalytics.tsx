@@ -362,11 +362,11 @@ const PerformanceAnalytics: React.FC = () => {
                                         nameKey="status"
                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                     >
-                                        {(analyticsData.repairs.repairStatus || []).map((entry, index) => (
+                                        {(analyticsData.repairs.repairStatus || []).map((_entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value, name, props) => [`${value} repairs`, props.payload.status]} />
+                                    <Tooltip formatter={(value, _name, props) => [`${value} repairs`, props.payload.status]} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
@@ -418,11 +418,11 @@ const PerformanceAnalytics: React.FC = () => {
                                         nameKey="service"
                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                     >
-                                        {(analyticsData.customers.customersByService || []).map((entry, index) => (
+                                        {(analyticsData.customers.customersByService || []).map((_entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip formatter={(value, name, props) => [`${value} customers`, props.payload.service]} />
+                                    <Tooltip formatter={(value, _name, props) => [`${value} customers`, props.payload.service]} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>

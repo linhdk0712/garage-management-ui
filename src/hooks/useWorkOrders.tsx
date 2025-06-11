@@ -12,8 +12,7 @@ import {
     WorkOrder,
     WorkOrderStatus,
     PartUsageInput,
-    LaborChargeInput,
-    WorkOrderNote
+    LaborChargeInput
 } from '../types/workOrder.types';
 
 interface UseWorkOrdersOptions {
