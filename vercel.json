@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build:prod",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "env": {
+    "VITE_API_BASE_URL": "https://mysterious-meadow-50933-a1562d745364.herokuapp.com/api/v1"
+  }
+} 
