@@ -1,0 +1,219 @@
+@startuml Work Order Management Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Staff" as Staff
+actor "Manager" as Manager
+actor "Customer" as Customer
+participant "Work Order Page" as WorkOrderPage
+participant "Appointment System" as AppointmentSystem
+participant "Inventory System" as InventorySystem
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Notification System" as NotificationSystem
+participant "Email Service" as EmailService
+
+' === Work Order Creation ===
+group Work Order Creation
+    Staff -> WorkOrderPage: Access work orders
+    WorkOrderPage -> API: Fetch pending appointments
+    API -> Server: GET /appointments/pending
+    Server -> DB: Query pending appointments
+    DB --> Server: Return appointments
+    Server --> API: Return appointment list
+    API --> WorkOrderPage: Display appointments
+    WorkOrderPage --> Staff: Show pending work
+    
+    Staff -> WorkOrderPage: Create work order
+    WorkOrderPage -> API: POST /work-orders
+    API -> Server: Create work order
+    Server -> DB: Create work order record
+    DB --> Server: Return work order ID
+    Server --> API: Return work order
+    API --> WorkOrderPage: Show work order
+    WorkOrderPage --> Staff: Display work order
+end
+
+' === Work Order Assignment ===
+group Work Order Assignment
+    Manager -> WorkOrderPage: Assign to staff
+    WorkOrderPage -> API: PUT /work-orders/{id}/assign
+    API -> Server: Assign work order
+    Server -> DB: Update assignment
+    DB --> Server: Confirm assignment
+    Server -> NotificationSystem: Notify assigned staff
+    NotificationSystem --> Staff: Assignment notification
+    Server --> API: Return assignment status
+    API --> WorkOrderPage: Show assignment
+    WorkOrderPage --> Manager: Display assignment
+end
+
+' === Work Order Planning ===
+group Work Order Planning
+    Staff -> WorkOrderPage: Review work order
+    WorkOrderPage -> API: GET /work-orders/{id}
+    API -> Server: Fetch work order details
+    Server -> DB: Query work order
+    DB --> Server: Return work order data
+    Server --> API: Return details
+    API --> WorkOrderPage: Display work order
+    WorkOrderPage --> Staff: Show work details
+    
+    Staff -> WorkOrderPage: Plan required parts
+    WorkOrderPage -> API: GET /inventory/parts
+    API -> Server: Fetch available parts
+    Server -> DB: Query inventory
+    DB --> Server: Return parts list
+    Server --> API: Return parts
+    API --> WorkOrderPage: Show available parts
+    WorkOrderPage --> Staff: Display parts options
+    
+    Staff -> WorkOrderPage: Reserve parts
+    WorkOrderPage -> API: POST /work-orders/{id}/parts
+    API -> Server: Reserve parts
+    Server -> DB: Update inventory
+    DB --> Server: Confirm reservation
+    Server --> API: Return reservation status
+    API --> WorkOrderPage: Show reserved parts
+    WorkOrderPage --> Staff: Display reservation
+end
+
+' === Work Execution ===
+group Work Execution
+    Staff -> WorkOrderPage: Start work
+    WorkOrderPage -> API: PUT /work-orders/{id}/start
+    API -> Server: Update work status
+    Server -> DB: Update status to 'in-progress'
+    DB --> Server: Confirm update
+    Server -> NotificationSystem: Notify customer
+    NotificationSystem --> Customer: Work started notification
+    Server --> API: Return status
+    API --> WorkOrderPage: Show work started
+    WorkOrderPage --> Staff: Display status
+    
+    loop Work Progress Updates
+        Staff -> WorkOrderPage: Update progress
+        WorkOrderPage -> API: PUT /work-orders/{id}/progress
+        API -> Server: Update progress notes
+        Server -> DB: Store progress update
+        DB --> Server: Confirm update
+        Server --> API: Return updated progress
+        API --> WorkOrderPage: Show progress
+        WorkOrderPage --> Staff: Display progress
+    end
+end
+
+' === Parts Usage ===
+group Parts Usage
+    Staff -> WorkOrderPage: Use parts
+    WorkOrderPage -> API: POST /work-orders/{id}/parts-used
+    API -> Server: Record parts usage
+    Server -> DB: Update inventory levels
+    DB --> Server: Confirm usage
+    Server -> InventorySystem: Check stock levels
+    InventorySystem --> Server: Stock status
+    alt Low Stock Alert
+        Server -> NotificationSystem: Alert low stock
+        NotificationSystem --> Manager: Low stock notification
+    end
+    Server --> API: Return usage status
+    API --> WorkOrderPage: Show parts used
+    WorkOrderPage --> Staff: Display usage
+end
+
+' === Quality Control ===
+group Quality Control
+    Staff -> WorkOrderPage: Complete work
+    WorkOrderPage -> API: PUT /work-orders/{id}/complete
+    API -> Server: Mark work complete
+    Server -> DB: Update status to 'completed'
+    DB --> Server: Confirm completion
+    Server -> NotificationSystem: Notify customer
+    NotificationSystem --> Customer: Work completion notification
+    Server --> API: Return completion status
+    API --> WorkOrderPage: Show completion
+    WorkOrderPage --> Staff: Display completion
+    
+    Manager -> WorkOrderPage: Quality check
+    WorkOrderPage -> API: PUT /work-orders/{id}/quality-check
+    API -> Server: Perform quality check
+    Server -> DB: Update quality status
+    DB --> Server: Confirm quality check
+    Server --> API: Return quality status
+    API --> WorkOrderPage: Show quality status
+    WorkOrderPage --> Manager: Display quality check
+end
+
+' === Work Order Completion ===
+group Work Order Completion
+    alt Quality Check Passed
+        Manager -> WorkOrderPage: Approve work order
+        WorkOrderPage -> API: PUT /work-orders/{id}/approve
+        API -> Server: Approve work order
+        Server -> DB: Update status to 'approved'
+        DB --> Server: Confirm approval
+        Server -> EmailService: Send completion email
+        EmailService --> Customer: Work completion email
+        Server -> AppointmentSystem: Update appointment status
+        AppointmentSystem -> API: PUT /appointments/{id}/completed
+        API -> Server: Update appointment
+        Server -> DB: Update appointment status
+        DB --> Server: Confirm appointment update
+        Server --> API: Return approval status
+        API --> WorkOrderPage: Show approval
+        WorkOrderPage --> Manager: Display approval
+    else Quality Check Failed
+        Manager -> WorkOrderPage: Reject work order
+        WorkOrderPage -> API: PUT /work-orders/{id}/reject
+        API -> Server: Reject work order
+        Server -> DB: Update status to 'rejected'
+        DB --> Server: Confirm rejection
+        Server -> NotificationSystem: Notify staff
+        NotificationSystem --> Staff: Rejection notification
+        Server --> API: Return rejection status
+        API --> WorkOrderPage: Show rejection
+        WorkOrderPage --> Manager: Display rejection
+    end
+end
+
+' === Work Order Tracking ===
+group Work Order Tracking
+    Customer -> WorkOrderPage: Check work status
+    WorkOrderPage -> API: GET /work-orders/{id}/status
+    API -> Server: Fetch work order status
+    Server -> DB: Query work order
+    DB --> Server: Return status
+    Server --> API: Return status
+    API --> WorkOrderPage: Show status
+    WorkOrderPage --> Customer: Display status
+    
+    Manager -> WorkOrderPage: View work order reports
+    WorkOrderPage -> API: GET /work-orders/reports
+    API -> Server: Generate work order analytics
+    Server -> DB: Query work order data
+    DB --> Server: Return analytics
+    Server --> API: Return reports
+    API --> WorkOrderPage: Display reports
+    WorkOrderPage --> Manager: Show analytics
+end
+
+' === Work Order Modifications ===
+group Work Order Modifications
+    alt Additional Work Required
+        Staff -> WorkOrderPage: Add additional work
+        WorkOrderPage -> API: POST /work-orders/{id}/additional
+        API -> Server: Add additional work
+        Server -> DB: Create additional work record
+        DB --> Server: Return additional work ID
+        Server -> NotificationSystem: Notify customer
+        NotificationSystem --> Customer: Additional work notification
+        Server --> API: Return additional work
+        API --> WorkOrderPage: Show additional work
+        WorkOrderPage --> Staff: Display additional work
+    end
+end
+
+@enduml 

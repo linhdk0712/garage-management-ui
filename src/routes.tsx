@@ -11,18 +11,7 @@ import CustomerDashboard from './components/customer/CustomerDashboard';
 import CustomerVehiclesPage from './pages/customer/VehiclesPage';
 import CustomerRepairHistoryPage from './pages/customer/RepairHistoryPage';
 import CustomerAppointmentsPage from './pages/customer/AppointmentsPage';
-// import CustomerPaymentsPage from './pages/customer/PaymentsPage';
 
-// Staff Pages
-// import StaffAppointmentsPage from './pages/staff/AppointmentsPage';
-// import StaffWorkOrdersPage from './pages/staff/WorkOrdersPage';
-// import StaffVehicleDetailsPage from './pages/staff/VehicleDetailsPage';
-
-// Manager Pages
-// import ManagerInventoryPage from './pages/manager/InventoryPage';
-// import ManagerPurchaseOrdersPage from './pages/manager/PurchaseOrdersPage';
-// import ManagerStaffManagementPage from './pages/manager/StaffManagementPage';
-// import ManagerReportsPage from './pages/manager/ReportsPage';
 
 // Manager Pages
 import ManagerDashboard from './components/manager/ManagerDashboard';

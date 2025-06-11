@@ -6,8 +6,9 @@
 3. [Database Design](#database-design)
 4. [Entity Design](#entity-design)
 5. [Sequence Diagrams](#sequence-diagrams)
-6. [API Documentation](#api-documentation)
-7. [Security Implementation](#security-implementation)
+6. [Comprehensive System Flows](#comprehensive-system-flows)
+7. [API Documentation](#api-documentation)
+8. [Security Implementation](#security-implementation)
 
 ## Business Analysis
 
@@ -249,81 +250,108 @@ interface Payment {
 
 ## Sequence Diagrams
 
-### 5.1 Login Flow
-```plantuml
-@startuml Login Flow
-actor User
-participant "LoginForm" as Form
-participant "AuthContext" as Auth
-participant "API Client" as API
-participant "Backend Server" as Server
-database "LocalStorage" as Storage
+### 5.1 Authentication Flows
+- **Login Flow**: `login-flow.puml` - Basic login process
+- **Registration Flow**: `register-flow.puml` - User registration process
+- **Authentication Journey**: `auth-journey.puml` - Complete authentication user journey
+- **Refresh Token Flow**: `refresh-token-flow.puml` - Token refresh mechanism
+- **JWT Login**: `loginJWT.puml` - JWT-based authentication
 
-User -> Form: Enter credentials
-Form -> Auth: handleLogin(credentials)
-Auth -> API: login(credentials)
-API -> Server: POST /api/auth/login
-Server --> API: Return auth response
-API --> Auth: Return response
-Auth -> Storage: setStoredAuth(authData)
-Auth --> Form: Return success
-Form --> User: Show success message
-@enduml
-```
+### 5.2 Vehicle Management Flows
+- **Vehicle List Flow**: `vehicle-list-flow.puml` - Vehicle listing and management
+- **Vehicle Management Journey**: `vehicle-management-journey.puml` - Complete vehicle management workflow
+- **Vehicle Management Flow**: `vehicle-management-flow.puml` - Core vehicle operations
+- **Vehicle Process Flow**: `vehicle-process-flow.puml` - Vehicle processing workflow
 
-### 5.2 Vehicle Management Flow
-```plantuml
-@startuml Vehicle Management
-actor Customer
-participant "VehicleList" as List
-participant "VehicleForm" as Form
-participant "API Client" as API
-participant "Backend Server" as Server
+### 5.3 Customer Dashboard Flows
+- **Customer Dashboard Flow**: `customer-dashboard-flow.puml` - Customer dashboard operations
+- **Customer Dashboard Use Case**: `customer-dashboard-use-case.puml` - Customer dashboard use cases
 
-Customer -> List: View vehicles
-List -> API: fetchCustomerVehicles()
-API -> Server: GET /api/vehicles
-Server --> API: Return vehicles
-API --> List: Display vehicles
+### 5.4 System Architecture Flows
+- **System Flows**: `system-flows.puml` - Overall system workflow
+- **Component Diagram**: `component-diagram.puml` - System component relationships
+- **Component**: `component.puml` - Component structure
+- **Container**: `container.puml` - Container architecture
+- **Context**: `context.puml` - System context
 
-Customer -> List: Add vehicle
-List -> Form: Open form
-Customer -> Form: Fill details
-Form -> API: addVehicle(data)
-API -> Server: POST /api/vehicles
-Server --> API: Return new vehicle
-API --> Form: Close form
-Form --> List: Refresh list
-@enduml
-```
+## Comprehensive System Flows
 
-### 5.3 Appointment Scheduling Flow
-```plantuml
-@startuml Appointment Scheduling
-actor Customer
-participant "AppointmentForm" as Form
-participant "API Client" as API
-participant "Backend Server" as Server
+### 6.1 Payment Processing Flow
+**File**: `payment-processing-flow.puml`
+- Complete payment lifecycle from appointment creation to payment completion
+- Multiple payment methods (credit card, bank transfer, cash)
+- Payment confirmation and receipt generation
+- Refund processing workflow
+- Manager oversight and payment analytics
 
-Customer -> Form: Open form
-Form -> API: fetchAvailableSlots()
-API -> Server: GET /api/appointments/slots
-Server --> API: Return slots
-API --> Form: Display slots
+### 6.2 Appointment Management Flow
+**File**: `appointment-management-flow.puml`
+- End-to-end appointment lifecycle management
+- Appointment scheduling with availability checking
+- Pre-appointment reminders and confirmations
+- Service execution and progress tracking
+- Appointment modifications and cancellations
+- Manager oversight and scheduling analytics
 
-Customer -> Form: Select slot
-Customer -> Form: Fill details
-Form -> API: scheduleAppointment(data)
-API -> Server: POST /api/appointments
-Server --> API: Return appointment
-API --> Form: Show success
-Form --> Customer: Confirm booking
-@enduml
-```
+### 6.3 Work Order Management Flow
+**File**: `work-order-management-flow.puml`
+- Complete work order workflow for staff members
+- Work order creation and assignment
+- Parts planning and reservation
+- Work execution and progress updates
+- Quality control and approval process
+- Work order tracking and modifications
+
+### 6.4 Staff Management Flow
+**File**: `staff-management-flow.puml`
+- Comprehensive staff administration for managers
+- Staff hiring and onboarding process
+- Schedule management and shift assignments
+- Performance management and reviews
+- Training and development tracking
+- Payroll and benefits management
+- Staff termination process
+
+### 6.5 Inventory Management Flow
+**File**: `inventory-management-flow.puml`
+- Complete inventory and parts management
+- Parts management and reorder level setting
+- Stock management and parts reservation
+- Purchase order processing
+- Stock receiving and quality control
+- Inventory tracking and auditing
+- Supplier management
+
+### 6.6 Notification System Flow
+**File**: `notification-system-flow.puml`
+- Real-time notification system
+- Multiple notification types (appointments, services, payments, staff, system)
+- Notification preferences and management
+- Email, SMS, and push notification integration
+- Notification analytics and reporting
+
+### 6.7 Error Handling Flow
+**File**: `error-handling-flow.puml`
+- Comprehensive error handling and recovery
+- Authentication and authorization errors
+- Network and connectivity errors
+- Validation and data constraint errors
+- Database and business logic errors
+- Frontend error handling
+- Error recovery and reporting
+
+### 6.8 Data Export and Reporting Flow
+**File**: `data-export-reporting-flow.puml`
+- Complete reporting and analytics system
+- Multiple report types (financial, operational, customer, inventory, staff)
+- Report generation and scheduling
+- Data export functionality
+- Report sharing and collaboration
+- Report analytics and usage tracking
 
 ## API Documentation
 
-### 6.1 Authentication Endpoints
+### 7.1 Authentication Endpoints
 ```typescript
 // Login
 POST /api/auth/login
@@ -347,7 +375,7 @@ Response: {
 }
 ```
 
-### 6.2 Vehicle Endpoints
+### 7.2 Vehicle Endpoints
 ```typescript
 // Get Customer Vehicles
 GET /api/vehicles
@@ -380,7 +408,7 @@ Request: {
 Response: Vehicle
 ```
 
-### 6.3 Appointment Endpoints
+### 7.3 Appointment Endpoints
 ```typescript
 // Get Appointments
 GET /api/appointments
@@ -413,25 +441,25 @@ Response: Appointment
 
 ## Security Implementation
 
-### 7.1 Authentication
+### 8.1 Authentication
 - JWT-based authentication
 - Refresh token mechanism
 - Token expiration handling
 - Secure password hashing
 
-### 7.2 Authorization
+### 8.2 Authorization
 - Role-based access control
 - Route protection
 - API endpoint security
 - Resource access control
 
-### 7.3 Data Security
+### 8.3 Data Security
 - Input validation
 - SQL injection prevention
 - XSS protection
 - CSRF protection
 
-### 7.4 Security Best Practices
+### 8.4 Security Best Practices
 - HTTPS enforcement
 - Secure headers
 - Rate limiting
@@ -439,4 +467,6 @@ Response: Appointment
 - Logging and monitoring
 
 ## Conclusion
-This documentation provides a comprehensive overview of the Garage Management System, including its business requirements, technical architecture, database design, and security implementation. The system is designed to be scalable, maintainable, and secure while providing a seamless experience for both customers and staff. 
+This documentation provides a comprehensive overview of the Garage Management System, including its business requirements, technical architecture, database design, and security implementation. The system is designed to be scalable, maintainable, and secure while providing a seamless experience for both customers and staff.
+
+The comprehensive flow diagrams provide detailed insights into all major system workflows, ensuring complete understanding of the application's functionality and user interactions. These flows serve as valuable references for development, testing, and maintenance activities. 

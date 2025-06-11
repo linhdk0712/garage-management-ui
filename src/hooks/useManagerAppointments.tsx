@@ -43,7 +43,7 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
             const response = await fetchAppointments(ROUTES.manager.appointments, queryFilters);
             
             // Extract the appointments array from the paginated response
-            if (response && response.content) {
+            if (response?.content) {
                 setAppointments(response.content);
                 return response.content;
             } else {

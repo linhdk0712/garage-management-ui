@@ -1,0 +1,276 @@
+@startuml Inventory Management Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Manager" as Manager
+actor "Staff" as Staff
+actor "Supplier" as Supplier
+participant "Inventory Page" as InventoryPage
+participant "Purchase Order System" as POSystem
+participant "Work Order System" as WOSystem
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Notification System" as NotificationSystem
+participant "Email Service" as EmailService
+
+' === Inventory Overview ===
+group Inventory Overview
+    Manager -> InventoryPage: Access inventory
+    InventoryPage -> API: Fetch inventory status
+    API -> Server: GET /inventory
+    Server -> DB: Query inventory items
+    DB --> Server: Return inventory data
+    Server --> API: Return inventory
+    API --> InventoryPage: Display inventory
+    InventoryPage --> Manager: Show current stock
+    
+    Manager -> InventoryPage: View low stock alerts
+    InventoryPage -> API: GET /inventory/alerts
+    API -> Server: Check low stock items
+    Server -> DB: Query low stock
+    DB --> Server: Return alerts
+    Server --> API: Return alerts
+    API --> InventoryPage: Display alerts
+    InventoryPage --> Manager: Show low stock items
+end
+
+' === Parts Management ===
+group Parts Management
+    Manager -> InventoryPage: Add new part
+    InventoryPage -> API: POST /inventory/parts
+    API -> Server: Create part record
+    Server -> DB: Create part entry
+    DB --> Server: Return part ID
+    Server --> API: Return new part
+    API --> InventoryPage: Show new part
+    InventoryPage --> Manager: Display confirmation
+    
+    Manager -> InventoryPage: Update part details
+    InventoryPage -> API: PUT /inventory/parts/{id}
+    API -> Server: Update part information
+    Server -> DB: Update part data
+    DB --> Server: Confirm update
+    Server --> API: Return updated part
+    API --> InventoryPage: Show updated part
+    InventoryPage --> Manager: Display confirmation
+    
+    Manager -> InventoryPage: Set reorder levels
+    InventoryPage -> API: PUT /inventory/parts/{id}/reorder
+    API -> Server: Set reorder thresholds
+    Server -> DB: Update reorder levels
+    DB --> Server: Confirm update
+    Server --> API: Return reorder settings
+    API --> InventoryPage: Show reorder levels
+    InventoryPage --> Manager: Display settings
+end
+
+' === Stock Management ===
+group Stock Management
+    Staff -> InventoryPage: Check part availability
+    InventoryPage -> API: GET /inventory/parts/{id}
+    API -> Server: Fetch part details
+    Server -> DB: Query part information
+    DB --> Server: Return part data
+    Server --> API: Return part details
+    API --> InventoryPage: Display part info
+    InventoryPage --> Staff: Show availability
+    
+    Staff -> InventoryPage: Reserve parts for work order
+    InventoryPage -> API: POST /inventory/reserve
+    API -> Server: Reserve parts
+    Server -> DB: Update reserved quantity
+    DB --> Server: Confirm reservation
+    Server --> API: Return reservation
+    API --> InventoryPage: Show reservation
+    InventoryPage --> Staff: Display confirmation
+    
+    Staff -> InventoryPage: Use parts from work order
+    InventoryPage -> API: POST /inventory/use
+    API -> Server: Record parts usage
+    Server -> DB: Update stock levels
+    DB --> Server: Confirm usage
+    Server -> WOSystem: Update work order
+    WOSystem -> API: PUT /work-orders/{id}/parts-used
+    API -> Server: Update work order
+    Server -> DB: Update work order
+    DB --> Server: Confirm work order update
+    Server --> API: Return usage status
+    API --> InventoryPage: Show parts used
+    InventoryPage --> Staff: Display usage
+end
+
+' === Purchase Orders ===
+group Purchase Orders
+    Manager -> InventoryPage: Create purchase order
+    InventoryPage -> API: POST /purchase-orders
+    API -> Server: Create purchase order
+    Server -> DB: Create PO record
+    DB --> Server: Return PO ID
+    Server -> EmailService: Send PO to supplier
+    EmailService --> Supplier: Purchase order email
+    Server --> API: Return purchase order
+    API --> InventoryPage: Show PO created
+    InventoryPage --> Manager: Display confirmation
+    
+    Supplier -> InventoryPage: Confirm order
+    InventoryPage -> API: PUT /purchase-orders/{id}/confirm
+    API -> Server: Confirm purchase order
+    Server -> DB: Update PO status
+    DB --> Server: Confirm update
+    Server -> NotificationSystem: Notify manager
+    NotificationSystem --> Manager: PO confirmation notification
+    Server --> API: Return confirmation
+    API --> InventoryPage: Show confirmation
+    InventoryPage --> Supplier: Display confirmation
+    
+    Supplier -> InventoryPage: Deliver order
+    InventoryPage -> API: PUT /purchase-orders/{id}/deliver
+    API -> Server: Process delivery
+    Server -> DB: Update inventory levels
+    DB --> Server: Confirm delivery
+    Server -> NotificationSystem: Notify staff
+    NotificationSystem --> Staff: Parts delivery notification
+    Server --> API: Return delivery status
+    API --> InventoryPage: Show delivery
+    InventoryPage --> Supplier: Display delivery
+end
+
+' === Stock Receiving ===
+group Stock Receiving
+    Staff -> InventoryPage: Receive delivered parts
+    InventoryPage -> API: POST /inventory/receive
+    API -> Server: Process stock receiving
+    Server -> DB: Update stock quantities
+    DB --> Server: Confirm receiving
+    Server -> POSystem: Update purchase order
+    POSystem -> API: PUT /purchase-orders/{id}/received
+    API -> Server: Update PO status
+    Server -> DB: Update PO to received
+    DB --> Server: Confirm PO update
+    Server --> API: Return receiving status
+    API --> InventoryPage: Show receiving
+    InventoryPage --> Staff: Display confirmation
+    
+    Staff -> InventoryPage: Quality check received items
+    InventoryPage -> API: POST /inventory/quality-check
+    API -> Server: Record quality check
+    Server -> DB: Store quality check data
+    DB --> Server: Confirm quality check
+    Server --> API: Return quality status
+    API --> InventoryPage: Show quality check
+    InventoryPage --> Staff: Display quality status
+end
+
+' === Inventory Tracking ===
+group Inventory Tracking
+    Manager -> InventoryPage: View inventory reports
+    InventoryPage -> API: GET /inventory/reports
+    API -> Server: Generate inventory analytics
+    Server -> DB: Query inventory data
+    DB --> Server: Return analytics
+    Server --> API: Return reports
+    API --> InventoryPage: Display reports
+    InventoryPage --> Manager: Show inventory analytics
+    
+    Manager -> InventoryPage: Track part usage
+    InventoryPage -> API: GET /inventory/usage
+    API -> Server: Fetch usage statistics
+    Server -> DB: Query usage data
+    DB --> Server: Return usage stats
+    Server --> API: Return usage data
+    API --> InventoryPage: Display usage
+    InventoryPage --> Manager: Show usage patterns
+    
+    Manager -> InventoryPage: Export inventory data
+    InventoryPage -> API: GET /inventory/export
+    API -> Server: Generate export data
+    Server -> DB: Query export data
+    DB --> Server: Return export data
+    Server --> API: Return export file
+    API --> InventoryPage: Download export
+    InventoryPage --> Manager: Provide export file
+end
+
+' === Automatic Reordering ===
+group Automatic Reordering
+    loop Daily Stock Check
+        Server -> DB: Check stock levels
+        DB --> Server: Return low stock items
+        alt Items Below Reorder Level
+            Server -> POSystem: Create automatic PO
+            POSystem -> API: POST /purchase-orders/auto
+            API -> Server: Create auto purchase order
+            Server -> DB: Create PO record
+            DB --> Server: Return PO ID
+            Server -> NotificationSystem: Alert manager
+            NotificationSystem --> Manager: Auto PO notification
+            Server -> EmailService: Send auto PO to supplier
+            EmailService --> Supplier: Automatic order email
+        end
+    end
+end
+
+' === Inventory Auditing ===
+group Inventory Auditing
+    Manager -> InventoryPage: Start inventory audit
+    InventoryPage -> API: POST /inventory/audit
+    API -> Server: Create audit record
+    Server -> DB: Create audit entry
+    DB --> Server: Return audit ID
+    Server --> API: Return audit
+    API --> InventoryPage: Show audit started
+    InventoryPage --> Manager: Display audit
+    
+    Staff -> InventoryPage: Count physical inventory
+    InventoryPage -> API: POST /inventory/audit/count
+    API -> Server: Record physical count
+    Server -> DB: Store count data
+    DB --> Server: Confirm count
+    Server --> API: Return count status
+    API --> InventoryPage: Show count recorded
+    InventoryPage --> Staff: Display confirmation
+    
+    Manager -> InventoryPage: Reconcile inventory
+    InventoryPage -> API: POST /inventory/audit/reconcile
+    API -> Server: Reconcile counts
+    Server -> DB: Compare physical vs system
+    DB --> Server: Return discrepancies
+    Server --> API: Return reconciliation
+    API --> InventoryPage: Show discrepancies
+    InventoryPage --> Manager: Display reconciliation
+end
+
+' === Supplier Management ===
+group Supplier Management
+    Manager -> InventoryPage: Manage suppliers
+    InventoryPage -> API: GET /suppliers
+    API -> Server: Fetch supplier list
+    Server -> DB: Query suppliers
+    DB --> Server: Return suppliers
+    Server --> API: Return supplier data
+    API --> InventoryPage: Display suppliers
+    InventoryPage --> Manager: Show supplier list
+    
+    Manager -> InventoryPage: Add new supplier
+    InventoryPage -> API: POST /suppliers
+    API -> Server: Create supplier
+    Server -> DB: Create supplier record
+    DB --> Server: Return supplier ID
+    Server --> API: Return new supplier
+    API --> InventoryPage: Show new supplier
+    InventoryPage --> Manager: Display confirmation
+    
+    Manager -> InventoryPage: Update supplier info
+    InventoryPage -> API: PUT /suppliers/{id}
+    API -> Server: Update supplier
+    Server -> DB: Update supplier data
+    DB --> Server: Confirm update
+    Server --> API: Return updated supplier
+    API --> InventoryPage: Show updated supplier
+    InventoryPage --> Manager: Display confirmation
+end
+
+@enduml 

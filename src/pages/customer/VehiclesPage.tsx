@@ -15,7 +15,8 @@ const VehiclesPage: React.FC = () => {
         try {
             setIsLoading(true);
             const data = await fetchCustomerVehicles();
-            setVehicles(data.data?.content || []);
+            const vehiclesArray = data.data?.content || [];
+            setVehicles(vehiclesArray);
         } catch (error) {
             console.error('Error loading vehicles:', error);
             toast.error('Failed to load vehicles');

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { FeatureFlags, FeatureFlagContextType, defaultFeatureFlags } from '../config/featureFlags';
 
 const FEATURE_FLAGS_STORAGE_KEY = 'featureFlags';
@@ -40,8 +40,14 @@ export const FeatureFlagProvider: React.FC<{ children: React.ReactNode }> = ({ c
         }));
     }, []);
 
+    const contextValue = useMemo(() => ({
+        flags,
+        isEnabled,
+        updateFlags
+    }), [flags, isEnabled, updateFlags]);
+
     return (
-        <FeatureFlagContext.Provider value={{ flags, isEnabled, updateFlags }}>
+        <FeatureFlagContext.Provider value={contextValue}>
             {children}
         </FeatureFlagContext.Provider>
     );

@@ -25,7 +25,7 @@ const AppointmentList: React.FC<AppointmentListProps> = ({ onEditAppointment }) 
             console.log("response", response);
             
             // Extract the appointments array from the paginated response
-            if (response && response.content) {
+            if (response?.content) {
                 setAppointments(response.content);
                 console.log("appointments.length", response.content.length);
             } else {

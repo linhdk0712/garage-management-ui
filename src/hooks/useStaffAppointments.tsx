@@ -43,7 +43,7 @@ const useStaffAppointments = (options: UseStaffAppointmentsOptions = {}) => {
             const response = await fetchStaffAppointments(ROUTES.staff.appointments, queryFilters);
             
             // Extract the appointments array from the paginated response
-            if (response && response.content) {
+            if (response?.content) {
                 setAppointments(response.content);
                 return response.content;
             } else {

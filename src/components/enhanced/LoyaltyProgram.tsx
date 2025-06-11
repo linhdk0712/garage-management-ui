@@ -298,8 +298,7 @@ const LoyaltyProgram: React.FC = () => {
                                     </div>
                                     <div className="w-full bg-blue-200 rounded-full h-2.5">
                                         <div
-                                            className="bg-yellow-400 h-2.5 rounded-full"
-                                            style={{ width: `${getProgressPercentage()}%` }}
+                                            className={`bg-yellow-400 h-2.5 rounded-full w-[${getProgressPercentage()}%]`}
                                         ></div>
                                     </div>
                                 </div>

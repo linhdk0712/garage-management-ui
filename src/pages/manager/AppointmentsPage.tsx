@@ -8,17 +8,14 @@ import {
   ChevronRight,
   Clock,
   Car,
-  User,
   CheckCircle,
   AlertCircle,
   Clipboard,
-  ArrowRight,
-  Filter,
   Download
 } from 'lucide-react';
 import useManagerAppointments from '../../hooks/useManagerAppointments';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import Spinner from '../../components/common/Spinner';
 import Badge from '../../components/common/Badge';
 import Select from '../../components/common/Select';
@@ -44,16 +41,12 @@ const ManagerAppointmentsPage: React.FC = () => {
           from: format(startOfDay(today), 'yyyy-MM-dd'),
           to: format(endOfDay(today), 'yyyy-MM-dd'),
         };
-      case 'week':
-        return {
-          from: format(startOfDay(currentDate), 'yyyy-MM-dd'),
-          to: format(endOfDay(addDays(currentDate, 6)), 'yyyy-MM-dd'),
-        };
       case 'month':
         return {
           from: format(startOfDay(currentDate), 'yyyy-MM-dd'),
           to: format(endOfDay(addDays(currentDate, 29)), 'yyyy-MM-dd'),
         };
+      case 'week':
       default:
         return {
           from: format(startOfDay(currentDate), 'yyyy-MM-dd'),
@@ -101,6 +94,7 @@ const ManagerAppointmentsPage: React.FC = () => {
       // Refresh appointments
       fetchAllAppointments(dateRange);
     } catch (err: unknown) {
+      console.error('Error updating appointment status:', err);
       setNotification({
         type: 'error',
         message: 'Failed to update appointment status'
@@ -158,13 +152,21 @@ const ManagerAppointmentsPage: React.FC = () => {
 
   const renderAppointmentCard = (appointment: Appointment) => {
     const appointmentTime = parseISO(appointment.appointmentDate);
-    const isUpcoming = appointmentTime >= new Date();
     
     return (
       <div 
         key={appointment.appointmentId} 
         className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
         onClick={() => handleViewAppointment(appointment.appointmentId)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleViewAppointment(appointment.appointmentId);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={`View appointment details for ${appointment.serviceType}`}
       >
         <div className="flex justify-between">
           <div>
@@ -310,9 +312,10 @@ const ManagerAppointmentsPage: React.FC = () => {
     switch (dateRangeFilter) {
       case 'today':
         return format(currentDate, 'MMMM d, yyyy');
-      case 'week':
+      case 'week': {
         const weekStart = startOfWeek(currentDate);
         return `${format(weekStart, 'MMM d')} - ${format(addDays(weekStart, 6), 'MMM d, yyyy')}`;
+      }
       case 'month':
         return format(currentDate, 'MMMM yyyy');
       default:
@@ -405,18 +408,16 @@ const ManagerAppointmentsPage: React.FC = () => {
               
               <div className="flex space-x-2">
                 <Select
-                  id="dateRangeFilter"
                   options={[
                     { value: 'today', label: 'Today' },
                     { value: 'week', label: 'This Week' },
                     { value: 'month', label: 'This Month' },
                   ]}
                   value={dateRangeFilter}
-                  onChange={(value) => setDateRangeFilter(value)}
+                  onChange={(value: string) => setDateRangeFilter(value)}
                 />
                 
                 <Select
-                  id="statusFilter"
                   options={[
                     { value: 'all', label: 'All Statuses' },
                     { value: 'PENDING', label: 'Pending' },
@@ -426,7 +427,7 @@ const ManagerAppointmentsPage: React.FC = () => {
                     { value: 'CANCELLED', label: 'Cancelled' },
                   ]}
                   value={statusFilter}
-                  onChange={(value) => setStatusFilter(value)}
+                  onChange={(value: string) => setStatusFilter(value)}
                 />
               </div>
             </div>

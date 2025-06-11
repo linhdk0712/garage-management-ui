@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, MapPin, CheckCircle, Edit, Key, Car, Calendar } from 'lucide-react';
+import {  Mail, Phone, MapPin, CheckCircle, Edit, Key, Car, Calendar } from 'lucide-react';
 import { fetchCustomerProfile, updateCustomerProfile } from '../../api/customers';
 import { fetchCustomerVehicles } from '../../api/vehicles';
 import useAppointments from '../../hooks/useAppointments';
 import { useAuth } from '../../hooks/useAuth';
-import { Card, CardHeader, CardContent, CardTitle } from '../../components/ui/card';
+import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import Spinner from '../../components/common/Spinner';
 import Notification from '../../components/common/Notification';
-import VehicleList from '../../components/customer/vehicles/VehicleList';
 import AppointmentList from '../../components/customer/appointments/AppointmentList';
 import { Vehicle } from '../../types/vehicle.types';
-import { Appointment } from '../../types/appointment.types';
 
 interface CustomerProfile {
     customerId: number;
@@ -318,46 +316,52 @@ const ProfilePage: React.FC = () => {
                 <p className="text-sm text-gray-500 mt-1">Manage your registered vehicles</p>
             </div>
 
-            {isVehiclesLoading ? (
-                <Spinner size="md" text="Loading vehicles..." />
-            ) : vehicles.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {vehicles.map((vehicle) => (
-                        <div key={vehicle.vehicleId} className="bg-white rounded-lg shadow p-4">
-                            <h4 className="font-medium text-lg">
-                                {vehicle.year} {vehicle.make} {vehicle.model}
-                            </h4>
-                            <p className="text-sm text-gray-500 mt-1">License Plate: {vehicle.licensePlate}</p>
-                            {vehicle.vin && (
-                                <p className="text-sm text-gray-500">VIN: {vehicle.vin}</p>
-                            )}
-                            {vehicle.color && (
-                                <p className="text-sm text-gray-500">Color: {vehicle.color}</p>
-                            )}
-                            <p className="text-sm text-gray-500">
-                                Mileage: {vehicle.mileage.toLocaleString()} miles
-                            </p>
-                            {vehicle.lastServiceDate && (
-                                <p className="text-sm text-gray-500">
-                                    Last Service: {new Date(vehicle.lastServiceDate).toLocaleDateString()}
-                                </p>
-                            )}
+            {(() => {
+                if (isVehiclesLoading) {
+                    return <Spinner size="md" text="Loading vehicles..." />;
+                }
+                if (vehicles.length > 0) {
+                    return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {vehicles.map((vehicle) => (
+                                <div key={vehicle.vehicleId} className="bg-white rounded-lg shadow p-4">
+                                    <h4 className="font-medium text-lg">
+                                        {vehicle.year} {vehicle.make} {vehicle.model}
+                                    </h4>
+                                    <p className="text-sm text-gray-500 mt-1">License Plate: {vehicle.licensePlate}</p>
+                                    {vehicle.vin && (
+                                        <p className="text-sm text-gray-500">VIN: {vehicle.vin}</p>
+                                    )}
+                                    {vehicle.color && (
+                                        <p className="text-sm text-gray-500">Color: {vehicle.color}</p>
+                                    )}
+                                    <p className="text-sm text-gray-500">
+                                        Mileage: {vehicle.mileage.toLocaleString()} miles
+                                    </p>
+                                    {vehicle.lastServiceDate && (
+                                        <p className="text-sm text-gray-500">
+                                            Last Service: {new Date(vehicle.lastServiceDate).toLocaleDateString()}
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-8 bg-gray-50 rounded-lg">
-                    <Car className="w-12 h-12 mx-auto text-gray-400" />
-                    <p className="mt-2 text-gray-600">No vehicles registered yet</p>
-                    <Button
-                        variant="primary"
-                        className="mt-4"
-                        onClick={() => window.location.href = '/customer/vehicles/add'}
-                    >
-                        Register a Vehicle
-                    </Button>
-                </div>
-            )}
+                    );
+                }
+                return (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <Car className="w-12 h-12 mx-auto text-gray-400" />
+                        <p className="mt-2 text-gray-600">No vehicles registered yet</p>
+                        <Button
+                            variant="primary"
+                            className="mt-4"
+                            onClick={() => window.location.href = '/customer/vehicles/add'}
+                        >
+                            Register a Vehicle
+                        </Button>
+                    </div>
+                );
+            })()}
         </div>
     );
 
@@ -368,30 +372,37 @@ const ProfilePage: React.FC = () => {
                 <p className="text-sm text-gray-500 mt-1">View and manage your service appointments</p>
             </div>
 
-            {isAppointmentsLoading ? (
-                <Spinner size="md" text="Loading appointments..." />
-            ) : appointmentsError ? (
-                <Notification
-                    type="error"
-                    title="Error"
-                    message={appointmentsError}
-                    onClose={() => {}}
-                />
-            ) : appointments.length > 0 ? (
-                <AppointmentList onEditAppointment={(id) => window.location.href = `/customer/appointments/${id}`} />
-            ) : (
-                <div className="text-center py-8 bg-gray-50 rounded-lg">
-                    <Calendar className="w-12 h-12 mx-auto text-gray-400" />
-                    <p className="mt-2 text-gray-600">No appointments scheduled yet</p>
-                    <Button
-                        variant="primary"
-                        className="mt-4"
-                        onClick={() => window.location.href = '/customer/appointments'}
-                    >
-                        Schedule an Appointment
-                    </Button>
-                </div>
-            )}
+            {(() => {
+                if (isAppointmentsLoading) {
+                    return <Spinner size="md" text="Loading appointments..." />;
+                }
+                if (appointmentsError) {
+                    return (
+                        <Notification
+                            type="error"
+                            title="Error"
+                            message={appointmentsError}
+                            onClose={() => {}}
+                        />
+                    );
+                }
+                if (appointments.length > 0) {
+                    return <AppointmentList onEditAppointment={(id) => window.location.href = `/customer/appointments/${id}`} />;
+                }
+                return (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <Calendar className="w-12 h-12 mx-auto text-gray-400" />
+                        <p className="mt-2 text-gray-600">No appointments scheduled yet</p>
+                        <Button
+                            variant="primary"
+                            className="mt-4"
+                            onClick={() => window.location.href = '/customer/appointments'}
+                        >
+                            Schedule an Appointment
+                        </Button>
+                    </div>
+                );
+            })()}
         </div>
     );
 

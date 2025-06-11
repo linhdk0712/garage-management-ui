@@ -1,11 +1,11 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Search, Filter, ChevronDown, ChevronUp, UserPlus, Mail, Phone } from 'lucide-react';
+import { Search, Filter, UserPlus, Mail, Phone } from 'lucide-react';
 import { fetchAllCustomers, fetchCustomerStatistics } from '../../api/customers';
 import { CustomerProfile, CustomerStatistics } from '../../types/customer.types';
 import { PaginatedResponse } from '../../types/response.types';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import Select from '../../components/common/Select';
 import Table, { TableColumn } from '../../components/common/Table';
 import Spinner from '../../components/common/Spinner';

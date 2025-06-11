@@ -1,0 +1,145 @@
+@startuml Payment Processing Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Customer" as Customer
+actor "Staff" as Staff
+actor "Manager" as Manager
+participant "Payment Page" as PaymentPage
+participant "Appointment System" as AppointmentSystem
+participant "Payment Gateway" as PaymentGateway
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Email Service" as EmailService
+
+' === Payment Initiation ===
+group Payment Initiation
+    Staff -> AppointmentSystem: Complete Service
+    AppointmentSystem -> API: Update appointment status
+    API -> Server: PUT /appointments/{id}/status
+    Server -> DB: Update status to 'completed'
+    DB --> Server: Confirm update
+    Server --> API: Return updated appointment
+    API --> AppointmentSystem: Show payment option
+    
+    AppointmentSystem -> PaymentPage: Navigate to payment
+    PaymentPage -> API: Fetch appointment details
+    API -> Server: GET /appointments/{id}
+    Server -> DB: Query appointment
+    DB --> Server: Return appointment data
+    Server --> API: Return appointment with costs
+    API --> PaymentPage: Display payment form
+    PaymentPage --> Customer: Show payment options
+end
+
+' === Payment Method Selection ===
+group Payment Method Selection
+    Customer -> PaymentPage: Select payment method
+    alt Credit Card
+        PaymentPage -> PaymentPage: Show card form
+        Customer -> PaymentPage: Enter card details
+        PaymentPage -> PaymentGateway: Validate card
+        PaymentGateway --> PaymentPage: Card validation result
+    else Bank Transfer
+        PaymentPage -> PaymentPage: Show bank details
+        Customer -> PaymentPage: Confirm transfer
+    else Cash Payment
+        PaymentPage -> PaymentPage: Show cash receipt
+        Customer -> PaymentPage: Confirm cash payment
+    end
+end
+
+' === Payment Processing ===
+group Payment Processing
+    Customer -> PaymentPage: Submit payment
+    PaymentPage -> API: Process payment
+    API -> Server: POST /payments
+    Server -> DB: Create payment record
+    DB --> Server: Return payment ID
+    
+    alt Credit Card Payment
+        Server -> PaymentGateway: Process card payment
+        PaymentGateway --> Server: Payment result
+    else Bank Transfer
+        Server -> DB: Mark as pending
+        DB --> Server: Confirm pending status
+    else Cash Payment
+        Server -> DB: Mark as completed
+        DB --> Server: Confirm completion
+    end
+    
+    Server --> API: Return payment status
+    API --> PaymentPage: Update UI
+    PaymentPage --> Customer: Show payment result
+end
+
+' === Payment Confirmation ===
+group Payment Confirmation
+    alt Payment Successful
+        PaymentPage -> API: Update appointment status
+        API -> Server: PUT /appointments/{id}/paid
+        Server -> DB: Update appointment
+        DB --> Server: Confirm update
+        
+        Server -> EmailService: Send receipt
+        EmailService --> Customer: Email receipt
+        
+        PaymentPage -> API: Generate invoice
+        API -> Server: POST /invoices
+        Server -> DB: Create invoice record
+        DB --> Server: Return invoice
+        Server --> API: Return invoice data
+        API --> PaymentPage: Show invoice
+        PaymentPage --> Customer: Display invoice
+    else Payment Failed
+        PaymentPage --> Customer: Show error message
+        PaymentPage -> API: Log payment failure
+        API -> Server: POST /payment-logs
+        Server -> DB: Record failure
+        DB --> Server: Confirm log
+        Server --> API: Return log ID
+        API --> PaymentPage: Update failure count
+    end
+end
+
+' === Manager Oversight ===
+group Manager Oversight
+    Manager -> PaymentPage: View payment reports
+    PaymentPage -> API: GET /payments/reports
+    API -> Server: Generate payment report
+    Server -> DB: Query payment data
+    DB --> Server: Return payment statistics
+    Server --> API: Return report data
+    API --> PaymentPage: Display reports
+    PaymentPage --> Manager: Show payment analytics
+end
+
+' === Refund Process ===
+group Refund Process
+    Customer -> PaymentPage: Request refund
+    PaymentPage -> API: POST /refunds
+    API -> Server: Validate refund request
+    Server -> DB: Check payment status
+    DB --> Server: Return payment details
+    
+    alt Refund Approved
+        Server -> PaymentGateway: Process refund
+        PaymentGateway --> Server: Refund confirmation
+        Server -> DB: Update payment status
+        DB --> Server: Confirm refund
+        Server -> EmailService: Send refund notification
+        EmailService --> Customer: Refund email
+        Server --> API: Return refund status
+        API --> PaymentPage: Show refund confirmation
+        PaymentPage --> Customer: Display refund status
+    else Refund Denied
+        Server --> API: Return denial reason
+        API --> PaymentPage: Show denial message
+        PaymentPage --> Customer: Display denial
+    end
+end
+
+@enduml 

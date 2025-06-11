@@ -84,13 +84,14 @@ const ManagerDashboard: React.FC = () => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const [statsData, inventoryData] = await Promise.all([
+                const [statsResponse, inventoryResponse] = await Promise.all([
                     fetchDashboardStats({ period: timeRange }),
                     fetchLowStockItems()
                 ]);
 
+                const statsData = (statsResponse as any)?.data || statsResponse;
                 setStats(statsData as DashboardStats);
-                setLowStockItems(inventoryData);
+                setLowStockItems(inventoryResponse.data.content || []);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
             } finally {

@@ -29,7 +29,7 @@ const AppointmentCalendar: React.FC = () => {
                 });
                 
                 // Extract the appointments array from the paginated response
-                if (response && response.content) {
+                if (response?.content) {
                     setAppointments(response.content);
                 } else {
                     setAppointments([]);
@@ -185,7 +185,7 @@ const AppointmentCalendar: React.FC = () => {
                                                         <div className="flex items-center mt-1">
                                                             <Car className="w-3 h-3 mr-1" />
                                                             <span className="truncate">
-                                {apt.vehicle.make} {apt.vehicle.model}
+                                {apt.vehicle?.make && apt.vehicle?.model ? `${apt.vehicle.make} ${apt.vehicle.model}` : 'No vehicle info'}
                               </span>
                                                         </div>
 

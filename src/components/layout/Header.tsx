@@ -41,6 +41,73 @@ const NavLink: React.FC<NavLinkProps> = ({ to, icon, children, isActive }) => (
     </Link>
 );
 
+interface NavLinksProps {
+    isActive: (path: string) => boolean;
+}
+
+const CustomerNavLinks: React.FC<NavLinksProps> = ({ isActive }) => (
+    <>
+        <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>
+        <FeatureGate feature="enableVehicleManagement">
+            <NavLink to="/customer/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>My Vehicles</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableAppointments">
+            <NavLink to="/customer/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableRepairHistory">
+            <NavLink to="/customer/repair-history" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Repair History</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enablePayments">
+            <NavLink to="/customer/payments" icon={<CreditCard className="h-5 w-5" />} isActive={isActive}>Payments</NavLink>
+        </FeatureGate>
+    </>
+);
+
+const StaffNavLinks: React.FC<NavLinksProps> = ({ isActive }) => (
+    <>
+        <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>
+        <FeatureGate feature="enableAppointments">
+            <NavLink to="/staff/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableWorkOrders">
+            <NavLink to="/staff/work-orders" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Work Orders</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableVehicleManagement">
+            <NavLink to="/staff/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>Vehicles</NavLink>
+        </FeatureGate>
+    </>
+);
+
+const ManagerNavLinks: React.FC<NavLinksProps> = ({ isActive }) => (
+    <>
+        <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>
+        <FeatureGate feature="enableAppointments">
+            <NavLink to="/manager/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableVehicleManagement">
+            <NavLink to="/manager/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>Vehicles</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableWorkOrders">
+            <NavLink to="/manager/work-orders" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Work Orders</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableCustomerManagement">
+            <NavLink to="/manager/customers" icon={<Users className="h-5 w-5" />} isActive={isActive}>Customers</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableInventory">
+            <NavLink to="/manager/inventory" icon={<ShoppingBag className="h-5 w-5" />} isActive={isActive}>Inventory</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enablePurchaseOrders">
+            <NavLink to="/manager/purchase-orders" icon={<FileText className="h-5 w-5" />} isActive={isActive}>Purchase Orders</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableStaffManagement">
+            <NavLink to="/manager/staff" icon={<Users className="h-5 w-5" />} isActive={isActive}>Staff Management</NavLink>
+        </FeatureGate>
+        <FeatureGate feature="enableReports">
+            <NavLink to="/manager/reports" icon={<BarChart2 className="h-5 w-5" />} isActive={isActive}>Reports</NavLink>
+        </FeatureGate>
+    </>
+);
+
 const Header: React.FC = () => {
     const { user, logout } = useAuth();
     const [showUserMenu, setShowUserMenu] = useState(false);
@@ -71,79 +138,16 @@ const Header: React.FC = () => {
         return location.pathname.startsWith(path);
     };
 
-    const CustomerNavLinks = () => (
-        <>
-            <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>
-            <FeatureGate feature="enableVehicleManagement">
-                <NavLink to="/customer/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>My Vehicles</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableAppointments">
-                <NavLink to="/customer/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableRepairHistory">
-                <NavLink to="/customer/repair-history" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Repair History</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enablePayments">
-                <NavLink to="/customer/payments" icon={<CreditCard className="h-5 w-5" />} isActive={isActive}>Payments</NavLink>
-            </FeatureGate>
-        </>
-    );
-
-    const StaffNavLinks = () => (
-        <>
-            <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>
-            <FeatureGate feature="enableAppointments">
-                <NavLink to="/staff/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableWorkOrders">
-                <NavLink to="/staff/work-orders" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Work Orders</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableVehicleManagement">
-                <NavLink to="/staff/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>Vehicles</NavLink>
-            </FeatureGate>
-        </>
-    );
-
-    const ManagerNavLinks = () => (
-        <>
-            <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>
-            <FeatureGate feature="enableAppointments">
-                <NavLink to="/manager/appointments" icon={<Calendar className="h-5 w-5" />} isActive={isActive}>Appointments</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableVehicleManagement">
-                <NavLink to="/manager/vehicles" icon={<Car className="h-5 w-5" />} isActive={isActive}>Vehicles</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableWorkOrders">
-                <NavLink to="/manager/work-orders" icon={<Clipboard className="h-5 w-5" />} isActive={isActive}>Work Orders</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableCustomerManagement">
-                <NavLink to="/manager/customers" icon={<Users className="h-5 w-5" />} isActive={isActive}>Customers</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableInventory">
-                <NavLink to="/manager/inventory" icon={<ShoppingBag className="h-5 w-5" />} isActive={isActive}>Inventory</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enablePurchaseOrders">
-                <NavLink to="/manager/purchase-orders" icon={<FileText className="h-5 w-5" />} isActive={isActive}>Purchase Orders</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableStaffManagement">
-                <NavLink to="/manager/staff" icon={<Users className="h-5 w-5" />} isActive={isActive}>Staff Management</NavLink>
-            </FeatureGate>
-            <FeatureGate feature="enableReports">
-                <NavLink to="/manager/reports" icon={<BarChart2 className="h-5 w-5" />} isActive={isActive}>Reports</NavLink>
-            </FeatureGate>
-        </>
-    );
-
     const renderNavLinks = () => {
         if (!user) return null;
 
         switch (user.roles[0]) {
             case 'CUSTOMER':
-                return <CustomerNavLinks />;
+                return <CustomerNavLinks isActive={isActive} />;
             case 'STAFF':
-                return <StaffNavLinks />;
+                return <StaffNavLinks isActive={isActive} />;
             case 'MANAGER':
-                return <ManagerNavLinks />;
+                return <ManagerNavLinks isActive={isActive} />;
             default:
                 return <NavLink to="/" icon={<Home className="h-5 w-5" />} isActive={isActive}>Dashboard</NavLink>;
         }
@@ -175,6 +179,7 @@ const Header: React.FC = () => {
                                 <button
                                     className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     onClick={toggleNotifications}
+                                    title="View notifications"
                                 >
                                     <span className="sr-only">View notifications</span>
                                     <Bell className="h-6 w-6" />
@@ -228,6 +233,7 @@ const Header: React.FC = () => {
                             <button
                                 className="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 onClick={toggleUserMenu}
+                                title="Open user menu"
                             >
                                 <span className="sr-only">Open user menu</span>
                                 <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
@@ -252,6 +258,7 @@ const Header: React.FC = () => {
                                         <Link
                                             to={getProfileRoute()}
                                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            title="Profile"
                                         >
                                             <User className="mr-3 h-4 w-4 text-gray-500" />
                                             Profile
@@ -259,6 +266,7 @@ const Header: React.FC = () => {
                                         <Link
                                             to="/settings"
                                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            title="Settings"
                                         >
                                             <Settings className="mr-3 h-4 w-4 text-gray-500" />
                                             Settings
@@ -266,6 +274,7 @@ const Header: React.FC = () => {
                                         <Link
                                             to="/help"
                                             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            title="Help & Support"
                                         >
                                             <HelpCircle className="mr-3 h-4 w-4 text-gray-500" />
                                             Help & Support
@@ -273,6 +282,7 @@ const Header: React.FC = () => {
                                         <button
                                             onClick={logout}
                                             className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
+                                            title="Sign out"
                                         >
                                             <LogOut className="mr-3 h-4 w-4 text-red-500" />
                                             Sign out

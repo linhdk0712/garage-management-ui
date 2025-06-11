@@ -18,7 +18,7 @@ const useAppointments = ({ initialFetch = false }: UseAppointmentsProps = {}) =>
         try {
             setIsLoading(true);
             const response = await fetchAppointments(ROUTES.customer.appointments, customFilters);
-            if (response && response.content) {
+            if (response?.content) {
                 setAppointments(response.content);
             } else {
                 setAppointments([]);

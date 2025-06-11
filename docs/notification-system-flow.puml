@@ -1,0 +1,302 @@
+@startuml Notification System Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Customer" as Customer
+actor "Staff" as Staff
+actor "Manager" as Manager
+participant "Notification Center" as NotificationCenter
+participant "Email Service" as EmailService
+participant "SMS Service" as SMSService
+participant "Push Service" as PushService
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "WebSocket Server" as WebSocket
+
+' === Notification Types ===
+group Notification Types
+    note over Server: System supports multiple notification types:
+    note over Server: - Appointment reminders
+    note over Server: - Service updates
+    note over Server: - Payment confirmations
+    note over Server: - Low stock alerts
+    note over Server: - Work order assignments
+    note over Server: - System alerts
+end
+
+' === Real-time Notifications ===
+group Real-time Notifications
+    Server -> WebSocket: Broadcast notification
+    WebSocket -> NotificationCenter: Send real-time update
+    NotificationCenter -> Customer: Display notification
+    NotificationCenter -> Staff: Display notification
+    NotificationCenter -> Manager: Display notification
+    
+    Customer -> NotificationCenter: View notifications
+    NotificationCenter -> API: GET /notifications
+    API -> Server: Fetch user notifications
+    Server -> DB: Query notifications
+    DB --> Server: Return notification list
+    Server --> API: Return notifications
+    API --> NotificationCenter: Display notifications
+    NotificationCenter --> Customer: Show notification list
+end
+
+' === Appointment Notifications ===
+group Appointment Notifications
+    alt Appointment Scheduled
+        Server -> DB: Create appointment
+        DB --> Server: Confirm appointment
+        Server -> EmailService: Send confirmation email
+        EmailService --> Customer: Appointment confirmation
+        Server -> SMSService: Send confirmation SMS
+        SMSService --> Customer: Appointment SMS
+        Server -> WebSocket: Broadcast to customer
+        WebSocket -> NotificationCenter: Real-time notification
+        NotificationCenter --> Customer: In-app notification
+    end
+    
+    alt Appointment Reminder
+        loop Daily Reminder Check
+            Server -> DB: Query upcoming appointments
+            DB --> Server: Return appointments
+            Server -> EmailService: Send reminder emails
+            EmailService --> Customer: Reminder emails
+            Server -> SMSService: Send reminder SMS
+            SMSService --> Customer: Reminder SMS
+            Server -> PushService: Send push notifications
+            PushService --> Customer: Push reminders
+        end
+    end
+    
+    alt Appointment Status Update
+        Server -> DB: Update appointment status
+        DB --> Server: Confirm update
+        Server -> EmailService: Send status update
+        EmailService --> Customer: Status update email
+        Server -> WebSocket: Broadcast status change
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Status notification
+    end
+end
+
+' === Service Notifications ===
+group Service Notifications
+    alt Service Started
+        Server -> DB: Update service status
+        DB --> Server: Confirm update
+        Server -> EmailService: Send service start email
+        EmailService --> Customer: Service start notification
+        Server -> WebSocket: Broadcast service update
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Service notification
+    end
+    
+    alt Service Completed
+        Server -> DB: Update service completion
+        DB --> Server: Confirm completion
+        Server -> EmailService: Send completion email
+        EmailService --> Customer: Service completion
+        Server -> SMSService: Send completion SMS
+        SMSService --> Customer: Completion SMS
+        Server -> WebSocket: Broadcast completion
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Completion notification
+    end
+    
+    alt Additional Work Required
+        Server -> DB: Record additional work
+        DB --> Server: Confirm additional work
+        Server -> EmailService: Send additional work email
+        EmailService --> Customer: Additional work notification
+        Server -> SMSService: Send additional work SMS
+        SMSService --> Customer: Additional work SMS
+        Server -> WebSocket: Broadcast additional work
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Additional work alert
+    end
+end
+
+' === Payment Notifications ===
+group Payment Notifications
+    alt Payment Received
+        Server -> DB: Record payment
+        DB --> Server: Confirm payment
+        Server -> EmailService: Send receipt email
+        EmailService --> Customer: Payment receipt
+        Server -> WebSocket: Broadcast payment
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Payment confirmation
+    end
+    
+    alt Payment Failed
+        Server -> DB: Record payment failure
+        DB --> Server: Confirm failure
+        Server -> EmailService: Send failure email
+        EmailService --> Customer: Payment failure notice
+        Server -> SMSService: Send failure SMS
+        SMSService --> Customer: Payment failure SMS
+        Server -> WebSocket: Broadcast failure
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Payment failure alert
+    end
+    
+    alt Refund Processed
+        Server -> DB: Record refund
+        DB --> Server: Confirm refund
+        Server -> EmailService: Send refund email
+        EmailService --> Customer: Refund confirmation
+        Server -> WebSocket: Broadcast refund
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Refund notification
+    end
+end
+
+' === Staff Notifications ===
+group Staff Notifications
+    alt Work Order Assigned
+        Server -> DB: Assign work order
+        DB --> Server: Confirm assignment
+        Server -> EmailService: Send assignment email
+        EmailService --> Staff: Work order assignment
+        Server -> WebSocket: Broadcast assignment
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Staff: Assignment notification
+    end
+    
+    alt Low Stock Alert
+        Server -> DB: Check inventory levels
+        DB --> Server: Return low stock items
+        Server -> EmailService: Send low stock email
+        EmailService --> Manager: Low stock alert
+        Server -> WebSocket: Broadcast low stock
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Manager: Low stock notification
+    end
+    
+    alt Schedule Change
+        Server -> DB: Update schedule
+        DB --> Server: Confirm schedule change
+        Server -> EmailService: Send schedule email
+        EmailService --> Staff: Schedule change notification
+        Server -> SMSService: Send schedule SMS
+        SMSService --> Staff: Schedule change SMS
+        Server -> WebSocket: Broadcast schedule
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Staff: Schedule notification
+    end
+end
+
+' === System Notifications ===
+group System Notifications
+    alt System Maintenance
+        Server -> EmailService: Send maintenance email
+        EmailService --> Customer: Maintenance notification
+        EmailService --> Staff: Maintenance notification
+        EmailService --> Manager: Maintenance notification
+        Server -> WebSocket: Broadcast maintenance
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Customer: Maintenance alert
+        NotificationCenter --> Staff: Maintenance alert
+        NotificationCenter --> Manager: Maintenance alert
+    end
+    
+    alt Security Alert
+        Server -> EmailService: Send security email
+        EmailService --> Manager: Security alert
+        Server -> WebSocket: Broadcast security
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Manager: Security notification
+    end
+    
+    alt Performance Alert
+        Server -> EmailService: Send performance email
+        EmailService --> Manager: Performance alert
+        Server -> WebSocket: Broadcast performance
+        WebSocket -> NotificationCenter: Real-time update
+        NotificationCenter --> Manager: Performance notification
+    end
+end
+
+' === Notification Preferences ===
+group Notification Preferences
+    Customer -> NotificationCenter: Update preferences
+    NotificationCenter -> API: PUT /notifications/preferences
+    API -> Server: Update user preferences
+    Server -> DB: Store preferences
+    DB --> Server: Confirm preferences
+    Server --> API: Return updated preferences
+    API --> NotificationCenter: Show preferences
+    NotificationCenter --> Customer: Display preferences
+    
+    alt Email Notifications Disabled
+        Server -> EmailService: Skip email
+        EmailService --> Customer: No email sent
+    end
+    
+    alt SMS Notifications Disabled
+        Server -> SMSService: Skip SMS
+        SMSService --> Customer: No SMS sent
+    end
+    
+    alt Push Notifications Disabled
+        Server -> PushService: Skip push
+        PushService --> Customer: No push sent
+    end
+end
+
+' === Notification Management ===
+group Notification Management
+    Customer -> NotificationCenter: Mark as read
+    NotificationCenter -> API: PUT /notifications/{id}/read
+    API -> Server: Mark notification read
+    Server -> DB: Update read status
+    DB --> Server: Confirm read status
+    Server --> API: Return updated status
+    API --> NotificationCenter: Update UI
+    NotificationCenter --> Customer: Show updated status
+    
+    Customer -> NotificationCenter: Delete notification
+    NotificationCenter -> API: DELETE /notifications/{id}
+    API -> Server: Delete notification
+    Server -> DB: Remove notification
+    DB --> Server: Confirm deletion
+    Server --> API: Return deletion status
+    API --> NotificationCenter: Update list
+    NotificationCenter --> Customer: Show updated list
+    
+    Customer -> NotificationCenter: Clear all notifications
+    NotificationCenter -> API: DELETE /notifications/clear
+    API -> Server: Clear all notifications
+    Server -> DB: Remove all notifications
+    DB --> Server: Confirm clearing
+    Server --> API: Return clear status
+    API --> NotificationCenter: Update list
+    NotificationCenter --> Customer: Show empty list
+end
+
+' === Notification Analytics ===
+group Notification Analytics
+    Manager -> NotificationCenter: View notification reports
+    NotificationCenter -> API: GET /notifications/analytics
+    API -> Server: Generate notification analytics
+    Server -> DB: Query notification data
+    DB --> Server: Return analytics
+    Server --> API: Return reports
+    API --> NotificationCenter: Display analytics
+    NotificationCenter --> Manager: Show notification reports
+    
+    Manager -> NotificationCenter: Export notification data
+    NotificationCenter -> API: GET /notifications/export
+    API -> Server: Generate export data
+    Server -> DB: Query export data
+    DB --> Server: Return export data
+    Server --> API: Return export file
+    API --> NotificationCenter: Download export
+    NotificationCenter --> Manager: Provide export file
+end
+
+@enduml 

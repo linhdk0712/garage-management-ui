@@ -1,0 +1,311 @@
+@startuml Data Export and Reporting Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Manager" as Manager
+actor "Staff" as Staff
+actor "Customer" as Customer
+participant "Reports Page" as ReportsPage
+participant "Export Service" as ExportService
+participant "Analytics Engine" as Analytics
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Email Service" as EmailService
+participant "File Storage" as FileStorage
+
+' === Report Types ===
+group Report Types
+    note over Server: System supports multiple report types:
+    note over Server: - Financial reports (revenue, expenses, profit)
+    note over Server: - Operational reports (appointments, services)
+    note over Server: - Customer reports (satisfaction, retention)
+    note over Server: - Inventory reports (stock levels, usage)
+    note over Server: - Staff reports (performance, productivity)
+    note over Server: - Vehicle reports (service history, maintenance)
+end
+
+' === Report Generation ===
+group Report Generation
+    Manager -> ReportsPage: Access reports dashboard
+    ReportsPage -> API: GET /reports/types
+    API -> Server: Fetch available report types
+    Server -> DB: Query report configurations
+    DB --> Server: Return report types
+    Server --> API: Return report options
+    API --> ReportsPage: Display report types
+    ReportsPage --> Manager: Show available reports
+    
+    Manager -> ReportsPage: Select report type
+    ReportsPage -> API: GET /reports/{type}/config
+    API -> Server: Fetch report configuration
+    Server -> DB: Query report settings
+    DB --> Server: Return report config
+    Server --> API: Return configuration
+    API --> ReportsPage: Display report form
+    ReportsPage --> Manager: Show report options
+    
+    Manager -> ReportsPage: Set report parameters
+    ReportsPage -> API: POST /reports/generate
+    API -> Server: Generate report
+    Server -> Analytics: Process report data
+    Analytics -> DB: Query relevant data
+    DB --> Analytics: Return data
+    Analytics -> Analytics: Calculate metrics
+    Analytics --> Server: Return processed data
+    Server -> DB: Store report
+    DB --> Server: Return report ID
+    Server --> API: Return report
+    API --> ReportsPage: Display report
+    ReportsPage --> Manager: Show generated report
+end
+
+' === Financial Reports ===
+group Financial Reports
+    Manager -> ReportsPage: Generate financial report
+    ReportsPage -> API: POST /reports/financial
+    API -> Server: Create financial report
+    Server -> Analytics: Calculate financial metrics
+    Analytics -> DB: Query financial data
+    DB --> Analytics: Return financial data
+    Analytics -> Analytics: Calculate revenue, expenses, profit
+    Analytics --> Server: Return financial metrics
+    Server -> DB: Store financial report
+    DB --> Server: Return report ID
+    Server --> API: Return financial report
+    API --> ReportsPage: Display financial data
+    ReportsPage --> Manager: Show financial metrics
+    
+    Manager -> ReportsPage: Export financial data
+    ReportsPage -> API: GET /reports/financial/export
+    API -> Server: Export financial data
+    Server -> ExportService: Generate export file
+    ExportService -> DB: Query financial data
+    DB --> ExportService: Return financial data
+    ExportService -> ExportService: Format as CSV/Excel
+    ExportService -> FileStorage: Store export file
+    FileStorage --> ExportService: Return file URL
+    ExportService --> Server: Return export file
+    Server --> API: Return download link
+    API --> ReportsPage: Provide download
+    ReportsPage --> Manager: Download financial report
+end
+
+' === Operational Reports ===
+group Operational Reports
+    Manager -> ReportsPage: Generate operational report
+    ReportsPage -> API: POST /reports/operational
+    API -> Server: Create operational report
+    Server -> Analytics: Calculate operational metrics
+    Analytics -> DB: Query operational data
+    DB --> Analytics: Return appointment/service data
+    Analytics -> Analytics: Calculate efficiency metrics
+    Analytics --> Server: Return operational metrics
+    Server -> DB: Store operational report
+    DB --> Server: Return report ID
+    Server --> API: Return operational report
+    API --> ReportsPage: Display operational data
+    ReportsPage --> Manager: Show operational metrics
+    
+    Staff -> ReportsPage: View daily schedule
+    ReportsPage -> API: GET /reports/daily-schedule
+    API -> Server: Generate daily schedule
+    Server -> DB: Query today's appointments
+    DB --> Server: Return appointment data
+    Server --> API: Return daily schedule
+    API --> ReportsPage: Display schedule
+    ReportsPage --> Staff: Show daily appointments
+end
+
+' === Customer Reports ===
+group Customer Reports
+    Manager -> ReportsPage: Generate customer report
+    ReportsPage -> API: POST /reports/customer
+    API -> Server: Create customer report
+    Server -> Analytics: Calculate customer metrics
+    Analytics -> DB: Query customer data
+    DB --> Analytics: Return customer information
+    Analytics -> Analytics: Calculate satisfaction scores
+    Analytics --> Server: Return customer metrics
+    Server -> DB: Store customer report
+    DB --> Server: Return report ID
+    Server --> API: Return customer report
+    API --> ReportsPage: Display customer data
+    ReportsPage --> Manager: Show customer metrics
+    
+    Customer -> ReportsPage: View service history
+    ReportsPage -> API: GET /reports/service-history
+    API -> Server: Generate service history
+    Server -> DB: Query customer service history
+    DB --> Server: Return service data
+    Server --> API: Return service history
+    API --> ReportsPage: Display history
+    ReportsPage --> Customer: Show service history
+end
+
+' === Inventory Reports ===
+group Inventory Reports
+    Manager -> ReportsPage: Generate inventory report
+    ReportsPage -> API: POST /reports/inventory
+    API -> Server: Create inventory report
+    Server -> Analytics: Calculate inventory metrics
+    Analytics -> DB: Query inventory data
+    DB --> Analytics: Return inventory information
+    Analytics -> Analytics: Calculate stock levels, usage
+    Analytics --> Server: Return inventory metrics
+    Server -> DB: Store inventory report
+    DB --> Server: Return report ID
+    Server --> API: Return inventory report
+    API --> ReportsPage: Display inventory data
+    ReportsPage --> Manager: Show inventory metrics
+    
+    Manager -> ReportsPage: Export inventory data
+    ReportsPage -> API: GET /reports/inventory/export
+    API -> Server: Export inventory data
+    Server -> ExportService: Generate inventory export
+    ExportService -> DB: Query inventory data
+    DB --> ExportService: Return inventory data
+    ExportService -> ExportService: Format export file
+    ExportService -> FileStorage: Store export file
+    FileStorage --> ExportService: Return file URL
+    ExportService --> Server: Return export file
+    Server --> API: Return download link
+    API --> ReportsPage: Provide download
+    ReportsPage --> Manager: Download inventory report
+end
+
+' === Staff Reports ===
+group Staff Reports
+    Manager -> ReportsPage: Generate staff report
+    ReportsPage -> API: POST /reports/staff
+    API -> Server: Create staff report
+    Server -> Analytics: Calculate staff metrics
+    Analytics -> DB: Query staff data
+    DB --> Analytics: Return staff information
+    Analytics -> Analytics: Calculate performance metrics
+    Analytics --> Server: Return staff metrics
+    Server -> DB: Store staff report
+    DB --> Server: Return report ID
+    Server --> API: Return staff report
+    API --> ReportsPage: Display staff data
+    ReportsPage --> Manager: Show staff metrics
+    
+    Staff -> ReportsPage: View personal performance
+    ReportsPage -> API: GET /reports/personal-performance
+    API -> Server: Generate personal report
+    Server -> DB: Query staff performance
+    DB --> Server: Return performance data
+    Server --> API: Return personal report
+    API --> ReportsPage: Display performance
+    ReportsPage --> Staff: Show personal metrics
+end
+
+' === Scheduled Reports ===
+group Scheduled Reports
+    Manager -> ReportsPage: Schedule recurring report
+    ReportsPage -> API: POST /reports/schedule
+    API -> Server: Create report schedule
+    Server -> DB: Store schedule configuration
+    DB --> Server: Return schedule ID
+    Server --> API: Return schedule
+    API --> ReportsPage: Show schedule created
+    ReportsPage --> Manager: Display confirmation
+    
+    loop Scheduled Report Generation
+        Server -> Analytics: Generate scheduled report
+        Analytics -> DB: Query scheduled data
+        DB --> Analytics: Return data
+        Analytics -> Analytics: Process report data
+        Analytics --> Server: Return processed report
+        Server -> DB: Store generated report
+        DB --> Server: Confirm storage
+        Server -> EmailService: Send report email
+        EmailService --> Manager: Scheduled report email
+        Server -> FileStorage: Store report file
+        FileStorage --> Server: Confirm storage
+    end
+end
+
+' === Data Export ===
+group Data Export
+    Manager -> ReportsPage: Export data
+    ReportsPage -> API: POST /exports
+    API -> Server: Create export request
+    Server -> ExportService: Process export
+    ExportService -> DB: Query export data
+    DB --> ExportService: Return data
+    ExportService -> ExportService: Format data
+    ExportService -> FileStorage: Store export file
+    FileStorage --> ExportService: Return file URL
+    ExportService --> Server: Return export file
+    Server -> DB: Store export record
+    DB --> Server: Confirm export
+    Server --> API: Return export
+    API --> ReportsPage: Provide download
+    ReportsPage --> Manager: Download export file
+    
+    Manager -> ReportsPage: View export history
+    ReportsPage -> API: GET /exports/history
+    API -> Server: Fetch export history
+    Server -> DB: Query export records
+    DB --> Server: Return export history
+    Server --> API: Return history
+    API --> ReportsPage: Display history
+    ReportsPage --> Manager: Show export history
+end
+
+' === Report Sharing ===
+group Report Sharing
+    Manager -> ReportsPage: Share report
+    ReportsPage -> API: POST /reports/{id}/share
+    API -> Server: Share report
+    Server -> DB: Create share record
+    DB --> Server: Return share ID
+    Server -> EmailService: Send shared report
+    EmailService --> Staff: Shared report email
+    Server --> API: Return share status
+    API --> ReportsPage: Show shared
+    ReportsPage --> Manager: Display confirmation
+    
+    Staff -> ReportsPage: Access shared report
+    ReportsPage -> API: GET /reports/shared/{id}
+    API -> Server: Fetch shared report
+    Server -> DB: Query shared report
+    DB --> Server: Return report data
+    Server --> API: Return shared report
+    API --> ReportsPage: Display shared report
+    ReportsPage --> Staff: Show shared report
+end
+
+' === Report Analytics ===
+group Report Analytics
+    Manager -> ReportsPage: View report analytics
+    ReportsPage -> API: GET /reports/analytics
+    API -> Server: Generate report analytics
+    Server -> Analytics: Calculate report metrics
+    Analytics -> DB: Query report usage data
+    DB --> Analytics: Return usage data
+    Analytics -> Analytics: Calculate usage patterns
+    Analytics --> Server: Return analytics
+    Server --> API: Return report analytics
+    API --> ReportsPage: Display analytics
+    ReportsPage --> Manager: Show report usage patterns
+    
+    Manager -> ReportsPage: Export analytics
+    ReportsPage -> API: GET /reports/analytics/export
+    API -> Server: Export analytics data
+    Server -> ExportService: Generate analytics export
+    ExportService -> DB: Query analytics data
+    DB --> ExportService: Return analytics data
+    ExportService -> ExportService: Format analytics
+    ExportService -> FileStorage: Store analytics file
+    FileStorage --> ExportService: Return file URL
+    ExportService --> Server: Return analytics file
+    Server --> API: Return download link
+    API --> ReportsPage: Provide download
+    ReportsPage --> Manager: Download analytics
+end
+
+@enduml 

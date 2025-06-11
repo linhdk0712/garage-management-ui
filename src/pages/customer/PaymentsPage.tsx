@@ -33,7 +33,7 @@ const PaymentsPage: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await getPaymentHistory();
-        setPayments(data||[]);
+        setPayments(data);
       } catch (err: any) {
         setError(err.message || 'Failed to fetch payment history');
       } finally {

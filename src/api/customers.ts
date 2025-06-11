@@ -1,6 +1,6 @@
 import apiClient from './apiClient';
 import { CustomerProfile, CustomerStatistics } from '../types/customer.types';
-import { PaginatedResponseData, PaginatedResponse } from '../types/response.types';
+import {  PaginatedResponse } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 
 /**

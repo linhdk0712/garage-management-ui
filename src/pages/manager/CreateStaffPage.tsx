@@ -16,9 +16,9 @@ import {
     Save
 } from 'lucide-react';
 import { ROUTES } from '../../config/routes';
-import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
-import Card from '../../components/common/Card';
+import { Input } from '../../components/ui/input';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
 import Select from '../../components/common/Select';
 import { CreateStaffFormData } from '../../types/staff.types';
 import { createStaff } from '../../api/staff';

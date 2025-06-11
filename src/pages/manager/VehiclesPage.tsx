@@ -1,11 +1,11 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import { Search, Filter, Car, User, Calendar, MapPin } from 'lucide-react';
+import { Search, Filter, Car, Calendar, MapPin } from 'lucide-react';
 import { fetchAllVehiclesWithCustomers } from '../../api/vehicles';
 import { VehicleWithCustomer } from '../../types/vehicle.types';
 import { PaginatedResponse } from '../../types/response.types';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Input from '../../components/common/Input';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 import Select from '../../components/common/Select';
 import Table, { TableColumn } from '../../components/common/Table';
 import Spinner from '../../components/common/Spinner';
@@ -17,6 +17,84 @@ import { formatDate } from '../../utils/dateUtils.ts';
 interface VehicleWithCustomerIndex extends VehicleWithCustomer {
     [key: string]: unknown;
 }
+
+const getVehicleColumns = (): TableColumn<VehicleWithCustomerIndex>[] => [
+    {
+        header: 'Vehicle',
+        accessor: (vehicle) => (
+            <div className="flex flex-col">
+                <div className="font-medium">{vehicle.make} {vehicle.model}</div>
+                <div className="text-sm text-gray-500">{vehicle.year}</div>
+                <div className="text-sm text-gray-600">{vehicle.licensePlate}</div>
+            </div>
+        ),
+        sortable: true,
+        className: 'min-w-[200px]'
+    },
+    {
+        header: 'Details',
+        accessor: (vehicle) => (
+            <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                    <Car className="w-4 h-4" />
+                    <span>{vehicle.color || 'N/A'}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    <span>{vehicle.mileage.toLocaleString()} miles</span>
+                </div>
+                {vehicle.vin && (
+                    <div className="text-sm text-gray-500">
+                        VIN: {vehicle.vin}
+                    </div>
+                )}
+            </div>
+        ),
+        sortable: false,
+        className: 'min-w-[200px]'
+    },
+    {
+        header: 'Service History',
+        accessor: (vehicle) => (
+            <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>Registered: {formatDate(vehicle.registrationDate)}</span>
+                </div>
+                {vehicle.lastServiceDate && (
+                    <div className="text-sm text-gray-500">
+                        Last Service: {formatDate(vehicle.lastServiceDate)}
+                    </div>
+                )}
+            </div>
+        ),
+        sortable: true,
+        className: 'min-w-[200px]'
+    },
+    {
+        header: 'Actions',
+        accessor: (vehicle) => (
+            <div className="flex gap-2">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {/* TODO: Implement view vehicle details */}}
+                >
+                    View Details
+                </Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {/* TODO: Implement view customer details */}}
+                >
+                    View Customer
+                </Button>
+            </div>
+        ),
+        sortable: false,
+        className: 'min-w-[200px]'
+    }
+];
 
 const VehiclesPage: React.FC = () => {
     const [vehicles, setVehicles] = useState<VehicleWithCustomerIndex[]>([]);
@@ -242,14 +320,6 @@ const VehiclesPage: React.FC = () => {
         fetchVehicles();
     }, [searchTerm, makeFilter, yearFilter, sortBy, sortDirection, currentPage, pageSize]);
 
-    const handleSort = (column: string) => {
-        if (sortBy === column) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortBy(column);
-            setSortDirection('asc');
-        }
-    };
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -259,96 +329,6 @@ const VehiclesPage: React.FC = () => {
         setPageSize(size);
         setCurrentPage(0); // Reset to first page when changing page size
     };
-
-    const columns: TableColumn<VehicleWithCustomerIndex>[] = [
-        {
-            header: 'Vehicle',
-            accessor: (vehicle) => (
-                <div className="flex flex-col">
-                    <div className="font-medium">{vehicle.make} {vehicle.model}</div>
-                    <div className="text-sm text-gray-500">{vehicle.year}</div>
-                    <div className="text-sm text-gray-600">{vehicle.licensePlate}</div>
-                </div>
-            ),
-            sortable: true,
-            className: 'min-w-[200px]'
-        },
-        // {
-        //     header: 'Customer',
-        //     accessor: (vehicle) => (
-        //         <div className="flex flex-col">
-        //             <div className="font-medium">{vehicle.customer.firstName} {vehicle.customer.lastName}</div>
-        //             <div className="text-sm text-gray-500">{vehicle.customer.email}</div>
-        //             <div className="text-sm text-gray-600">{vehicle.customer.phone}</div>
-        //         </div>
-        //     ),
-        //     sortable: true,
-        //     className: 'min-w-[250px]'
-        // },
-        {
-            header: 'Details',
-            accessor: (vehicle) => (
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-1">
-                        <Car className="w-4 h-4" />
-                        <span>{vehicle.color || 'N/A'}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>{vehicle.mileage.toLocaleString()} miles</span>
-                    </div>
-                    {vehicle.vin && (
-                        <div className="text-sm text-gray-500">
-                            VIN: {vehicle.vin}
-                        </div>
-                    )}
-                </div>
-            ),
-            sortable: false,
-            className: 'min-w-[200px]'
-        },
-        {
-            header: 'Service History',
-            accessor: (vehicle) => (
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Registered: {formatDate(vehicle.registrationDate)}</span>
-                    </div>
-                    {vehicle.lastServiceDate && (
-                        <div className="text-sm text-gray-500">
-                            Last Service: {formatDate(vehicle.lastServiceDate)}
-                        </div>
-                    )}
-                </div>
-            ),
-            sortable: true,
-            className: 'min-w-[200px]'
-        },
-        {
-            header: 'Actions',
-            accessor: (vehicle) => (
-                <div className="flex gap-2">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {/* TODO: Implement view vehicle details */}}
-                    >
-                        View Details
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {/* TODO: Implement view customer details */}}
-                    >
-                        View Customer
-                    </Button>
-                </div>
-            ),
-            sortable: false,
-            className: 'min-w-[200px]'
-        }
-    ];
 
     // Generate unique makes for filter dropdown
     const uniqueMakes = Array.from(new Set(vehicles.map(v => v.make))).sort();
@@ -481,7 +461,7 @@ const VehiclesPage: React.FC = () => {
             ) : (
                 <Card>
                     <Table<VehicleWithCustomerIndex>
-                        columns={columns}
+                        columns={getVehicleColumns()}
                         data={vehicles || []}
                         keyField="vehicleId"
                         hoverable

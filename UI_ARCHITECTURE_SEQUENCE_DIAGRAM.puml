@@ -1,0 +1,184 @@
+@startuml Garage Management UI Architecture Sequence Diagram
+
+skin rose
+skinparam backgroundColor #FFFFFF
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title Garage Management UI - Component Interaction Sequence Diagram
+
+participant "User" as U
+participant "App.tsx" as App
+participant "Routes.tsx" as Routes
+participant "Pages" as Pages
+participant "Components" as Components
+participant "Hooks" as Hooks
+participant "Types" as Types
+participant "API Layer" as API
+participant "Backend API" as Backend
+
+== Authentication Flow ==
+
+U -> App: Access Application
+App -> Routes: Load Routes
+Routes -> Pages: Render AuthPage
+Pages -> Components: Render AuthForm
+Components -> Hooks: useAuth()
+Hooks -> API: auth.ts
+API -> Backend: POST /auth/login
+Backend -> API: Return JWT Token
+API -> Hooks: Store Token
+Hooks -> Components: Update Auth State
+Components -> Pages: Redirect to Dashboard
+
+== Customer Dashboard Flow ==
+
+U -> Pages: Navigate to Customer Dashboard
+Pages -> Components: Render CustomerDashboard
+Components -> Hooks: useAppointments()
+Hooks -> Types: Import Appointment Types
+Types -> Hooks: Provide Type Definitions
+Hooks -> API: appointments.ts
+API -> Backend: GET /appointments
+Backend -> API: Return Appointments Data
+API -> Hooks: Process Response
+Hooks -> Components: Update State
+Components -> Pages: Render Appointments List
+
+== Appointment Management Flow ==
+
+U -> Pages: Open Appointments Page
+Pages -> Components: Render AppointmentsPage
+Components -> Hooks: useAppointments({ initialFetch: true })
+Hooks -> API: fetchAppointments()
+API -> Backend: GET /appointments?status=PENDING
+Backend -> API: Return PaginatedResponse<Appointment>
+API -> Hooks: Process Data
+Hooks -> Components: Set appointments state
+
+U -> Components: Click "Add Appointment"
+Components -> Components: Render AppointmentForm
+Components -> Hooks: useVehicles()
+Hooks -> API: vehicles.ts
+API -> Backend: GET /vehicles
+Backend -> API: Return Vehicle List
+API -> Hooks: Process Vehicles
+Hooks -> Components: Populate Vehicle Select
+
+U -> Components: Fill Form & Submit
+Components -> Types: Validate AppointmentFormData
+Types -> Components: Type Validation
+Components -> API: scheduleAppointment()
+API -> Backend: POST /appointments
+Backend -> API: Return Created Appointment
+API -> Components: Success Response
+Components -> Hooks: Update appointments state
+Hooks -> Components: Refresh List
+
+== Vehicle Management Flow ==
+
+U -> Pages: Navigate to Vehicles Page
+Pages -> Components: Render VehiclesPage
+Components -> Hooks: useVehicles()
+Hooks -> Types: Import Vehicle Types
+Types -> Hooks: Provide Vehicle Interface
+Hooks -> API: vehicles.ts
+API -> Backend: GET /vehicles
+Backend -> API: Return Vehicle Data
+API -> Hooks: Process Response
+Hooks -> Components: Update vehicles state
+
+U -> Components: Add New Vehicle
+Components -> Components: Render VehicleForm
+Components -> Types: Validate VehicleFormData
+Types -> Components: Type Check
+Components -> API: createVehicle()
+API -> Backend: POST /vehicles
+Backend -> API: Return Created Vehicle
+API -> Components: Success Response
+Components -> Hooks: Update vehicles state
+
+== Staff Management Flow ==
+
+U -> Pages: Navigate to Staff Management (Manager)
+Pages -> Components: Render StaffManagementPage
+Components -> Hooks: useStaffAppointments()
+Hooks -> API: staff.ts
+API -> Backend: GET /staff/appointments
+Backend -> API: Return Staff Data
+API -> Hooks: Process Response
+Hooks -> Components: Update staff state
+
+U -> Components: Update Appointment Status
+Components -> API: updateAppointmentStatus()
+API -> Backend: PUT /appointments/{id}/status
+Backend -> API: Return Updated Appointment
+API -> Components: Success Response
+Components -> Hooks: Update appointments state
+
+== Inventory Management Flow ==
+
+U -> Pages: Navigate to Inventory (Manager)
+Pages -> Components: Render InventoryPage
+Components -> Hooks: useInventory()
+Hooks -> Types: Import Inventory Types
+Types -> Hooks: Provide Inventory Interface
+Hooks -> API: inventory.ts
+API -> Backend: GET /inventory
+Backend -> API: Return Inventory Data
+API -> Hooks: Process Response
+Hooks -> Components: Update inventory state
+
+U -> Components: Update Stock
+Components -> API: updateInventoryItem()
+API -> Backend: PUT /inventory/{id}
+Backend -> API: Return Updated Item
+API -> Components: Success Response
+Components -> Hooks: Update inventory state
+
+== Work Orders Flow ==
+
+U -> Pages: Navigate to Work Orders
+Pages -> Components: Render WorkOrdersPage
+Components -> Hooks: useWorkOrders()
+Hooks -> Types: Import WorkOrder Types
+Types -> Hooks: Provide WorkOrder Interface
+Hooks -> API: workOrders.ts
+API -> Backend: GET /work-orders
+Backend -> API: Return Work Orders
+API -> Hooks: Process Response
+Hooks -> Components: Update workOrders state
+
+U -> Components: Create Work Order
+Components -> API: createWorkOrder()
+API -> Backend: POST /work-orders
+Backend -> API: Return Created Work Order
+API -> Components: Success Response
+Components -> Hooks: Update workOrders state
+
+== Notifications Flow ==
+
+Hooks -> API: notifications.ts
+API -> Backend: GET /notifications
+Backend -> API: Return Notifications
+API -> Hooks: Process Response
+Hooks -> Components: Update notifications state
+Components -> U: Display Notifications
+
+== Error Handling Flow ==
+
+API -> Backend: API Call
+Backend -> API: Error Response (401/500)
+API -> Hooks: Handle Error
+Hooks -> Components: Set error state
+Components -> U: Display Error Message
+
+== Real-time Updates ==
+
+Backend -> API: WebSocket/SSE Update
+API -> Hooks: Process Update
+Hooks -> Components: Update State
+Components -> U: Refresh UI
+
+@enduml 

@@ -7,14 +7,10 @@ import {
   Search, 
   AlertCircle,
   User,
-  Mail,
-  Phone,
-  Shield,
-  CheckCircle
 } from 'lucide-react';
 
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import Spinner from '../../components/common/Spinner';
 import Badge from '../../components/common/Badge';
 import Notification from '../../components/common/Notification';

@@ -1,0 +1,203 @@
+@startuml Appointment Management Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Customer" as Customer
+actor "Staff" as Staff
+actor "Manager" as Manager
+participant "Appointment Page" as AppointmentPage
+participant "Calendar System" as CalendarSystem
+participant "Notification System" as NotificationSystem
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Email Service" as EmailService
+participant "SMS Service" as SMSService
+
+' === Appointment Scheduling ===
+group Appointment Scheduling
+    Customer -> AppointmentPage: Access scheduling
+    AppointmentPage -> API: Fetch available slots
+    API -> Server: GET /appointments/slots
+    Server -> DB: Query available times
+    DB --> Server: Return available slots
+    Server --> API: Return slot data
+    API --> AppointmentPage: Display calendar
+    
+    Customer -> AppointmentPage: Select date/time
+    Customer -> AppointmentPage: Choose vehicle
+    AppointmentPage -> API: Fetch customer vehicles
+    API -> Server: GET /vehicles
+    Server -> DB: Query vehicles
+    DB --> Server: Return vehicle list
+    Server --> API: Return vehicles
+    API --> AppointmentPage: Show vehicle options
+    
+    Customer -> AppointmentPage: Select service type
+    AppointmentPage -> API: Fetch service options
+    API -> Server: GET /services
+    Server -> DB: Query services
+    DB --> Server: Return service list
+    Server --> API: Return services
+    API --> AppointmentPage: Display service options
+    
+    Customer -> AppointmentPage: Fill appointment details
+    AppointmentPage -> API: Create appointment
+    API -> Server: POST /appointments
+    Server -> DB: Validate slot availability
+    DB --> Server: Slot available
+    Server -> DB: Create appointment
+    DB --> Server: Return appointment ID
+    Server --> API: Return appointment
+    API --> AppointmentPage: Show confirmation
+    AppointmentPage --> Customer: Display confirmation
+end
+
+' === Appointment Confirmation ===
+group Appointment Confirmation
+    Server -> EmailService: Send confirmation email
+    EmailService --> Customer: Email confirmation
+    Server -> SMSService: Send SMS reminder
+    SMSService --> Customer: SMS confirmation
+    Server -> NotificationSystem: Create notification
+    NotificationSystem --> Customer: In-app notification
+end
+
+' === Pre-Appointment Reminders ===
+group Pre-Appointment Reminders
+    loop Daily Reminder Check
+        Server -> DB: Query upcoming appointments
+        DB --> Server: Return appointments
+        Server -> EmailService: Send reminder emails
+        EmailService --> Customer: Reminder emails
+        Server -> SMSService: Send reminder SMS
+        SMSService --> Customer: Reminder SMS
+    end
+end
+
+' === Appointment Day Process ===
+group Appointment Day Process
+    Customer -> AppointmentPage: Check in
+    AppointmentPage -> API: Update check-in status
+    API -> Server: PUT /appointments/{id}/checkin
+    Server -> DB: Update status
+    DB --> Server: Confirm update
+    Server --> API: Return updated status
+    API --> AppointmentPage: Show check-in confirmation
+    AppointmentPage --> Customer: Display confirmation
+    
+    Staff -> AppointmentPage: Start service
+    AppointmentPage -> API: Update service status
+    API -> Server: PUT /appointments/{id}/start
+    Server -> DB: Update status to 'in-progress'
+    DB --> Server: Confirm update
+    Server --> API: Return updated status
+    API --> AppointmentPage: Show service started
+    AppointmentPage --> Staff: Display status
+end
+
+' === Service Execution ===
+group Service Execution
+    Staff -> AppointmentPage: Update progress
+    AppointmentPage -> API: Update service progress
+    API -> Server: PUT /appointments/{id}/progress
+    Server -> DB: Update progress notes
+    DB --> Server: Confirm update
+    Server --> API: Return updated progress
+    API --> AppointmentPage: Show progress update
+    AppointmentPage --> Staff: Display progress
+    
+    Staff -> AppointmentPage: Add service items
+    AppointmentPage -> API: Add service items
+    API -> Server: POST /appointments/{id}/services
+    Server -> DB: Create service records
+    DB --> Server: Return service IDs
+    Server --> API: Return services
+    API --> AppointmentPage: Update service list
+    AppointmentPage --> Staff: Show updated services
+end
+
+' === Service Completion ===
+group Service Completion
+    Staff -> AppointmentPage: Complete service
+    AppointmentPage -> API: Complete appointment
+    API -> Server: PUT /appointments/{id}/complete
+    Server -> DB: Update status to 'completed'
+    DB --> Server: Confirm update
+    Server -> EmailService: Send completion notification
+    EmailService --> Customer: Service completion email
+    Server --> API: Return completion status
+    API --> AppointmentPage: Show completion
+    AppointmentPage --> Staff: Display completion
+end
+
+' === Appointment Modifications ===
+group Appointment Modifications
+    alt Customer Requests Change
+        Customer -> AppointmentPage: Request modification
+        AppointmentPage -> API: PUT /appointments/{id}/modify
+        API -> Server: Validate modification
+        Server -> DB: Check availability
+        DB --> Server: Availability status
+        alt Modification Possible
+            Server -> DB: Update appointment
+            DB --> Server: Confirm update
+            Server -> EmailService: Send modification email
+            EmailService --> Customer: Modification confirmation
+            Server --> API: Return updated appointment
+            API --> AppointmentPage: Show updated appointment
+            AppointmentPage --> Customer: Display confirmation
+        else Modification Not Possible
+            Server --> API: Return error
+            API --> AppointmentPage: Show error
+            AppointmentPage --> Customer: Display error
+        end
+    end
+end
+
+' === Appointment Cancellation ===
+group Appointment Cancellation
+    Customer -> AppointmentPage: Cancel appointment
+    AppointmentPage -> API: DELETE /appointments/{id}
+    API -> Server: Validate cancellation
+    Server -> DB: Check cancellation policy
+    DB --> Server: Policy result
+    alt Cancellation Allowed
+        Server -> DB: Update status to 'cancelled'
+        DB --> Server: Confirm cancellation
+        Server -> EmailService: Send cancellation email
+        EmailService --> Customer: Cancellation confirmation
+        Server --> API: Return cancellation status
+        API --> AppointmentPage: Show cancellation
+        AppointmentPage --> Customer: Display confirmation
+    else Cancellation Not Allowed
+        Server --> API: Return policy error
+        API --> AppointmentPage: Show policy message
+        AppointmentPage --> Customer: Display policy
+    end
+end
+
+' === Manager Oversight ===
+group Manager Oversight
+    Manager -> AppointmentPage: View appointment reports
+    AppointmentPage -> API: GET /appointments/reports
+    API -> Server: Generate appointment analytics
+    Server -> DB: Query appointment data
+    DB --> Server: Return appointment statistics
+    Server --> API: Return report data
+    API --> AppointmentPage: Display reports
+    AppointmentPage --> Manager: Show analytics
+    
+    Manager -> AppointmentPage: Manage staff schedules
+    AppointmentPage -> API: GET /staff/schedules
+    API -> Server: Fetch staff availability
+    Server -> DB: Query staff schedules
+    DB --> Server: Return schedule data
+    Server --> API: Return schedules
+    API --> AppointmentPage: Display schedules
+    AppointmentPage --> Manager: Show staff availability
+end
+
+@enduml 

@@ -1,0 +1,243 @@
+@startuml Staff Management Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "Manager" as Manager
+actor "Staff Member" as Staff
+actor "HR System" as HR
+participant "Staff Management Page" as StaffPage
+participant "Schedule System" as ScheduleSystem
+participant "Performance System" as PerformanceSystem
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Email Service" as EmailService
+participant "Notification System" as NotificationSystem
+
+' === Staff Hiring Process ===
+group Staff Hiring Process
+    Manager -> StaffPage: Access staff management
+    StaffPage -> API: Fetch current staff
+    API -> Server: GET /staff
+    Server -> DB: Query staff members
+    DB --> Server: Return staff list
+    Server --> API: Return staff data
+    API --> StaffPage: Display staff list
+    StaffPage --> Manager: Show current staff
+    
+    Manager -> StaffPage: Create new staff account
+    StaffPage -> API: POST /staff
+    API -> Server: Create staff member
+    Server -> DB: Create staff record
+    DB --> Server: Return staff ID
+    Server -> EmailService: Send welcome email
+    EmailService --> Staff: Welcome email with credentials
+    Server --> API: Return new staff
+    API --> StaffPage: Show new staff member
+    StaffPage --> Manager: Display confirmation
+end
+
+' === Staff Onboarding ===
+group Staff Onboarding
+    Staff -> StaffPage: First login
+    StaffPage -> API: POST /auth/login
+    API -> Server: Authenticate staff
+    Server -> DB: Validate credentials
+    DB --> Server: Return staff data
+    Server --> API: Return authentication
+    API --> StaffPage: Show onboarding form
+    StaffPage --> Staff: Display onboarding
+    
+    Staff -> StaffPage: Complete profile
+    StaffPage -> API: PUT /staff/{id}/profile
+    API -> Server: Update staff profile
+    Server -> DB: Update profile data
+    DB --> Server: Confirm update
+    Server --> API: Return updated profile
+    API --> StaffPage: Show profile completion
+    StaffPage --> Staff: Display completion
+    
+    Staff -> StaffPage: Set availability
+    StaffPage -> API: POST /staff/{id}/availability
+    API -> Server: Set work availability
+    Server -> DB: Store availability
+    DB --> Server: Confirm availability
+    Server --> API: Return availability
+    API --> StaffPage: Show availability set
+    StaffPage --> Staff: Display confirmation
+end
+
+' === Schedule Management ===
+group Schedule Management
+    Manager -> StaffPage: Manage schedules
+    StaffPage -> API: GET /staff/schedules
+    API -> Server: Fetch staff schedules
+    Server -> DB: Query schedule data
+    DB --> Server: Return schedules
+    Server --> API: Return schedule data
+    API --> StaffPage: Display schedules
+    StaffPage --> Manager: Show staff schedules
+    
+    Manager -> StaffPage: Assign shifts
+    StaffPage -> API: POST /staff/{id}/shifts
+    API -> Server: Assign work shifts
+    Server -> DB: Create shift assignments
+    DB --> Server: Confirm assignments
+    Server -> NotificationSystem: Notify staff
+    NotificationSystem --> Staff: Shift assignment notification
+    Server --> API: Return assignments
+    API --> StaffPage: Show assignments
+    StaffPage --> Manager: Display assignments
+    
+    Staff -> StaffPage: Request time off
+    StaffPage -> API: POST /staff/{id}/time-off
+    API -> Server: Submit time off request
+    Server -> DB: Create time off request
+    DB --> Server: Return request ID
+    Server -> NotificationSystem: Notify manager
+    NotificationSystem --> Manager: Time off request notification
+    Server --> API: Return request
+    API --> StaffPage: Show request submitted
+    StaffPage --> Staff: Display confirmation
+end
+
+' === Performance Management ===
+group Performance Management
+    Manager -> StaffPage: Review performance
+    StaffPage -> API: GET /staff/{id}/performance
+    API -> Server: Fetch performance data
+    Server -> DB: Query performance metrics
+    DB --> Server: Return performance data
+    Server --> API: Return performance
+    API --> StaffPage: Display performance
+    StaffPage --> Manager: Show performance metrics
+    
+    Manager -> StaffPage: Create performance review
+    StaffPage -> API: POST /staff/{id}/reviews
+    API -> Server: Create performance review
+    Server -> DB: Store review data
+    DB --> Server: Confirm review
+    Server -> EmailService: Send review notification
+    EmailService --> Staff: Performance review email
+    Server --> API: Return review
+    API --> StaffPage: Show review created
+    StaffPage --> Manager: Display confirmation
+    
+    Staff -> StaffPage: View performance review
+    StaffPage -> API: GET /staff/{id}/reviews
+    API -> Server: Fetch performance reviews
+    Server -> DB: Query review data
+    DB --> Server: Return reviews
+    Server --> API: Return review data
+    API --> StaffPage: Display reviews
+    StaffPage --> Staff: Show performance reviews
+end
+
+' === Training and Development ===
+group Training and Development
+    Manager -> StaffPage: Assign training
+    StaffPage -> API: POST /staff/{id}/training
+    API -> Server: Assign training program
+    Server -> DB: Create training record
+    DB --> Server: Confirm training assignment
+    Server -> NotificationSystem: Notify staff
+    NotificationSystem --> Staff: Training assignment notification
+    Server --> API: Return training
+    API --> StaffPage: Show training assigned
+    StaffPage --> Manager: Display assignment
+    
+    Staff -> StaffPage: Complete training
+    StaffPage -> API: PUT /staff/{id}/training/complete
+    API -> Server: Mark training complete
+    Server -> DB: Update training status
+    DB --> Server: Confirm completion
+    Server -> NotificationSystem: Notify manager
+    NotificationSystem --> Manager: Training completion notification
+    Server --> API: Return completion status
+    API --> StaffPage: Show completion
+    StaffPage --> Staff: Display completion
+end
+
+' === Payroll and Benefits ===
+group Payroll and Benefits
+    Manager -> StaffPage: Manage payroll
+    StaffPage -> API: GET /staff/{id}/payroll
+    API -> Server: Fetch payroll data
+    Server -> DB: Query payroll information
+    DB --> Server: Return payroll data
+    Server --> API: Return payroll
+    API --> StaffPage: Display payroll
+    StaffPage --> Manager: Show payroll information
+    
+    Manager -> StaffPage: Update salary
+    StaffPage -> API: PUT /staff/{id}/salary
+    API -> Server: Update salary information
+    Server -> DB: Update salary data
+    DB --> Server: Confirm update
+    Server -> EmailService: Send salary update
+    EmailService --> Staff: Salary update notification
+    Server --> API: Return updated salary
+    API --> StaffPage: Show salary updated
+    StaffPage --> Manager: Display confirmation
+    
+    Staff -> StaffPage: View benefits
+    StaffPage -> API: GET /staff/{id}/benefits
+    API -> Server: Fetch benefits data
+    Server -> DB: Query benefits information
+    DB --> Server: Return benefits
+    Server --> API: Return benefits data
+    API --> StaffPage: Display benefits
+    StaffPage --> Staff: Show benefits information
+end
+
+' === Staff Termination ===
+group Staff Termination
+    Manager -> StaffPage: Initiate termination
+    StaffPage -> API: POST /staff/{id}/termination
+    API -> Server: Initiate termination process
+    Server -> DB: Update staff status
+    DB --> Server: Confirm status update
+    Server -> EmailService: Send termination notice
+    EmailService --> Staff: Termination notification
+    Server -> HR: Notify HR system
+    HR --> Server: HR confirmation
+    Server --> API: Return termination status
+    API --> StaffPage: Show termination initiated
+    StaffPage --> Manager: Display confirmation
+    
+    Manager -> StaffPage: Complete termination
+    StaffPage -> API: PUT /staff/{id}/termination/complete
+    API -> Server: Complete termination
+    Server -> DB: Finalize termination
+    DB --> Server: Confirm termination
+    Server -> EmailService: Send final notice
+    EmailService --> Staff: Final termination notice
+    Server --> API: Return completion status
+    API --> StaffPage: Show termination complete
+    StaffPage --> Manager: Display completion
+end
+
+' === Staff Reports and Analytics ===
+group Staff Reports and Analytics
+    Manager -> StaffPage: Generate staff reports
+    StaffPage -> API: GET /staff/reports
+    API -> Server: Generate staff analytics
+    Server -> DB: Query staff data
+    DB --> Server: Return analytics data
+    Server --> API: Return reports
+    API --> StaffPage: Display reports
+    StaffPage --> Manager: Show staff analytics
+    
+    Manager -> StaffPage: Export staff data
+    StaffPage -> API: GET /staff/export
+    API -> Server: Generate export data
+    Server -> DB: Query export data
+    DB --> Server: Return export data
+    Server --> API: Return export file
+    API --> StaffPage: Download export
+    StaffPage --> Manager: Provide export file
+end
+
+@enduml 

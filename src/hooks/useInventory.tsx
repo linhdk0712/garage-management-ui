@@ -43,8 +43,9 @@ const useInventory = (options: UseInventoryOptions = {}) => {
             setError(null);
             const queryFilters = customFilters || filters;
             const data = await fetchSpareParts(queryFilters);
-            setParts(data);
-            return data;
+            const partsArray = data.data.content || [];
+            setParts(partsArray);
+            return partsArray;
         } catch (err: any) {
             setError(err.message || 'Failed to fetch inventory parts');
             return [];
@@ -114,8 +115,9 @@ const useInventory = (options: UseInventoryOptions = {}) => {
             setIsLoading(true);
             setError(null);
             const data = await fetchLowStockItems();
-            setLowStockItems(data);
-            return data;
+            const lowStockArray = data.data.content || [];
+            setLowStockItems(lowStockArray);
+            return lowStockArray;
         } catch (err: any) {
             setError(err.message || 'Failed to fetch low stock items');
             return [];

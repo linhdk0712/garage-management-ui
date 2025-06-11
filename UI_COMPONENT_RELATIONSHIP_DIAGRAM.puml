@@ -1,0 +1,92 @@
+@startuml Garage Management UI Component Diagram
+
+skin rose
+skinparam componentStyle rectangle
+skinparam roundcorner 10
+
+
+title Garage Management UI - Simplified Component Architecture
+
+package "Frontend Application" {
+    
+    component "App" as App
+    component "Router" as Router
+    
+    package "Pages" {
+        component "Auth Page" as AuthPage
+        component "Customer Dashboard" as CustomerDashboard
+        component "Manager Dashboard" as ManagerDashboard
+        component "Staff Dashboard" as StaffDashboard
+    }
+    
+    package "UI Components" {
+        component "Layout" as Layout
+        component "Forms" as Forms
+        component "Lists" as Lists
+        component "Navigation" as Navigation
+    }
+    
+    package "Business Logic" {
+        component "Auth Hook" as useAuth
+        component "Appointments Hook" as useAppointments
+        component "Vehicles Hook" as useVehicles
+        component "Inventory Hook" as useInventory
+    }
+    
+    package "Data Layer" {
+        component "API Client" as apiClient
+        component "Auth API" as authAPI
+        component "Appointments API" as appointmentsAPI
+        component "Vehicles API" as vehiclesAPI
+        component "Inventory API" as inventoryAPI
+    }
+    
+    package "Supporting" {
+        component "Types" as types
+        component "Utils" as utils
+        component "Context" as context
+    }
+}
+
+' Core application flow
+App --> Router
+Router --> AuthPage
+Router --> CustomerDashboard
+Router --> ManagerDashboard
+Router --> StaffDashboard
+
+' Page to component relationships
+CustomerDashboard --> Forms
+CustomerDashboard --> Lists
+ManagerDashboard --> Forms
+ManagerDashboard --> Lists
+AuthPage --> Forms
+
+' Component to business logic
+Forms --> useAppointments
+Forms --> useVehicles
+Lists --> useAppointments
+Lists --> useVehicles
+ManagerDashboard --> useInventory
+
+' Business logic to data layer
+useAuth --> authAPI
+useAppointments --> appointmentsAPI
+useVehicles --> vehiclesAPI
+useInventory --> inventoryAPI
+
+' Data layer relationships
+authAPI --> apiClient
+appointmentsAPI --> apiClient
+vehiclesAPI --> apiClient
+inventoryAPI --> apiClient
+
+' Supporting relationships
+apiClient --> utils
+authAPI --> types
+appointmentsAPI --> types
+vehiclesAPI --> types
+inventoryAPI --> types
+useAuth --> context
+
+@enduml 

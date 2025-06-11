@@ -19,7 +19,7 @@ import { fetchCustomerProfile, updateCustomerProfile } from '../api/customers';
 import { fetchCustomerVehicles } from '../api/vehicles';
 import { fetchAppointments } from '../api/appointments';
 import { fetchStaffProfile, updateStaffProfile, fetchAllStaff } from '../api/staff';
-import { Card, CardHeader, CardContent, CardTitle } from '../components/ui/card';
+import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -139,8 +139,8 @@ const ProfilePage: React.FC = () => {
                 setProfile(profileData);
                 setEditedProfile(profileData);
                 if (vehiclesData) setVehicles(vehiclesData.data?.content || []);
-                if (appointmentsData) setAppointments(appointmentsData.data?.content || []);
-                if (staffData) setStaff(staffData.data?.content || []);
+                if (appointmentsData) setAppointments(appointmentsData.content || []);
+                if (staffData) setStaff(staffData.content || []);
             } catch (error) {
                 console.error('Error loading profile data:', error);
                 setNotification({

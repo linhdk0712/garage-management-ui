@@ -67,30 +67,30 @@ const PerformanceAnalytics: React.FC = () => {
                 // Ensure the data has the expected structure with default values
                 const normalizedData: AnalyticsData = {
                     revenue: {
-                        daily: (data as any)?.revenue?.daily || [],
-                        weekly: (data as any)?.revenue?.weekly || [],
-                        monthly: (data as any)?.revenue?.monthly || []
+                        daily: data?.revenue?.daily || [],
+                        weekly: data?.revenue?.weekly || [],
+                        monthly: data?.revenue?.monthly || []
                     },
                     customers: {
-                        newCustomers: (data as any)?.customers?.newCustomers || 0,
-                        returningCustomers: (data as any)?.customers?.returningCustomers || 0,
-                        customerSatisfaction: (data as any)?.customers?.customerSatisfaction || 0,
-                        customersByService: (data as any)?.customers?.customersByService || []
+                        newCustomers: data?.customers?.newCustomers || 0,
+                        returningCustomers: data?.customers?.returningCustomers || 0,
+                        customerSatisfaction: data?.customers?.customerSatisfaction || 0,
+                        customersByService: data?.customers?.customersByService || []
                     },
                     repairs: {
-                        totalRepairs: (data as any)?.repairs?.totalRepairs || 0,
-                        avgCompletionTime: (data as any)?.repairs?.avgCompletionTime || 0,
-                        repairsByType: (data as any)?.repairs?.repairsByType || [],
-                        repairStatus: (data as any)?.repairs?.repairStatus || []
+                        totalRepairs: data?.repairs?.totalRepairs || 0,
+                        avgCompletionTime: data?.repairs?.avgCompletionTime || 0,
+                        repairsByType: data?.repairs?.repairsByType || [],
+                        repairStatus: data?.repairs?.repairStatus || []
                     },
                     inventory: {
-                        partsUsage: (data as any)?.inventory?.partsUsage || [],
-                        lowStockItems: (data as any)?.inventory?.lowStockItems || 0,
-                        inventoryValue: (data as any)?.inventory?.inventoryValue || 0
+                        partsUsage: data?.inventory?.partsUsage || [],
+                        lowStockItems: data?.inventory?.lowStockItems || 0,
+                        inventoryValue: data?.inventory?.inventoryValue || 0
                     },
                     staffPerformance: {
-                        staffUtilization: (data as any)?.staffPerformance?.staffUtilization || [],
-                        avgTimePerRepair: (data as any)?.staffPerformance?.avgTimePerRepair || []
+                        staffUtilization: data?.staffPerformance?.staffUtilization || [],
+                        avgTimePerRepair: data?.staffPerformance?.avgTimePerRepair || []
                     }
                 };
                 setAnalyticsData(normalizedData);
@@ -168,6 +168,7 @@ const PerformanceAnalytics: React.FC = () => {
                             className="bg-white bg-opacity-20 text-white text-sm rounded-md border-0 px-3 py-1.5 focus:outline-none"
                             value={dateRange}
                             onChange={(e) => setDateRange(e.target.value as 'week' | 'month' | 'quarter')}
+                            title="Select date range for analytics"
                         >
                             <option value="week">Last Week</option>
                             <option value="month">Last Month</option>

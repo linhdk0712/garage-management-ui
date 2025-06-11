@@ -26,7 +26,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
             setIsLoading(true);
             const appointment = await fetchAppointmentDetails(ROUTES.customer.appointments, appointmentId!);
             reset({
-                vehicleId: appointment.vehicle.vehicleId,
+                vehicleId: appointment.vehicle?.vehicleId || 0,
                 serviceType: appointment.serviceType,
                 description: appointment.description,
                 appointmentDate: appointment.appointmentDate,
@@ -52,7 +52,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
     const loadVehicles = async () => {
         try {
             const data = await fetchCustomerVehicles();
-            setVehicles(data);
+            setVehicles(data.data.content || []);
         } catch (err) {
             console.error('Error loading vehicles:', err);
             setError('Failed to load vehicles. Please try again later.');
@@ -102,7 +102,10 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
                         value: vehicle.vehicleId.toString(),
                         label: `${vehicle.make} ${vehicle.model}`
                     }))}
-                    {...register('vehicleId', { required: 'Vehicle is required' })}
+                    onChange={(value) => {
+                        const event = { target: { value, name: 'vehicleId' } };
+                        register('vehicleId').onChange(event);
+                    }}
                     error={errors.vehicleId?.message}
                 />
 

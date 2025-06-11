@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
 const NotFoundPage: React.FC = () => {
@@ -19,7 +18,6 @@ const NotFoundPage: React.FC = () => {
                 <div className="mt-8">
                     <Button
                         variant="primary"
-                        icon={<Home className="w-4 h-4" />}
                         onClick={() => navigate('/')}
                         className="mx-auto"
                     >

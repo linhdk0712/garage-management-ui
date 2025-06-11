@@ -28,10 +28,11 @@ const CustomerDashboard: React.FC = () => {
             try {
                 setIsLoading(true);
                 const vehiclesData = await fetchCustomerVehicles();
-                setVehicles(vehiclesData);
+                const vehiclesArray = vehiclesData.data.content || [];
+                setVehicles(vehiclesArray);
 
-                if (vehiclesData.length > 0) {
-                    setSelectedVehicle(vehiclesData[0]);
+                if (vehiclesArray.length > 0) {
+                    setSelectedVehicle(vehiclesArray[0]);
                 }
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
@@ -60,6 +61,7 @@ const CustomerDashboard: React.FC = () => {
                     <button 
                         className="sm:hidden p-2 rounded-lg hover:bg-gray-100"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        title="Toggle mobile menu"
                     >
                         <Menu className="h-6 w-6 text-gray-600" />
                     </button>
@@ -171,9 +173,9 @@ const CustomerDashboard: React.FC = () => {
                                             <div className="flex flex-wrap gap-2">
                                                 {vehicles.map((vehicle) => (
                                                     <button
-                                                        key={vehicle.id}
+                                                        key={vehicle.vehicleId}
                                                         className={`px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-lg transition-colors ${
-                                                            selectedVehicle.id === vehicle.id
+                                                            selectedVehicle.vehicleId === vehicle.vehicleId
                                                                 ? 'bg-blue-600 text-white'
                                                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                         }`}
@@ -184,7 +186,7 @@ const CustomerDashboard: React.FC = () => {
                                                 ))}
                                             </div>
                                         </div>
-                                        <VehicleHealthDashboard vehicleId={selectedVehicle.id} />
+                                        <VehicleHealthDashboard vehicleId={selectedVehicle.vehicleId} />
                                     </>
                                 ) : (
                                     <div className="text-center py-6 sm:py-8">

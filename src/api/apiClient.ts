@@ -29,8 +29,19 @@ axiosInstance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const auth = getStoredAuth();
         
+        console.log('API Request Debug:', {
+            url: config.url,
+            method: config.method,
+            hasAuth: !!auth,
+            hasToken: !!auth?.token,
+            tokenLength: auth?.token?.length || 0
+        });
+        
         if (auth?.token) {
             config.headers.Authorization = `Bearer ${auth.token}`;
+            console.log('Authorization header added:', `Bearer ${auth.token.substring(0, 20)}...`);
+        } else {
+            console.warn('No authentication token found for request:', config.url);
         }
         return config;
     },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Download, CreditCard, Calendar, Car, DollarSign } from 'lucide-react';
+import { X, Download, CreditCard, Calendar, Car } from 'lucide-react';
 import { Payment } from '../../types/payment.types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';

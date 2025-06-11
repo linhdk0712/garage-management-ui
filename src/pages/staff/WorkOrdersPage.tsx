@@ -12,8 +12,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import useWorkOrders from '../../hooks/useWorkOrders';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import Spinner from '../../components/common/Spinner';
 import Badge from '../../components/common/Badge';
 import Select from '../../components/common/Select';
@@ -106,8 +106,8 @@ const WorkOrdersPage: React.FC = () => {
           bValue = b.totalCost;
           break;
         default:
-          aValue = a[sortBy as keyof WorkOrder];
-          bValue = b[sortBy as keyof WorkOrder];
+          aValue = String(a[sortBy as keyof WorkOrder] || '');
+          bValue = String(b[sortBy as keyof WorkOrder] || '');
       }
       
       if (sortOrder === 'asc') {
@@ -177,7 +177,6 @@ const WorkOrdersPage: React.FC = () => {
         <Badge
           label={workOrder.status}
           variant={getStatusBadgeVariant(workOrder.status)}
-          icon={getStatusIcon(workOrder.status)}
           size="sm"
         />
       ),
@@ -189,13 +188,12 @@ const WorkOrdersPage: React.FC = () => {
     },
     {
       header: 'Actions',
-      accessor: (workOrder) => workOrder,
+      accessor: 'workOrderId',
       cell: (workOrder) => (
         <div className="flex space-x-2">
           <Button
             variant="primary"
             size="sm"
-            icon={ArrowRight}
             onClick={() => handleViewWorkOrder(workOrder.workOrderId)}
           >
             View
@@ -225,9 +223,7 @@ const WorkOrdersPage: React.FC = () => {
           <Badge
             label={workOrder.status}
             variant={getStatusBadgeVariant(workOrder.status)}
-            icon={getStatusIcon(workOrder.status)}
-            size="md"
-            rounded
+            size="sm"
           />
         </div>
         
@@ -277,7 +273,6 @@ const WorkOrdersPage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  icon={Clipboard}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStatusChange(workOrder.workOrderId, 'IN_PROGRESS');
@@ -292,18 +287,16 @@ const WorkOrdersPage: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    icon={AlertTriangle}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleStatusChange(workOrder.workOrderId, 'ON_HOLD');
                     }}
                   >
-                    Hold
+                    Put On Hold
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    icon={CheckCircle}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleStatusChange(workOrder.workOrderId, 'COMPLETED');
@@ -318,20 +311,18 @@ const WorkOrdersPage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  icon={Clipboard}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleStatusChange(workOrder.workOrderId, 'IN_PROGRESS');
                   }}
                 >
-                  Resume
+                  Start Work
                 </Button>
               )}
 
               <Button
                 variant="primary"
                 size="sm"
-                icon={ArrowRight}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleViewWorkOrder(workOrder.workOrderId);
@@ -375,16 +366,14 @@ const WorkOrdersPage: React.FC = () => {
           <Button
             variant={viewMode === 'list' ? 'primary' : 'outline'}
             size="sm"
-            icon={Clipboard}
             className="mr-2"
             onClick={() => setViewMode('list')}
           >
-            Card View
+            List View
           </Button>
           <Button
             variant={viewMode === 'table' ? 'primary' : 'outline'}
             size="sm"
-            icon={Filter}
             onClick={() => setViewMode('table')}
           >
             Table View
@@ -460,11 +449,10 @@ const WorkOrdersPage: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  icon={sortOrder === 'asc' ? ArrowRight : ArrowRight}
                   className="mt-6"
                   onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 >
-                  {sortOrder === 'asc' ? 'Asc' : 'Desc'}
+                  Sort {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
                 </Button>
               </div>
             </div>
@@ -472,16 +460,13 @@ const WorkOrdersPage: React.FC = () => {
 
           {viewMode === 'table' ? (
             <Table
-              columns={columns}
-              data={filteredAndSortedWorkOrders}
+              columns={columns as unknown as TableColumn<Record<string, unknown>>[]}
+              data={filteredAndSortedWorkOrders as unknown as Record<string, unknown>[]}
               keyField="workOrderId"
-              onRowClick={(row) => handleViewWorkOrder(row.workOrderId)}
+              onRowClick={(row) => handleViewWorkOrder((row as unknown as WorkOrder).workOrderId)}
               pagination
               hoverable
               striped
-              bordered
-              pageSize={10}
-              emptyMessage="No work orders match your filters"
             />
           ) : (
             <div className="space-y-4">

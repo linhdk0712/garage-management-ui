@@ -27,8 +27,9 @@ const InventoryManagement: React.FC = () => {
             setIsLoading(true);
             try {
                 const data = await fetchSpareParts();
-                setParts(data);
-                setFilteredParts(data);
+                const partsArray = data.data.content || [];
+                setParts(partsArray);
+                setFilteredParts(partsArray);
             } catch (error) {
                 console.error('Error fetching inventory:', error);
             } finally {
@@ -72,10 +73,13 @@ const InventoryManagement: React.FC = () => {
         // Apply sorting
         if (sortConfig) {
             result.sort((a, b) => {
-                if (a[sortConfig.key] < b[sortConfig.key]) {
+                const aValue = (a as any)[sortConfig.key];
+                const bValue = (b as any)[sortConfig.key];
+                
+                if (aValue < bValue) {
                     return sortConfig.direction === 'asc' ? -1 : 1;
                 }
-                if (a[sortConfig.key] > b[sortConfig.key]) {
+                if (aValue > bValue) {
                     return sortConfig.direction === 'asc' ? 1 : -1;
                 }
                 return 0;
@@ -204,6 +208,7 @@ const InventoryManagement: React.FC = () => {
                                 className="pl-9 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white text-gray-700"
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
+                                title="Filter by category"
                             >
                                 <option value="all">All Categories</option>
                                 {categories.filter(cat => cat !== 'all').map((cat, idx) => (
@@ -221,6 +226,7 @@ const InventoryManagement: React.FC = () => {
                                 className="pl-9 pr-8 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 appearance-none bg-white text-gray-700"
                                 value={stockStatus}
                                 onChange={(e) => setStockStatus(e.target.value)}
+                                title="Filter by stock status"
                             >
                                 <option value="all">All Stock Status</option>
                                 <option value="LOW">Low Stock</option>
@@ -316,6 +322,7 @@ const InventoryManagement: React.FC = () => {
                                             setSelectedParts(filteredParts.map(part => part.partId));
                                         }
                                     }}
+                                    title="Select all parts"
                                 />
                             </th>
                             <th
@@ -408,6 +415,7 @@ const InventoryManagement: React.FC = () => {
                                             className="rounded text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                                             checked={selectedParts.includes(part.partId)}
                                             onChange={() => togglePartSelection(part.partId)}
+                                            title={`Select ${part.name}`}
                                         />
                                     </td>
                                     <td className="px-4 py-3 whitespace-nowrap">
@@ -482,6 +490,7 @@ const InventoryManagement: React.FC = () => {
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                                     value={poData.supplierName}
                                                     onChange={(e) => setPOData({...poData, supplierName: e.target.value})}
+                                                    title="Enter supplier name"
                                                 />
                                             </div>
                                             <div className="mb-4">
@@ -493,6 +502,7 @@ const InventoryManagement: React.FC = () => {
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                                     value={poData.expectedDeliveryDate}
                                                     onChange={(e) => setPOData({...poData, expectedDeliveryDate: e.target.value})}
+                                                    title="Select expected delivery date"
                                                 />
                                             </div>
                                             <div className="mb-4">
@@ -504,6 +514,7 @@ const InventoryManagement: React.FC = () => {
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                                     value={poData.notes}
                                                     onChange={(e) => setPOData({...poData, notes: e.target.value})}
+                                                    title="Enter purchase order notes"
                                                 ></textarea>
                                             </div>
                                             <div className="mt-2">

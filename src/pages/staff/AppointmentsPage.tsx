@@ -12,11 +12,10 @@ import {
   CheckCircle,
   AlertCircle,
   Clipboard,
-  ArrowRight
 } from 'lucide-react';
 import useStaffAppointments from '../../hooks/useStaffAppointments';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
+import { Card } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import Spinner from '../../components/common/Spinner';
 import Badge from '../../components/common/Badge';
 import Select from '../../components/common/Select';
@@ -77,6 +76,7 @@ const AppointmentsPage: React.FC = () => {
       // Refresh appointments
       fetchAllAppointments(dateRange);
     } catch (err: unknown) {
+      console.error('Error updating appointment status:', err);
       setNotification({
         type: 'error',
         message: 'Failed to update appointment status'
@@ -126,7 +126,6 @@ const AppointmentsPage: React.FC = () => {
 
   const renderAppointmentCard = (appointment: Appointment) => {
     const appointmentTime = parseISO(appointment.appointmentDate);
-    const isUpcoming = appointmentTime >= new Date();
     
     return (
       <div 

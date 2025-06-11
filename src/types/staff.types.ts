@@ -1,3 +1,5 @@
+export type ContactMethod = 'EMAIL' | 'PHONE' | 'SMS';
+
 export interface StaffProfile {
     staffId: number;
     firstName: string;
@@ -28,7 +30,7 @@ export interface Staff {
     hireDate: string;
     memberSince: string;
     username: string;
-    preferredContactMethod: 'EMAIL' | 'PHONE' | 'SMS';
+    preferredContactMethod: ContactMethod;
     specialization: string;
     hourlyRate: number;
     employmentStatus: 'ACTIVE' | 'INACTIVE' | 'ON_LEAVE';
@@ -50,7 +52,7 @@ export interface CreateStaffFormData {
     city: string;
     state: string;
     zipCode: string;
-    preferredContactMethod: 'EMAIL' | 'PHONE' | 'SMS';
+    preferredContactMethod: ContactMethod;
     position: string;
     specialization: string;
     hireDate: string;
@@ -62,7 +64,7 @@ export interface StaffAccount {
     username: string;
     email: string;
     phone: string;
-    preferredContactMethod: 'EMAIL' | 'PHONE' | 'SMS';
+    preferredContactMethod: ContactMethod;
     isActive: boolean;
     lastLoginDate?: string;
     createdAt: string;

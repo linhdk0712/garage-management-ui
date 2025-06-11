@@ -286,6 +286,7 @@ const DigitalInspection: React.FC<DigitalInspectionProps> = ({
                   <button
                     className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
                     onClick={() => removeImage(index)}
+                    title="Remove image"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -306,6 +307,7 @@ const DigitalInspection: React.FC<DigitalInspectionProps> = ({
                 className="hidden"
                 ref={fileInputRef}
                 onChange={handleFileChange}
+                title="Upload inspection image"
               />
             </div>
           </div>

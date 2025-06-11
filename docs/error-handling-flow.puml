@@ -1,0 +1,329 @@
+@startuml Error Handling Flow
+skin rose
+skinparam actorStyle awesome
+skinparam roundcorner 10
+skinparam shadowing false
+
+actor "User" as User
+participant "Frontend App" as App
+participant "Error Boundary" as ErrorBoundary
+participant "API Client" as API
+participant "Backend Server" as Server
+database "Database" as DB
+participant "Logging Service" as Logging
+participant "Notification System" as NotificationSystem
+
+' === Authentication Errors ===
+group Authentication Errors
+    alt Invalid Credentials
+        User -> App: Enter wrong credentials
+        App -> API: POST /auth/login
+        API -> Server: Validate credentials
+        Server -> DB: Check user
+        DB --> Server: User not found/invalid
+        Server --> API: Return 401 Unauthorized
+        API --> App: Throw authentication error
+        App -> ErrorBoundary: Handle auth error
+        ErrorBoundary --> User: Show login error message
+        App -> Logging: Log failed login attempt
+        Logging -> DB: Store failed attempt
+    end
+    
+    alt Token Expired
+        App -> API: Make authenticated request
+        API -> Server: Validate token
+        Server --> API: Return 401 Token Expired
+        API --> App: Handle token expiration
+        App -> API: Attempt token refresh
+        API -> Server: POST /auth/refresh
+        alt Refresh Token Valid
+            Server --> API: Return new tokens
+            API --> App: Update tokens
+            App -> API: Retry original request
+            API -> Server: Original request
+            Server --> API: Return success
+            API --> App: Return data
+        else Refresh Token Invalid
+            Server --> API: Return 401
+            API --> App: Redirect to login
+            App --> User: Show login page
+        end
+    end
+    
+    alt Insufficient Permissions
+        User -> App: Access restricted resource
+        App -> API: GET /restricted-resource
+        API -> Server: Check permissions
+        Server --> API: Return 403 Forbidden
+        API --> App: Handle permission error
+        App -> ErrorBoundary: Handle permission error
+        ErrorBoundary --> User: Show access denied message
+        App -> Logging: Log access violation
+        Logging -> DB: Store access attempt
+    end
+end
+
+' === Network Errors ===
+group Network Errors
+    alt Connection Timeout
+        App -> API: Make API request
+        API -> Server: Request timeout
+        API --> App: Connection timeout error
+        App -> ErrorBoundary: Handle timeout
+        ErrorBoundary --> User: Show timeout message
+        App -> Logging: Log timeout error
+        Logging -> DB: Store timeout event
+        App -> NotificationSystem: Show retry option
+        NotificationSystem --> User: Display retry button
+    end
+    
+    alt Network Unavailable
+        App -> API: Make API request
+        API --> App: Network error
+        App -> ErrorBoundary: Handle network error
+        ErrorBoundary --> User: Show offline message
+        App -> Logging: Log network error
+        Logging -> DB: Store network event
+        App -> NotificationSystem: Show offline indicator
+        NotificationSystem --> User: Display offline status
+    end
+    
+    alt Server Unavailable
+        App -> API: Make API request
+        API -> Server: Server down
+        API --> App: 503 Service Unavailable
+        App -> ErrorBoundary: Handle server error
+        ErrorBoundary --> User: Show server error message
+        App -> Logging: Log server error
+        Logging -> DB: Store server error
+        App -> NotificationSystem: Show maintenance message
+        NotificationSystem --> User: Display maintenance notice
+    end
+end
+
+' === Validation Errors ===
+group Validation Errors
+    alt Form Validation Error
+        User -> App: Submit invalid form
+        App -> API: POST /resource
+        API -> Server: Validate data
+        Server --> API: Return 400 Bad Request
+        API --> App: Return validation errors
+        App -> ErrorBoundary: Handle validation error
+        ErrorBoundary --> User: Show field-specific errors
+        App -> Logging: Log validation error
+        Logging -> DB: Store validation attempt
+    end
+    
+    alt File Upload Error
+        User -> App: Upload invalid file
+        App -> API: POST /upload
+        API -> Server: Validate file
+        Server --> API: Return 400 Invalid file
+        API --> App: Return file error
+        App -> ErrorBoundary: Handle file error
+        ErrorBoundary --> User: Show file error message
+        App -> Logging: Log file error
+        Logging -> DB: Store file error
+    end
+    
+    alt Data Constraint Error
+        User -> App: Submit duplicate data
+        App -> API: POST /resource
+        API -> Server: Check constraints
+        Server -> DB: Validate uniqueness
+        DB --> Server: Duplicate found
+        Server --> API: Return 409 Conflict
+        API --> App: Return constraint error
+        App -> ErrorBoundary: Handle constraint error
+        ErrorBoundary --> User: Show duplicate error
+        App -> Logging: Log constraint error
+        Logging -> DB: Store constraint attempt
+    end
+end
+
+' === Database Errors ===
+group Database Errors
+    alt Database Connection Error
+        Server -> DB: Query database
+        DB --> Server: Connection failed
+        Server --> API: Return 500 Database Error
+        API --> App: Return database error
+        App -> ErrorBoundary: Handle database error
+        ErrorBoundary --> User: Show database error message
+        App -> Logging: Log database error
+        Logging -> DB: Store database error
+        App -> NotificationSystem: Show system error
+        NotificationSystem --> User: Display system error
+    end
+    
+    alt Data Integrity Error
+        Server -> DB: Update data
+        DB --> Server: Integrity constraint violation
+        Server --> API: Return 500 Data Error
+        API --> App: Return data error
+        App -> ErrorBoundary: Handle data error
+        ErrorBoundary --> User: Show data error message
+        App -> Logging: Log data integrity error
+        Logging -> DB: Store integrity error
+    end
+    
+    alt Transaction Rollback
+        Server -> DB: Begin transaction
+        Server -> DB: Execute operations
+        DB --> Server: Transaction failed
+        Server -> DB: Rollback transaction
+        Server --> API: Return 500 Transaction Error
+        API --> App: Return transaction error
+        App -> ErrorBoundary: Handle transaction error
+        ErrorBoundary --> User: Show transaction error
+        App -> Logging: Log transaction error
+        Logging -> DB: Store transaction error
+    end
+end
+
+' === Business Logic Errors ===
+group Business Logic Errors
+    alt Appointment Conflict
+        User -> App: Schedule conflicting appointment
+        App -> API: POST /appointments
+        API -> Server: Check availability
+        Server -> DB: Query conflicts
+        DB --> Server: Conflict found
+        Server --> API: Return 409 Appointment Conflict
+        API --> App: Return conflict error
+        App -> ErrorBoundary: Handle conflict error
+        ErrorBoundary --> User: Show conflict message
+        App -> Logging: Log appointment conflict
+        Logging -> DB: Store conflict attempt
+    end
+    
+    alt Payment Processing Error
+        User -> App: Process payment
+        App -> API: POST /payments
+        API -> Server: Process payment
+        Server -> DB: Validate payment
+        DB --> Server: Payment validation failed
+        Server --> API: Return 400 Payment Error
+        API --> App: Return payment error
+        App -> ErrorBoundary: Handle payment error
+        ErrorBoundary --> User: Show payment error
+        App -> Logging: Log payment error
+        Logging -> DB: Store payment error
+    end
+    
+    alt Inventory Shortage
+        User -> App: Reserve parts
+        App -> API: POST /inventory/reserve
+        API -> Server: Check inventory
+        Server -> DB: Query stock levels
+        DB --> Server: Insufficient stock
+        Server --> API: Return 409 Inventory Shortage
+        API --> App: Return shortage error
+        App -> ErrorBoundary: Handle shortage error
+        ErrorBoundary --> User: Show shortage message
+        App -> Logging: Log inventory shortage
+        Logging -> DB: Store shortage event
+    end
+end
+
+' === Frontend Errors ===
+group Frontend Errors
+    alt JavaScript Runtime Error
+        App -> App: JavaScript error occurs
+        App -> ErrorBoundary: Catch runtime error
+        ErrorBoundary -> Logging: Log runtime error
+        Logging -> DB: Store error details
+        ErrorBoundary --> User: Show error page
+        App -> NotificationSystem: Show error notification
+        NotificationSystem --> User: Display error notice
+    end
+    
+    alt Component Error
+        App -> App: Component fails to render
+        App -> ErrorBoundary: Catch component error
+        ErrorBoundary -> Logging: Log component error
+        Logging -> DB: Store component error
+        ErrorBoundary --> User: Show fallback UI
+        App -> NotificationSystem: Show component error
+        NotificationSystem --> User: Display component error
+    end
+    
+    alt State Management Error
+        App -> App: State update fails
+        App -> ErrorBoundary: Catch state error
+        ErrorBoundary -> Logging: Log state error
+        Logging -> DB: Store state error
+        ErrorBoundary --> User: Show state error message
+        App -> NotificationSystem: Show state error
+        NotificationSystem --> User: Display state error
+    end
+end
+
+' === Error Recovery ===
+group Error Recovery
+    alt Automatic Retry
+        App -> API: Failed request
+        API --> App: Return error
+        App -> App: Implement retry logic
+        loop Retry Attempts (Max 3)
+            App -> API: Retry request
+            alt Request Succeeds
+                API --> App: Return success
+                App --> User: Show success
+                break
+            else Request Fails
+                API --> App: Return error
+                App -> Logging: Log retry attempt
+                Logging -> DB: Store retry event
+            end
+        end
+    end
+    
+    alt Manual Recovery
+        User -> App: Click retry button
+        App -> API: Retry failed request
+        API -> Server: Process request
+        Server --> API: Return success
+        API --> App: Return data
+        App --> User: Show success
+        App -> Logging: Log manual retry
+        Logging -> DB: Store manual retry
+    end
+    
+    alt Fallback Data
+        App -> API: Request data
+        API --> App: Return error
+        App -> App: Load cached/fallback data
+        App --> User: Show fallback content
+        App -> NotificationSystem: Show data warning
+        NotificationSystem --> User: Display data warning
+        App -> Logging: Log fallback usage
+        Logging -> DB: Store fallback event
+    end
+end
+
+' === Error Reporting ===
+group Error Reporting
+    alt Error Analytics
+        Logging -> DB: Query error statistics
+        DB --> Logging: Return error data
+        Logging -> Logging: Generate error report
+        Logging -> NotificationSystem: Send error alert
+        NotificationSystem --> User: Display error summary
+    end
+    
+    alt Error Monitoring
+        loop Continuous Monitoring
+            Server -> Logging: Check error rates
+            Logging -> DB: Query recent errors
+            DB --> Logging: Return error count
+            alt High Error Rate
+                Logging -> NotificationSystem: Alert high errors
+                NotificationSystem --> User: Show error alert
+            end
+        end
+    end
+end
+
+@enduml 

@@ -34,9 +34,9 @@ const useVehicles = (options: UseVehiclesOptions = { initialFetch: true }) => {
             setIsLoading(true);
             setError(null);
             const data = await fetchCustomerVehicles();
-            console.log("fetchVehicles",data);
-            setVehicles(data);
-            return data;
+            const vehiclesArray = data.data.content || [];
+            setVehicles(vehiclesArray);
+            return vehiclesArray;
         } catch (err) {
             const error = err as ApiError;
             setError(error.message || 'Failed to fetch vehicles');
@@ -85,7 +85,7 @@ const useVehicles = (options: UseVehiclesOptions = { initialFetch: true }) => {
         try {
             setIsLoading(true);
             setError(null);
-            const updatedVehicle = await updateVehicle({ ...vehicleData, vehicleId });
+            const updatedVehicle = await updateVehicle(vehicleId, vehicleData);
             setVehicles((prev) =>
                 prev.map((vehicle) =>
                     vehicle.vehicleId === vehicleId ? updatedVehicle : vehicle

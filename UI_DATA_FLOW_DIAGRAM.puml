@@ -1,0 +1,177 @@
+@startuml Garage Management UI Data Flow Diagram
+
+skin rose
+skinparam roundcorner 15
+
+title Garage Management UI - Data Flow Diagram
+
+actor "User" as U
+participant "UI Components" as UI
+participant "Custom Hooks" as Hooks
+participant "API Services" as API
+participant "Type Definitions" as Types
+participant "Backend API" as Backend
+database "Local Storage" as Storage
+database "State Management" as State
+
+== Authentication Data Flow ==
+
+U -> UI: Login Credentials
+UI -> Hooks: useAuth()
+Hooks -> API: auth.ts
+API -> Backend: POST /auth/login
+Backend -> API: JWT Token + User Data
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> Hooks: Processed Auth Data
+Hooks -> Storage: Store Token
+Hooks -> State: Update Auth State
+State -> UI: Re-render with Auth
+
+== Appointment Data Flow ==
+
+U -> UI: Request Appointments
+UI -> Hooks: useAppointments()
+Hooks -> Types: Import Appointment Types
+Types -> Hooks: Type Definitions
+Hooks -> API: appointments.ts
+API -> Backend: GET /appointments
+Backend -> API: PaginatedResponse<Appointment>
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> Hooks: Processed Appointments
+Hooks -> State: Update appointments state
+State -> UI: Render Appointment List
+
+U -> UI: Create Appointment Form
+UI -> Types: Validate AppointmentFormData
+Types -> UI: Type Validation
+UI -> API: scheduleAppointment()
+API -> Backend: POST /appointments
+Backend -> API: Created Appointment
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> UI: Success Response
+UI -> Hooks: Update State
+Hooks -> State: Refresh appointments
+State -> UI: Update UI
+
+== Vehicle Data Flow ==
+
+U -> UI: Request Vehicles
+UI -> Hooks: useVehicles()
+Hooks -> Types: Import Vehicle Types
+Types -> Hooks: Type Definitions
+Hooks -> API: vehicles.ts
+API -> Backend: GET /vehicles
+Backend -> API: Vehicle List
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> Hooks: Processed Vehicles
+Hooks -> State: Update vehicles state
+State -> UI: Render Vehicle List
+
+U -> UI: Add Vehicle Form
+UI -> Types: Validate VehicleFormData
+Types -> UI: Type Validation
+UI -> API: createVehicle()
+API -> Backend: POST /vehicles
+Backend -> API: Created Vehicle
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> UI: Success Response
+UI -> Hooks: Update State
+Hooks -> State: Refresh vehicles
+State -> UI: Update UI
+
+== Work Order Data Flow ==
+
+U -> UI: Request Work Orders
+UI -> Hooks: useWorkOrders()
+Hooks -> Types: Import WorkOrder Types
+Types -> Hooks: Type Definitions
+Hooks -> API: workOrders.ts
+API -> Backend: GET /work-orders
+Backend -> API: Work Order List
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> Hooks: Processed Work Orders
+Hooks -> State: Update workOrders state
+State -> UI: Render Work Order List
+
+U -> UI: Create Work Order
+UI -> Types: Validate WorkOrderFormData
+Types -> UI: Type Validation
+UI -> API: createWorkOrder()
+API -> Backend: POST /work-orders
+Backend -> API: Created Work Order
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> UI: Success Response
+UI -> Hooks: Update State
+Hooks -> State: Refresh workOrders
+State -> UI: Update UI
+
+== Inventory Data Flow ==
+
+U -> UI: Request Inventory
+UI -> Hooks: useInventory()
+Hooks -> Types: Import Inventory Types
+Types -> Hooks: Type Definitions
+Hooks -> API: inventory.ts
+API -> Backend: GET /inventory
+Backend -> API: Inventory List
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> Hooks: Processed Inventory
+Hooks -> State: Update inventory state
+State -> UI: Render Inventory List
+
+U -> UI: Update Inventory Item
+UI -> Types: Validate InventoryUpdateData
+Types -> UI: Type Validation
+UI -> API: updateInventoryItem()
+API -> Backend: PUT /inventory/{id}
+Backend -> API: Updated Item
+API -> Types: Validate Response
+Types -> API: Type-safe Data
+API -> UI: Success Response
+UI -> Hooks: Update State
+Hooks -> State: Refresh inventory
+State -> UI: Update UI
+
+== Notification Data Flow ==
+
+Backend -> API: Real-time Notification
+API -> Types: Validate Notification Types
+Types -> API: Type-safe Data
+API -> Hooks: useNotifications()
+Hooks -> State: Update notifications state
+State -> UI: Display Notification Toast
+
+== Error Handling Data Flow ==
+
+API -> Backend: API Call
+Backend -> API: Error Response (401/500)
+API -> Types: Error Type Validation
+Types -> API: Error Data
+API -> Hooks: Handle Error
+Hooks -> State: Set error state
+State -> UI: Display Error Message
+
+== Offline Data Flow ==
+
+Hooks -> Storage: Cache Data
+Storage -> Hooks: Retrieve Cached Data
+Hooks -> State: Update with Cached Data
+State -> UI: Render Cached Data
+
+== Form Validation Data Flow ==
+
+U -> UI: Form Input
+UI -> Types: Real-time Validation
+Types -> UI: Validation Result
+UI -> State: Update Form State
+State -> UI: Show Validation Errors
+
+@enduml 

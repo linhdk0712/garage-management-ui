@@ -20,6 +20,7 @@ import Spinner from '../common/Spinner';
 import { Appointment } from '../../types/appointment.types';
 import { WorkOrder } from '../../types/workOrder.types';
 import AppointmentCalendar from './AppointmentCalendar';
+import { ROUTES } from '../../config/routes';
 
 const StaffDashboard: React.FC = () => {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -32,26 +33,47 @@ const StaffDashboard: React.FC = () => {
         const fetchDashboardData = async () => {
             try {
                 setIsLoading(true);
+                
+                // Debug authentication state
+                console.log('StaffDashboard Debug:', {
+                    user: user,
+                    isAuthenticated: !!user,
+                    userRoles: user?.roles,
+                    authToken: localStorage.getItem('garage_auth')
+                });
+                
                 // Get today's date in the format 'YYYY-MM-DD'
                 const today = new Date().toISOString().split('T')[0];
 
+                console.log('Fetching dashboard data with date:', today);
+
                 // Fetch today's appointments and active work orders
-                const [appointmentsData, workOrdersData] = await Promise.all([
-                    fetchStaffAppointments({ date: today }),
+                const [appointmentsResponse, workOrdersData] = await Promise.all([
+                    fetchStaffAppointments(ROUTES.staff.appointments, { date: today }),
                     fetchWorkOrders({ status: 'PENDING,IN_PROGRESS,ON_HOLD' })
                 ]);
 
-                setAppointments(appointmentsData);
+                console.log('Dashboard data fetched successfully:', {
+                    appointmentsCount: appointmentsResponse.content?.length || 0,
+                    workOrdersCount: workOrdersData?.length || 0
+                });
+
+                // Extract appointments from the paginated response
+                setAppointments(appointmentsResponse.content || []);
                 setWorkOrders(workOrdersData);
             } catch (error) {
                 console.error('Error fetching dashboard data:', error);
+                console.error('Error details:', {
+                    message: error instanceof Error ? error.message : 'Unknown error',
+                    stack: error instanceof Error ? error.stack : undefined
+                });
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchDashboardData();
-    }, []);
+    }, [user]);
 
     const getStatusColor = (status: string): string => {
         switch (status) {
@@ -88,14 +110,14 @@ const StaffDashboard: React.FC = () => {
                 <div className="flex space-x-3">
                     <Button
                         variant="outline"
-                        icon={Calendar}
+                        icon={<Calendar className="w-4 h-4" />}
                         onClick={() => navigate('/staff/appointments')}
                     >
                         View All Appointments
                     </Button>
                     <Button
                         variant="primary"
-                        icon={Clipboard}
+                        icon={<Clipboard className="w-4 h-4" />}
                         onClick={() => navigate('/staff/work-orders')}
                     >
                         Manage Work Orders
@@ -146,8 +168,12 @@ const StaffDashboard: React.FC = () => {
                                         <div className="flex items-center mt-1 text-xs text-gray-500">
                                             <User className="h-3.5 w-3.5 mr-1" />
                                             <span>
-                        {appointment.customerInfo.firstName} {appointment.customerInfo.lastName}
-                      </span>
+                                                {appointment.vehicle ? (
+                                                    `Vehicle: ${appointment.vehicle.make} ${appointment.vehicle.model}`
+                                                ) : (
+                                                    'No vehicle information'
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
                                     <ChevronRight className="h-5 w-5 text-gray-400" />

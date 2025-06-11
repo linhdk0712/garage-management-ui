@@ -31,35 +31,56 @@ const Pagination: React.FC<PaginationProps> = ({
         }
     };
 
-    const getPageNumbers = () => {
+    const getPageNumbersForSmallTotal = () => {
         const pages = [];
+        for (let i = 0; i < totalPages; i++) {
+            pages.push(i);
+        }
+        return pages;
+    };
+
+    const getPageNumbersForStart = () => {
+        const pages = [];
+        for (let i = 0; i < 4; i++) {
+            pages.push(i);
+        }
+        pages.push(totalPages - 1);
+        return pages;
+    };
+
+    const getPageNumbersForEnd = () => {
+        const pages = [0];
+        for (let i = totalPages - 4; i < totalPages; i++) {
+            pages.push(i);
+        }
+        return pages;
+    };
+
+    const getPageNumbersForMiddle = () => {
+        const pages = [0];
+        for (let i = page - 1; i <= page + 1; i++) {
+            pages.push(i);
+        }
+        pages.push(totalPages - 1);
+        return pages;
+    };
+
+    const getPageNumbers = () => {
         const maxVisiblePages = 5;
         
         if (totalPages <= maxVisiblePages) {
-            for (let i = 0; i < totalPages; i++) {
-                pages.push(i);
-            }
-        } else {
-            if (page <= 2) {
-                for (let i = 0; i < maxVisiblePages - 1; i++) {
-                    pages.push(i);
-                }
-                pages.push(totalPages - 1);
-            } else if (page >= totalPages - 3) {
-                pages.push(0);
-                for (let i = totalPages - maxVisiblePages + 1; i < totalPages; i++) {
-                    pages.push(i);
-                }
-            } else {
-                pages.push(0);
-                for (let i = page - 1; i <= page + 1; i++) {
-                    pages.push(i);
-                }
-                pages.push(totalPages - 1);
-            }
+            return getPageNumbersForSmallTotal();
         }
         
-        return pages;
+        if (page <= 2) {
+            return getPageNumbersForStart();
+        }
+        
+        if (page >= totalPages - 3) {
+            return getPageNumbersForEnd();
+        }
+        
+        return getPageNumbersForMiddle();
     };
 
     if (totalPages <= 1) {
