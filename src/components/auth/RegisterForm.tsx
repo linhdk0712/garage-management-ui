@@ -12,7 +12,6 @@ const RegisterForm: React.FC = () => {
     const [formData, setFormData] = useState<RegisterData>({
         username: '',
         password: '',
-        confirmPassword: '',
         email: '',
         phone: '',
         firstName: '',
@@ -22,6 +21,7 @@ const RegisterForm: React.FC = () => {
         state: '',
         zipCode: '',
         preferredContactMethod: 'EMAIL',
+        roles: ['CUSTOMER'],
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [showPassword, setShowPassword] = useState(false);
@@ -59,10 +59,6 @@ const RegisterForm: React.FC = () => {
             newErrors.password = 'Password is required';
         } else if (formData.password.length < 8) {
             newErrors.password = 'Password must be at least 8 characters';
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
         }
 
         setErrors(newErrors);
@@ -220,9 +216,9 @@ const RegisterForm: React.FC = () => {
                                 name="confirmPassword"
                                 type={showPassword ? 'text' : 'password'}
                                 label="Confirm Password"
-                                value={formData.confirmPassword}
+                                value={formData.password}
                                 onChange={handleChange}
-                                error={errors.confirmPassword}
+                                error={errors.password}
                                 fullWidth
                             />
                         </div>

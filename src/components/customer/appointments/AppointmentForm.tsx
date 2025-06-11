@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { AppointmentFormData } from '../../../types/appointment.types';
 import { scheduleAppointment, updateAppointment, fetchAppointmentDetails } from '../../../api/appointments';
-import { fetchCustomerVehicles } from '../../../api/vehicles';
+import { fetchAllVehicles } from '../../../api/vehicles';
 import { Vehicle } from '../../../types/vehicle.types';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
@@ -51,7 +51,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
 
     const loadVehicles = async () => {
         try {
-            const data = await fetchCustomerVehicles();
+            const data = await fetchAllVehicles();
             setVehicles(data.data.content || []);
         } catch (err) {
             console.error('Error loading vehicles:', err);

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { fetchCustomerProfile, updateCustomerProfile } from '../api/customers';
-import { fetchCustomerVehicles } from '../api/vehicles';
+import { fetchAllVehicles } from '../api/vehicles';
 import { fetchAppointments } from '../api/appointments';
 import { fetchStaffProfile, updateStaffProfile, fetchAllStaff } from '../api/staff';
 import { Card } from '../components/ui/card';
@@ -119,7 +119,7 @@ const ProfilePage: React.FC = () => {
                 switch (user?.roles[0]) {
                     case 'CUSTOMER':
                         profileData = await fetchCustomerProfile(user?.username);
-                        vehiclesData = await fetchCustomerVehicles();
+                        vehiclesData = await fetchAllVehicles();
                         appointmentsData = await fetchAppointments(ROUTES.customer.appointments);
                         break;
                     case 'STAFF':
@@ -136,9 +136,9 @@ const ProfilePage: React.FC = () => {
                 }
                 console.log('Profile data:', profileData);
 
-                setProfile(profileData);
-                setEditedProfile(profileData);
-                if (vehiclesData) setVehicles(vehiclesData.data?.content || []);
+                setProfile(profileData as unknown as CustomerProfile | StaffProfile | ManagerProfile);
+                setEditedProfile(profileData as unknown as CustomerProfile | StaffProfile | ManagerProfile);
+                if (vehiclesData) setVehicles(vehiclesData.data.content || []);
                 if (appointmentsData) setAppointments(appointmentsData.content || []);
                 if (staffData) setStaff(staffData.content || []);
             } catch (error) {

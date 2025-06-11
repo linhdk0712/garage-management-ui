@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {  Mail, Phone, MapPin, CheckCircle, Edit, Key, Car, Calendar } from 'lucide-react';
 import { fetchCustomerProfile, updateCustomerProfile } from '../../api/customers';
-import { fetchCustomerVehicles } from '../../api/vehicles';
+import { fetchAllVehicles } from '../../api/vehicles';
 import useAppointments from '../../hooks/useAppointments';
 import { useAuth } from '../../hooks/useAuth';
 import { Card } from '../../components/ui/card';
@@ -45,8 +45,8 @@ const ProfilePage: React.FC = () => {
             try {
                 setIsLoading(true);
                 const data = await fetchCustomerProfile(user?.username || '');
-                setProfile(data);
-                setEditedProfile(data);
+                setProfile(data as unknown as CustomerProfile);
+                setEditedProfile(data as unknown as CustomerProfile);
             } catch (error) {
                 console.error('Error loading profile:', error);
                 setNotification({
@@ -61,8 +61,8 @@ const ProfilePage: React.FC = () => {
         const loadVehicles = async () => {
             try {
                 setIsVehiclesLoading(true);
-                const vehiclesData = await fetchCustomerVehicles();
-                setVehicles(vehiclesData.data?.content || []);
+                const vehiclesData = await fetchAllVehicles();
+                setVehicles(vehiclesData.data.content || []);
             } catch (error) {
                 console.error('Error loading vehicles:', error);
                 setNotification({

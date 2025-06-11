@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
-    fetchCustomerVehicles,
+    fetchAllVehicles,
     addVehicle,
     updateVehicle,
     deleteVehicle,
@@ -33,7 +33,7 @@ const useVehicles = (options: UseVehiclesOptions = { initialFetch: true }) => {
         try {
             setIsLoading(true);
             setError(null);
-            const data = await fetchCustomerVehicles();
+            const data = await fetchAllVehicles();
             const vehiclesArray = data.data.content || [];
             setVehicles(vehiclesArray);
             return vehiclesArray;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { fetchCustomerVehicles, deleteVehicle } from '../../api/vehicles';
+import { fetchAllVehicles, deleteVehicle } from '../../api/vehicles';
 import { Vehicle } from '../../types/vehicle.types';
 import { Button } from '../../components/ui/button';
 import { toast } from 'react-hot-toast';
@@ -14,8 +14,8 @@ const VehiclesPage: React.FC = () => {
     const loadVehicles = async () => {
         try {
             setIsLoading(true);
-            const data = await fetchCustomerVehicles();
-            const vehiclesArray = data.data?.content || [];
+            const data = await fetchAllVehicles();
+            const vehiclesArray = data.data.content || [];
             setVehicles(vehiclesArray);
         } catch (error) {
             console.error('Error loading vehicles:', error);

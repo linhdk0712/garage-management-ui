@@ -36,8 +36,8 @@ const CustomersPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
-    const [sortBy, setSortBy] = useState<string>('');
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+    const [sortBy] = useState<string>('');
+    const [sortDirection] = useState<'asc' | 'desc'>('desc');
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
 
@@ -50,7 +50,7 @@ const CustomersPage: React.FC = () => {
                 search: searchTerm,
                 status: statusFilter !== 'ALL' ? statusFilter : undefined,
                 sortBy,
-                sortDirection,
+                sortDir: sortDirection,
                 page: currentPage,
                 size: pageSize
             });
@@ -163,7 +163,7 @@ const CustomersPage: React.FC = () => {
         },
         {
             header: 'Member Since',
-            accessor: (customer) => formatDate(customer.memberSince),
+            accessor: (customer) => formatDate(customer.memberSince as string),
             sortable: true,
             className: 'min-w-[150px]'
         },

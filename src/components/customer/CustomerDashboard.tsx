@@ -9,7 +9,7 @@ import {
     Plus,
     Menu
 } from 'lucide-react';
-import { fetchCustomerVehicles } from '../../api/vehicles';
+import { fetchAllVehicles } from '../../api/vehicles';
 import { Vehicle } from '../../types/vehicle.types';
 import VehicleHealthDashboard from '../enhanced/VehicleHealthDashboard';
 import { useAuth } from '../../hooks/useAuth';
@@ -27,7 +27,7 @@ const CustomerDashboard: React.FC = () => {
         const fetchDashboardData = async () => {
             try {
                 setIsLoading(true);
-                const vehiclesData = await fetchCustomerVehicles();
+                const vehiclesData = await fetchAllVehicles();
                 const vehiclesArray = vehiclesData.data.content || [];
                 setVehicles(vehiclesArray);
 
