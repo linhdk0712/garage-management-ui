@@ -159,13 +159,13 @@ const PerformanceAnalytics: React.FC = () => {
 
     return (
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700">
+            <div className="px-6 py-4 bg-[#E3D5CA]">
                 <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold text-white">Performance Analytics Dashboard</h2>
+                    <h2 className="text-lg font-semibold text-[#3D2C2E]">Performance Analytics Dashboard</h2>
                     <div className="flex items-center space-x-2">
-                        <Filter className="w-4 h-4 text-white" />
+                        <Filter className="w-4 h-4 text-[#3D2C2E]" />
                         <select
-                            className="bg-white bg-opacity-20 text-white text-sm rounded-md border-0 px-3 py-1.5 focus:outline-none"
+                            className="bg-white bg-opacity-80 text-[#3D2C2E] text-sm rounded-md border border-[#D6CCC2] px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#8B7355]"
                             value={dateRange}
                             onChange={(e) => setDateRange(e.target.value as 'week' | 'month' | 'quarter')}
                             title="Select date range for analytics"

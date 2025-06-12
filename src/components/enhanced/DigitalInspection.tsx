@@ -177,12 +177,16 @@ const DigitalInspection: React.FC<DigitalInspectionProps> = ({
   const canSubmit = inspectionItems.every(item => item.status !== 'not_inspected');
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-      <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700">
-        <h2 className="text-lg font-semibold text-white">Digital Vehicle Inspection</h2>
-        <p className="text-sm text-blue-100">
-          {vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model} • {vehicleInfo.licensePlate}
-        </p>
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="px-6 py-4 bg-[#E3D5CA]">
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-semibold text-[#3D2C2E]">Digital Vehicle Inspection</h2>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-[#6B5B47]">
+              Vehicle: {vehicleInfo.make} {vehicleInfo.model} ({vehicleInfo.year})
+            </span>
+          </div>
+        </div>
       </div>
       
       <div className="p-4">

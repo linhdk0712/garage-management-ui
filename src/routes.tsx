@@ -18,12 +18,18 @@ import ManagerDashboard from './components/manager/ManagerDashboard';
 import ProfilePage from './pages/ProfilePage';
 import CreateStaffPage from './pages/manager/CreateStaffPage';
 import CustomersPage from './pages/manager/CustomersPage';
+import AddCustomerPage from './pages/manager/AddCustomerPage';
 import StaffManagementPage from './pages/manager/StaffManagementPage';
 import VehiclesPage from './pages/manager/VehiclesPage';
+import AddVehiclePage from './pages/manager/AddVehiclePage';
+
+// Staff Pages
+import StaffAppointmentsPage from './pages/staff/AppointmentsPage';
+import StaffVehiclesPage from './pages/staff/VehiclesPage';
 
 // Protected route wrapper component
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import AddVehiclePage from './pages/customer/AddVehiclePage';
+import { default as CustomerAddVehiclePage } from './pages/customer/AddVehiclePage';
 import EditVehiclePage from './pages/customer/EditVehiclePage';
 import AppointmentsPage from './pages/manager/AppointmentsPage';
 const AppRoutes: React.FC = () => {
@@ -66,7 +72,7 @@ const AppRoutes: React.FC = () => {
                     path="customer/vehicles/add"
                     element={
                         <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                            <AddVehiclePage />
+                            <CustomerAddVehiclePage />
                         </ProtectedRoute>
                     }
                 />
@@ -104,6 +110,22 @@ const AppRoutes: React.FC = () => {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="staff/appointments"
+                    element={
+                        <ProtectedRoute allowedRoles={['STAFF']}>
+                            <StaffAppointmentsPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="staff/vehicles"
+                    element={
+                        <ProtectedRoute allowedRoles={['STAFF']}>
+                            <StaffVehiclesPage />
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Manager Routes */}
                 <Route
@@ -138,6 +160,14 @@ const AppRoutes: React.FC = () => {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="manager/customers/add"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <AddCustomerPage />
+                        </ProtectedRoute>
+                    }
+                />
                  <Route
                     path="manager/appointments"
                     element={
@@ -159,6 +189,14 @@ const AppRoutes: React.FC = () => {
                     element={
                         <ProtectedRoute allowedRoles={['MANAGER']}>
                             <VehiclesPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="manager/vehicles/add"
+                    element={
+                        <ProtectedRoute allowedRoles={['MANAGER']}>
+                            <AddVehiclePage />
                         </ProtectedRoute>
                     }
                 />

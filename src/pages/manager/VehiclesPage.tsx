@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import { Search, Filter, Car, Calendar, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { fetchAllVehiclesWithCustomers } from '../../api/vehicles';
 import { VehicleWithCustomer } from '../../types/vehicle.types';
 import { PaginatedResponse } from '../../types/response.types';
@@ -97,6 +98,7 @@ const getVehicleColumns = (): TableColumn<VehicleWithCustomerIndex>[] => [
 ];
 
 const VehiclesPage: React.FC = () => {
+    const navigate = useNavigate();
     const [vehicles, setVehicles] = useState<VehicleWithCustomerIndex[]>([]);
     const [pagination, setPagination] = useState<PaginatedResponse<VehicleWithCustomer>>({
         content: [],
@@ -335,7 +337,7 @@ const VehiclesPage: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Vehicle Management</h1>
+                <h3 className="text-xl font-bold">Vehicle Management</h3>
                 <div className="flex gap-2">
                     <Button
                         variant="outline"
@@ -345,7 +347,7 @@ const VehiclesPage: React.FC = () => {
                     </Button>
                     <Button
                         variant="primary"
-                        onClick={() => {/* TODO: Implement add vehicle */}}
+                        onClick={() => navigate('/manager/vehicles/add')}
                     >
                         <Car className="w-4 h-4 mr-2" />
                         Add Vehicle

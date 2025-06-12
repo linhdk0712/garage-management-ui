@@ -106,7 +106,7 @@ const StaffDashboard: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Welcome, {user?.firstName}</h1>
+                <h3 className="text-xl font-bold">Welcome, {user?.firstName}</h3>
                 <div className="flex space-x-3">
                     <Button
                         variant="outline"

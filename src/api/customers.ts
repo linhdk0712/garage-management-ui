@@ -60,7 +60,7 @@ export const fetchAllCustomers = async (params?: {
     search?: string;
     status?: string;
 }): Promise<PaginatedResponse<CustomerProfile>> => {
-    return apiClient.get<PaginatedResponse<CustomerProfile>>(ROUTES.customer.profile, { params });
+    return apiClient.get<PaginatedResponse<CustomerProfile>>(ROUTES.manager.customers, { params });
 };
 
 /**
@@ -70,4 +70,23 @@ export const fetchAllCustomers = async (params?: {
  */
 export const fetchCustomerStatistics = async (period: 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR'): Promise<CustomerStatistics> => {
     return apiClient.get<CustomerStatistics>('/manager/reports/customers', { params: { period } });
+};
+
+/**
+ * For manager: Create a new customer
+ * @param customerData Customer data to create
+ * @returns Created customer data
+ */
+export const createCustomer = async (customerData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    notes?: string;
+}): Promise<CustomerProfile> => {
+    return apiClient.post<CustomerProfile>('/manager/customers', customerData);
 };

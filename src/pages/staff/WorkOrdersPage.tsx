@@ -341,7 +341,7 @@ const WorkOrdersPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">Work Orders</h1>
+        <h3 className="text-xl font-bold">Work Orders</h3>
         <div className="flex mt-4 sm:mt-0">
           <Button
             variant={viewMode === 'list' ? 'primary' : 'outline'}

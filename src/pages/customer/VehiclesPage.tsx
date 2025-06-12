@@ -14,8 +14,28 @@ const VehiclesPage: React.FC = () => {
     const loadVehicles = async () => {
         try {
             setIsLoading(true);
-            const data = await fetchAllVehicles();
-            const vehiclesArray = data.data.content || [];
+            const response = await fetchAllVehicles();
+            
+            console.log('fetchAllVehicles response:', response);
+            
+            // The apiClient returns the data property directly, so response is PaginatedResponse<Vehicle>
+            if (!response) {
+                throw new Error('Invalid response from server - no data received');
+            }
+            
+            let vehiclesArray: Vehicle[] = [];
+            
+            // Handle different possible response structures
+            if ('content' in response && Array.isArray((response as any).content)) {
+                vehiclesArray = (response as any).content || [];
+            } else if ('data' in response && response.data && 'content' in response.data) {
+                vehiclesArray = response.data.content || [];
+            } else if (Array.isArray(response)) {
+                vehiclesArray = response;
+            } else {
+                throw new Error('Unexpected response structure from server');
+            }
+            
             setVehicles(vehiclesArray);
         } catch (error) {
             console.error('Error loading vehicles:', error);
@@ -55,7 +75,7 @@ const VehiclesPage: React.FC = () => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">My Vehicles</h1>
+                <h3 className="text-xl font-bold text-gray-900">My Vehicles</h3>
                 <Button
                     variant="primary"
                     onClick={() => navigate('/customer/vehicles/add')}

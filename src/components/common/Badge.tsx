@@ -23,12 +23,12 @@ const Badge: React.FC<BadgeProps> = ({
     className,
 }) => {
     const variantStyles = {
-        primary: 'bg-blue-100 text-blue-800',
-        secondary: 'bg-gray-100 text-gray-800',
-        success: 'bg-green-100 text-green-800',
-        danger: 'bg-red-100 text-red-800',
-        warning: 'bg-yellow-100 text-yellow-800',
-        info: 'bg-indigo-100 text-indigo-800',
+        primary: 'bg-[#D5BDAF] text-[#3D2C2E] border border-[#D5BDAF]',
+        secondary: 'bg-[#E3D5CA] text-[#5A4A42] border border-[#E3D5CA]',
+        success: 'bg-[#E3D5CA] text-[#3D2C2E] border border-[#E3D5CA]',
+        danger: 'bg-[#D5BDAF] text-[#3D2C2E] border border-[#D5BDAF]',
+        warning: 'bg-[#D6CCC2] text-[#3D2C2E] border border-[#D6CCC2]',
+        info: 'bg-[#D5BDAF] text-[#3D2C2E] border border-[#D5BDAF]',
     };
 
     const sizeStyles = {
@@ -38,10 +38,10 @@ const Badge: React.FC<BadgeProps> = ({
     };
 
     const badgeClasses = classNames(
-        'inline-flex items-center font-medium',
+        'inline-flex items-center font-medium transition-colors duration-200',
         variantStyles[variant],
         sizeStyles[size],
-        rounded ? 'rounded-full' : 'rounded',
+        rounded ? 'rounded-full' : 'rounded-lg',
         className
     );
 

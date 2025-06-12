@@ -23,7 +23,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
+import BeautifulTabs, { BeautifulTab } from '../components/common/BeautifulTabs';
 import Spinner from '../components/common/Spinner';
 import Notification from '../components/common/Notification';
 import Badge from '../components/common/Badge';
@@ -619,7 +619,7 @@ const ProfilePage: React.FC = () => {
         </div>
     );
 
-    const tabs = [
+    const tabs: BeautifulTab[] = [
         {
             id: 'personal',
             label: 'Personal Information',
@@ -660,25 +660,15 @@ const ProfilePage: React.FC = () => {
             )}
 
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-900">Profile</h1>
+                <h3 className="text-xl font-bold text-gray-900">Profile</h3>
             </div>
 
             <Card>
-                <Tabs defaultValue="personal">
-                    <TabsList>
-                        {tabs.map(tab => (
-                            <TabsTrigger key={tab.id} value={tab.id}>
-                                {tab.icon}
-                                {tab.label}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-                    {tabs.map(tab => (
-                        <TabsContent key={tab.id} value={tab.id}>
-                            {tab.content}
-                        </TabsContent>
-                    ))}
-                </Tabs>
+                <BeautifulTabs
+                    tabs={tabs}
+                    variant="underline"
+                    defaultTabId="personal"
+                />
             </Card>
         </div>
     );

@@ -25,13 +25,13 @@ const Button: React.FC<ButtonProps> = ({
     disabled,
     ...props
 }) => {
-    const baseStyles = 'inline-flex bg-cyan-500 items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors';
+    const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B7355] focus:ring-offset-2 transition-all duration-200';
     
     const variantStyles = {
-        primary: 'bg-cyan-500 hover:bg-cyan-600 focus:ring-cyan-500 disabled:bg-cyan-400 disabled:text-white',
-        secondary: 'bg-blue-300 text-gray-700 hover:bg-gray-200 focus:ring-gray-500 disabled:bg-gray-50 disabled:text-gray-400',
-        danger: 'bg-red-700 text-white hover:bg-red-800 focus:ring-red-500 disabled:bg-red-400 disabled:text-white',
-        outline: 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500 disabled:border-gray-200 disabled:text-gray-400'
+        primary: 'bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm disabled:bg-[#F5EBE0]',
+        secondary: 'bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] disabled:bg-[#F5EBE0] disabled:text-[#8B7355]',
+        danger: 'bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm disabled:bg-[#F5EBE0]',
+        outline: 'border border-[#D6CCC2] bg-[#EDEDE9] text-[#5A4A42] hover:bg-[#E3D5CA] hover:border-[#D5BDAF] disabled:border-[#F5EBE0] disabled:text-[#8B7355]'
     };
 
     const sizeStyles = {

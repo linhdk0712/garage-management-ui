@@ -1,4 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Filter, UserPlus, Mail, Phone } from 'lucide-react';
 import { fetchAllCustomers, fetchCustomerStatistics } from '../../api/customers';
 import { CustomerProfile, CustomerStatistics } from '../../types/customer.types';
@@ -19,6 +20,7 @@ interface CustomerProfileWithIndex extends CustomerProfile {
 }
 
 const CustomersPage: React.FC = () => {
+    const navigate = useNavigate();
     const [customers, setCustomers] = useState<CustomerProfileWithIndex[]>([]);
     const [pagination, setPagination] = useState<PaginatedResponse<CustomerProfile>>({
         content: [],
@@ -195,10 +197,10 @@ const CustomersPage: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Customer Management</h1>
+                <h3 className="text-xl font-bold">Customer Management</h3>
                 <Button
                     variant="primary"
-                    onClick={() => {/* TODO: Implement add customer */}}
+                    onClick={() => {navigate('/manager/customers/add')}}
                 >
                     <UserPlus className="w-4 h-4 mr-2" />
                     Add Customer

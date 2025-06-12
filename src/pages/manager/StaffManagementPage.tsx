@@ -118,7 +118,7 @@ const StaffManagementPage: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-2xl font-bold">Staff Management</h1>
+                <h3 className="text-xl font-bold">Staff Management</h3>
                 <Button
                     variant="primary"
                     icon={<Plus className="w-5 h-5" />}

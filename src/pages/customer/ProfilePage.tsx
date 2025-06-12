@@ -8,7 +8,7 @@ import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
+import BeautifulTabs, { BeautifulTab } from '../../components/common/BeautifulTabs';
 import Spinner from '../../components/common/Spinner';
 import Notification from '../../components/common/Notification';
 import AppointmentList from '../../components/customer/appointments/AppointmentList';
@@ -439,9 +439,36 @@ const ProfilePage: React.FC = () => {
         </div>
     );
 
+    const tabs: BeautifulTab[] = [
+        {
+            id: 'personal',
+            label: 'Personal Information',
+            icon: <Mail className="w-4 h-4" />,
+            content: personalInfoTab,
+        },
+        {
+            id: 'vehicles',
+            label: 'Vehicles',
+            icon: <Car className="w-4 h-4" />,
+            content: vehiclesTab,
+        },
+        {
+            id: 'appointments',
+            label: 'Appointments',
+            icon: <Calendar className="w-4 h-4" />,
+            content: appointmentsTab,
+        },
+        {
+            id: 'security',
+            label: 'Security',
+            icon: <Key className="w-4 h-4" />,
+            content: securityTab,
+        },
+    ];
+
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold">Profile Settings</h1>
+            <h3 className="text-xl font-bold">Profile Settings</h3>
 
             {notification && (
                 <Notification
@@ -453,18 +480,11 @@ const ProfilePage: React.FC = () => {
             )}
 
             <Card>
-                <Tabs defaultValue="personal">
-                    <TabsList>
-                        <TabsTrigger value="personal">Personal Information</TabsTrigger>
-                        <TabsTrigger value="vehicles">Vehicles</TabsTrigger>
-                        <TabsTrigger value="appointments">Appointments</TabsTrigger>
-                        <TabsTrigger value="security">Security</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="personal">{personalInfoTab}</TabsContent>
-                    <TabsContent value="vehicles">{vehiclesTab}</TabsContent>
-                    <TabsContent value="appointments">{appointmentsTab}</TabsContent>
-                    <TabsContent value="security">{securityTab}</TabsContent>
-                </Tabs>
+                <BeautifulTabs
+                    tabs={tabs}
+                    variant="underline"
+                    defaultTabId="personal"
+                />
             </Card>
         </div>
     );

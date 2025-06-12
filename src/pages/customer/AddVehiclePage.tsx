@@ -16,7 +16,7 @@ const AddVehiclePage: React.FC = () => {
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Add New Vehicle</h1>
+                <h3 className="text-xl font-bold text-gray-900">Add New Vehicle</h3>
                 <p className="mt-2 text-sm text-gray-600">
                     Please fill in the details of your vehicle below.
                 </p>

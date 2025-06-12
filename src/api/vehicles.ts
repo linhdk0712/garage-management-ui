@@ -124,3 +124,24 @@ export const fetchAllVehiclesWithCustomers = async (params?: {
     console.log("fetchAllVehiclesWithCustomers", response);
     return response;
 };
+
+/**
+ * For staff: Fetch all vehicles with pagination
+ * @param params Optional filter parameters including pagination
+ * @returns Paginated response of vehicles
+ */
+export const fetchStaffVehicles = async (params?: {
+    search?: string;
+    make?: string;
+    model?: string;
+    year?: number;
+    customerId?: number;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+    page?: number;
+    size?: number;
+}): Promise<PaginatedResponseData<Vehicle>> => {
+    const response = await apiClient.get<PaginatedResponseData<Vehicle>>(ROUTES.staff.vehicles, { params });
+    console.log("fetchStaffVehicles", response);
+    return response;
+};

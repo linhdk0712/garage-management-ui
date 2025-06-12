@@ -6,12 +6,11 @@ import {
   Clock, 
   Car
 } from 'lucide-react';
-import useAppointments from '../../hooks/useAppointments';
-import useVehicles from '../../hooks/useVehicles';
+import useCustomerDashboard from '../../hooks/useCustomerDashboard';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
+import BeautifulTabs from '../../components/common/BeautifulTabs';
 import Spinner from '../../components/common/Spinner';
 import AppointmentForm from '../../components/customer/appointments/AppointmentForm';
 import { Appointment } from '../../types/appointment.types';
@@ -22,8 +21,7 @@ import { ROUTES } from '../../config/routes';
 
 const AppointmentsPage: React.FC = () => {
   const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-  const { appointments, isLoading, error, fetchAllAppointments } = useAppointments({ initialFetch: true });
-  const { vehicles, isLoading: vehiclesLoading } = useVehicles({ initialFetch: true });
+  const { appointments, vehicles, isLoading, error, fetchDashboardData } = useCustomerDashboard({ initialFetch: true });
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<number | null>(null);
@@ -47,8 +45,8 @@ const AppointmentsPage: React.FC = () => {
         type: 'success',
         message: 'Appointment cancelled successfully.'
       });
-      // Refresh the list
-      fetchAllAppointments();
+      // Refresh the dashboard data
+      fetchDashboardData();
     } catch (err) {
       setNotification({
         type: 'error',
@@ -166,8 +164,8 @@ const AppointmentsPage: React.FC = () => {
     );
   };
 
-  if (isLoading || vehiclesLoading) {
-    return <Spinner size="lg" text="Loading appointments..." />;
+  if (isLoading) {
+    return <Spinner size="lg" text="Loading appointments and vehicles..." />;
   }
 
   if (error) {
@@ -215,7 +213,7 @@ const AppointmentsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">My Appointments</h1>
+        <h3 className="text-xl font-bold text-gray-900">My Appointments</h3>
         {scheduleButton}
       </div>
 
@@ -238,22 +236,30 @@ const AppointmentsPage: React.FC = () => {
         <Card>{noVehiclesMessage}</Card>
       ) : (
         <Card>
-          <Tabs defaultValue="upcoming">
-            <TabsList>
-              <TabsTrigger value="upcoming">Upcoming ({upcomingAppointments.length})</TabsTrigger>
-              <TabsTrigger value="inProgress">In Progress ({inProgressAppointments.length})</TabsTrigger>
-              <TabsTrigger value="past">Past ({pastAppointments.length})</TabsTrigger>
-            </TabsList>
-            <TabsContent value="upcoming">
-              {renderAppointmentList(upcomingAppointments)}
-            </TabsContent>
-            <TabsContent value="inProgress">
-              {renderAppointmentList(inProgressAppointments)}
-            </TabsContent>
-            <TabsContent value="past">
-              {renderAppointmentList(pastAppointments)}
-            </TabsContent>
-          </Tabs>
+          <BeautifulTabs
+            tabs={[
+              {
+                id: 'upcoming',
+                label: `Upcoming (${upcomingAppointments.length})`,
+                icon: <Calendar className="w-4 h-4" />,
+                content: renderAppointmentList(upcomingAppointments),
+              },
+              {
+                id: 'inProgress',
+                label: `In Progress (${inProgressAppointments.length})`,
+                icon: <Clock className="w-4 h-4" />,
+                content: renderAppointmentList(inProgressAppointments),
+              },
+              {
+                id: 'past',
+                label: `Past (${pastAppointments.length})`,
+                icon: <Calendar className="w-4 h-4" />,
+                content: renderAppointmentList(pastAppointments),
+              },
+            ]}
+            variant="underline"
+            defaultTabId="upcoming"
+          />
         </Card>
       )}
 
@@ -274,6 +280,7 @@ const AppointmentsPage: React.FC = () => {
                 <AppointmentForm
                   onClose={handleCloseModal}
                   mode="add"
+                  onSuccess={fetchDashboardData}
                 />
               </DialogContent>
             </div>
@@ -297,6 +304,7 @@ const AppointmentsPage: React.FC = () => {
                   onClose={handleCloseModal}
                   mode="edit"
                   appointmentId={editingAppointment!}
+                  onSuccess={fetchDashboardData}
                 />
               </DialogContent>
             </div>

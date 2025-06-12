@@ -6,29 +6,29 @@ import { Loader2 } from "lucide-react"
 import { cn } from "../../lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B7355] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+          "bg-[#8B7355] text-[#EDEDE9] hover:bg-[#6B5B47] shadow-sm",
         outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+          "border border-[#D6CCC2] bg-[#EDEDE9] text-[#5A4A42] hover:bg-[#E3D5CA] hover:border-[#D5BDAF]",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        // Custom variants to match your current design
-        primary: "bg-cyan-500 text-white hover:bg-cyan-600 focus:ring-cyan-500 disabled:bg-cyan-400",
-        danger: "bg-red-700 text-white hover:bg-red-800 focus:ring-red-500 disabled:bg-red-400",
-        success: "bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 disabled:bg-green-400",
-        warning: "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500 disabled:bg-yellow-400",
+          "bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA]",
+        ghost: "text-[#5A4A42] hover:bg-[#E3D5CA] hover:text-[#3D2C2E]",
+        link: "text-[#8B7355] underline-offset-4 hover:underline hover:text-[#6B5B47]",
+        // Minimalist variants
+        primary: "bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm",
+        success: "bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm",
+        warning: "bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm",
+        info: "bg-[#D5BDAF] text-[#3D2C2E] hover:bg-[#E3D5CA] shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-12 px-6 text-base",
         icon: "h-10 w-10",
       },
     },

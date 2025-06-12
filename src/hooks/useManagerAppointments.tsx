@@ -5,6 +5,7 @@ import {
     updateAppointmentStatus,
 } from '../api/appointments';
 import { Appointment } from '../types/appointment.types';
+import { PaginatedResponse } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 
 interface UseManagerAppointmentsOptions {
@@ -13,6 +14,12 @@ interface UseManagerAppointmentsOptions {
         status?: string;
         from?: string;
         to?: string;
+    };
+    pagination?: {
+        page?: number;
+        size?: number;
+        sortBy?: string;
+        sortDirection?: 'asc' | 'desc';
     };
 }
 
@@ -27,33 +34,84 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [pagination, setPagination] = useState<{
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+        hasNext: boolean;
+        hasPrevious: boolean;
+        isFirst: boolean;
+        isLast: boolean;
+        content: any[];
+    }>({
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0,
+        hasNext: false,
+        hasPrevious: false,
+        isFirst: true,
+        isLast: true,
+        content: [],
+    });
     const initialFetchRef = useRef(false);
 
-    const { initialFetch = true, filters: initialFilters = {} } = options;
+    const { initialFetch = true, filters: initialFilters = {}, pagination: initialPagination = {} } = options;
 
     // Memoize filters to prevent unnecessary re-renders
     const filters = useMemo(() => initialFilters, [initialFilters]);
 
-    // Fetch all appointments for manager
-    const fetchAllAppointments = useCallback(async (customFilters?: typeof filters) => {
+    // Fetch all appointments for manager with pagination
+    const fetchAllAppointments = useCallback(async (customFilters?: typeof filters, customPagination?: typeof pagination) => {
         try {
             setIsLoading(true);
             setError(null);
             const queryFilters = customFilters || filters;
-            const response = await fetchAppointments(ROUTES.manager.appointments, queryFilters);
+            const queryPagination = customPagination || pagination;
+            
+            const response = await fetchAppointments(ROUTES.manager.appointments, {
+                ...queryFilters,
+                page: queryPagination.page,
+                size: queryPagination.size,
+                sortBy: 'appointmentDate',
+                sortDirection: 'asc',
+            });
             
             // Extract the appointments array from the paginated response
             if (response?.content) {
                 setAppointments(response.content);
-                return response.content;
+                setPagination({
+                    page: response.page,
+                    size: response.size,
+                    totalElements: response.totalElements,
+                    totalPages: response.totalPages,
+                    hasNext: response.hasNext,
+                    hasPrevious: response.hasPrevious,
+                    isFirst: response.isFirst,
+                    isLast: response.isLast,
+                    content: response.content,
+                });
+                return response;
             } else {
                 setAppointments([]);
-                return [];
+                setPagination({
+                    page: 0,
+                    size: 10,
+                    totalElements: 0,
+                    totalPages: 0,
+                    hasNext: false,
+                    hasPrevious: false,
+                    isFirst: true,
+                    isLast: true,
+                    content: [],
+                });
+                return null;
             }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Failed to fetch appointments');
             setAppointments([]);
-            return [];
+            return null;
         } finally {
             setIsLoading(false);
         }
@@ -112,6 +170,15 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
         setSelectedAppointment(appointment || null);
     }, [appointments]);
 
+    // Pagination methods
+    const goToPage = useCallback((page: number) => {
+        setPagination(prev => ({ ...prev, page }));
+    }, []);
+
+    const changePageSize = useCallback((size: number) => {
+        setPagination(prev => ({ ...prev, page: 0, size }));
+    }, []);
+
     // Initial fetch
     useEffect(() => {
         if (initialFetch && !initialFetchRef.current) {
@@ -125,10 +192,13 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
         selectedAppointment,
         isLoading,
         error,
+        pagination,
         fetchAllAppointments,
         fetchAppointment,
         updateStatus,
         selectAppointment,
+        goToPage,
+        changePageSize,
     };
 };
 

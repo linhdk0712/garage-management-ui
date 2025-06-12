@@ -4,23 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "../../lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors duration-200",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-[#D6CCC2] bg-[#D6CCC2] text-[#3D2C2E]",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-[#E3D5CA] bg-[#E3D5CA] text-[#5A4A42]",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-[#D5BDAF] bg-[#D5BDAF] text-[#3D2C2E]",
+        outline: 
+          "border-[#D6CCC2] bg-[#EDEDE9] text-[#5A4A42]",
+        primary:
+          "border-[#D5BDAF] bg-[#D5BDAF] text-[#3D2C2E]",
         success:
-          "border-transparent bg-green-100 text-green-800 hover:bg-green-200",
+          "border-[#E3D5CA] bg-[#E3D5CA] text-[#3D2C2E]",
         warning:
-          "border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+          "border-[#D6CCC2] bg-[#D6CCC2] text-[#3D2C2E]",
         info:
-          "border-transparent bg-blue-100 text-blue-800 hover:bg-blue-200",
+          "border-[#D5BDAF] bg-[#D5BDAF] text-[#3D2C2E]",
       },
     },
     defaultVariants: {

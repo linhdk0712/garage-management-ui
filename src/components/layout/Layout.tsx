@@ -9,14 +9,17 @@ const Layout: React.FC = () => {
     // If auth is still loading, show a loading state
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <div className="flex items-center justify-center min-h-screen bg-[#F5EBE0]">
+                <div className="flex flex-col items-center space-y-4">
+                    <div className="w-8 h-8 border-2 border-[#D6CCC2] border-t-[#8B7355] rounded-full animate-spin"></div>
+                    <p className="text-[#6B5B47] text-sm">Loading...</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-[#F5EBE0]">
             {/* Main Content */}
             <div className="flex flex-col">
                 {/* Header */}
@@ -24,7 +27,7 @@ const Layout: React.FC = () => {
 
                 {/* Page Content */}
                 <main className="flex-1">
-                    <div className="py-6">
+                    <div className="py-8">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <Outlet />
                         </div>
@@ -32,8 +35,10 @@ const Layout: React.FC = () => {
                 </main>
 
                 {/* Footer */}
-                <footer className="bg-white border-t border-gray-200 p-4 text-center text-sm text-gray-500">
-                    <p>© {new Date().getFullYear()} Garage Management System. All rights reserved.</p>
+                <footer className="bg-[#EDEDE9] border-t border-[#D6CCC2] py-6 text-center">
+                    <p className="text-[#6B5B47] text-sm">
+                        © {new Date().getFullYear()} Garage Management System. All rights reserved.
+                    </p>
                 </footer>
             </div>
         </div>

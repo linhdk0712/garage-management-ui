@@ -30,13 +30,13 @@ interface NavLinkProps {
 const NavLink: React.FC<NavLinkProps> = ({ to, icon, children, isActive }) => (
     <Link
         to={to}
-        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+        className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
             isActive(to)
-                ? 'bg-blue-50 text-blue-700'
-                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-[#D5BDAF] text-[#3D2C2E] border border-[#D5BDAF]'
+                : 'text-[#6B5B47] hover:bg-[#E3D5CA] hover:text-[#5A4A42]'
         }`}
     >
-        <span className="mr-2">{icon}</span>
+        <span className="mr-3">{icon}</span>
         {children}
     </Link>
 );
@@ -154,71 +154,71 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+        <header className="bg-[#EDEDE9] border-b border-[#D6CCC2] sticky top-0 z-30">
             <div className="px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
-                    <div className="flex">
+                    <div className="flex items-center">
                         {/* Logo */}
                         <Link to="/" className="flex-shrink-0 flex items-center">
-                            <span className="ml-2 text-lg font-semibold text-gray-900">
-                                Garage Management System
+                            <span className="text-xl font-semibold text-[#3D2C2E]">
+                                Garage Management
                             </span>
                         </Link>
 
                         {/* Navigation Links */}
-                        <nav className="hidden md:flex items-center space-x-1 ml-8">
+                        <nav className="hidden md:flex items-center space-x-2 ml-8">
                             {renderNavLinks()}
                         </nav>
                     </div>
 
                     {/* Right section */}
-                    <div className="flex items-center">
+                    <div className="flex items-center space-x-4">
                         {/* Notifications */}
                         <FeatureGate feature="enableNotifications">
                             <div className="relative">
                                 <button
-                                    className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="p-2 rounded-lg text-[#6B5B47] hover:text-[#5A4A42] hover:bg-[#E3D5CA] focus:outline-none focus:ring-2 focus:ring-[#8B7355] focus:ring-offset-2 transition-colors duration-200"
                                     onClick={toggleNotifications}
                                     title="View notifications"
                                 >
                                     <span className="sr-only">View notifications</span>
-                                    <Bell className="h-6 w-6" />
-                                    <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500"></span>
+                                    <Bell className="h-5 w-5" />
+                                    <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-[#D5BDAF]"></span>
                                 </button>
 
                                 {/* Notifications dropdown */}
                                 {showNotifications && (
-                                    <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                                        <div className="py-2 px-4 border-b border-gray-200">
-                                            <h3 className="text-sm font-medium">Notifications</h3>
+                                    <div className="absolute right-0 mt-2 w-80 rounded-lg border border-[#D6CCC2] bg-[#EDEDE9] shadow-lg">
+                                        <div className="py-3 px-4 border-b border-[#D6CCC2]">
+                                            <h3 className="text-sm font-medium text-[#3D2C2E]">Notifications</h3>
                                         </div>
                                         <div className="max-h-96 overflow-y-auto">
-                                            <div className="py-2 px-4 border-b border-gray-100 hover:bg-gray-50">
-                                                <div className="flex items-start">
-                                                    <div className="flex-shrink-0 bg-blue-100 rounded-full p-1">
-                                                        <Bell className="h-4 w-4 text-blue-600" />
+                                            <div className="py-3 px-4 border-b border-[#E3D5CA] hover:bg-[#E3D5CA] transition-colors duration-200">
+                                                <div className="flex items-start space-x-3">
+                                                    <div className="flex-shrink-0 bg-[#D5BDAF] rounded-full p-1">
+                                                        <Bell className="h-4 w-4 text-[#3D2C2E]" />
                                                     </div>
-                                                    <div className="ml-3 w-0 flex-1">
-                                                        <p className="text-sm font-medium text-gray-900">New appointment scheduled</p>
-                                                        <p className="text-sm text-gray-500">John Doe scheduled a repair for tomorrow at 2:00 PM</p>
-                                                        <p className="mt-1 text-xs text-gray-500">10 minutes ago</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="py-2 px-4 border-b border-gray-100 hover:bg-gray-50">
-                                                <div className="flex items-start">
-                                                    <div className="flex-shrink-0 bg-green-100 rounded-full p-1">
-                                                        <Bell className="h-4 w-4 text-green-600" />
-                                                    </div>
-                                                    <div className="ml-3 w-0 flex-1">
-                                                        <p className="text-sm font-medium text-gray-900">Work order #1234 completed</p>
-                                                        <p className="text-sm text-gray-500">Staff member Mike finished the repair</p>
-                                                        <p className="mt-1 text-xs text-gray-500">1 hour ago</p>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-[#3D2C2E]">New appointment scheduled</p>
+                                                        <p className="text-sm text-[#6B5B47] mt-1">John Doe scheduled a repair for tomorrow at 2:00 PM</p>
+                                                        <p className="text-xs text-[#8B7355] mt-1">10 minutes ago</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="py-2 px-4 text-center text-sm">
-                                                <Link to="/notifications" className="text-blue-600 hover:text-blue-800 font-medium">
+                                            <div className="py-3 px-4 border-b border-[#E3D5CA] hover:bg-[#E3D5CA] transition-colors duration-200">
+                                                <div className="flex items-start space-x-3">
+                                                    <div className="flex-shrink-0 bg-[#D5BDAF] rounded-full p-1">
+                                                        <Bell className="h-4 w-4 text-[#3D2C2E]" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-[#3D2C2E]">Work order #1234 completed</p>
+                                                        <p className="text-sm text-[#6B5B47] mt-1">Staff member Mike finished the repair</p>
+                                                        <p className="text-xs text-[#8B7355] mt-1">1 hour ago</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="py-3 px-4 text-center">
+                                                <Link to="/notifications" className="text-[#8B7355] hover:text-[#6B5B47] font-medium text-sm">
                                                     View all notifications
                                                 </Link>
                                             </div>
@@ -229,17 +229,17 @@ const Header: React.FC = () => {
                         </FeatureGate>
 
                         {/* User profile */}
-                        <div className="relative ml-4">
+                        <div className="relative">
                             <button
-                                className="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-[#E3D5CA] focus:outline-none focus:ring-2 focus:ring-[#8B7355] focus:ring-offset-2 transition-colors duration-200"
                                 onClick={toggleUserMenu}
                                 title="Open user menu"
                             >
                                 <span className="sr-only">Open user menu</span>
-                                <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
-                                    <User className="h-5 w-5" />
+                                <div className="h-8 w-8 rounded-full bg-[#D6CCC2] flex items-center justify-center text-[#6B5B47]">
+                                    <User className="h-4 w-4" />
                                 </div>
-                                <span className="ml-2 font-medium text-gray-700 hidden md:block">
+                                <span className="font-medium text-[#5A4A42] hidden md:block text-sm">
                                     {user?.firstName} {user?.lastName}
                                 </span>
                                 <Badge
@@ -247,44 +247,44 @@ const Header: React.FC = () => {
                                     variant="primary"
                                     size="sm"
                                     rounded
-                                    className="ml-2 hidden md:flex"
+                                    className="hidden md:flex"
                                 />
                             </button>
 
                             {/* User dropdown */}
                             {showUserMenu && (
-                                <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                                    <div className="py-1">
+                                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[#D6CCC2] bg-[#EDEDE9] shadow-lg">
+                                    <div className="py-2">
                                         <Link
                                             to={getProfileRoute()}
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            className="flex items-center px-4 py-2 text-sm text-[#5A4A42] hover:bg-[#E3D5CA] transition-colors duration-200"
                                             title="Profile"
                                         >
-                                            <User className="mr-3 h-4 w-4 text-gray-500" />
+                                            <User className="mr-3 h-4 w-4 text-[#6B5B47]" />
                                             Profile
                                         </Link>
                                         <Link
                                             to="/settings"
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            className="flex items-center px-4 py-2 text-sm text-[#5A4A42] hover:bg-[#E3D5CA] transition-colors duration-200"
                                             title="Settings"
                                         >
-                                            <Settings className="mr-3 h-4 w-4 text-gray-500" />
+                                            <Settings className="mr-3 h-4 w-4 text-[#6B5B47]" />
                                             Settings
                                         </Link>
                                         <Link
                                             to="/help"
-                                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            className="flex items-center px-4 py-2 text-sm text-[#5A4A42] hover:bg-[#E3D5CA] transition-colors duration-200"
                                             title="Help & Support"
                                         >
-                                            <HelpCircle className="mr-3 h-4 w-4 text-gray-500" />
+                                            <HelpCircle className="mr-3 h-4 w-4 text-[#6B5B47]" />
                                             Help & Support
                                         </Link>
                                         <button
                                             onClick={logout}
-                                            className="flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-gray-100"
+                                            className="flex items-center w-full px-4 py-2 text-sm text-[#8B7355] hover:bg-[#E3D5CA] transition-colors duration-200"
                                             title="Sign out"
                                         >
-                                            <LogOut className="mr-3 h-4 w-4 text-red-500" />
+                                            <LogOut className="mr-3 h-4 w-4 text-[#8B7355]" />
                                             Sign out
                                         </button>
                                     </div>

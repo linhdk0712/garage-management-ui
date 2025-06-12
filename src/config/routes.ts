@@ -35,6 +35,7 @@ export const ROUTES = {
         appointments: '/staff/appointments',
         profile: '/staff/profile',
         workOrders: '/staff/work-orders',
+        vehicles: '/staff/vehicles',
     },
     manager: {
         list: '/managers',

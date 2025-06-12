@@ -152,7 +152,7 @@ const PaymentsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Payment History</h1>
+      <h3 className="text-xl font-bold">Payment History</h3>
 
       <Card>
         <div className="p-4 space-y-4">

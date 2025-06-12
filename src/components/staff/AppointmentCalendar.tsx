@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { format, startOfWeek, addDays, isSameDay, parseISO, isToday, addWeeks, subWeeks } from 'date-fns';
+import { format, startOfWeek, addDays, isSameDay, parseISO, isToday, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight, Clock, User, Car, ArrowRight } from 'lucide-react';
 import { fetchStaffAppointments, updateAppointmentStatus } from '../../api/appointments';
 import { Appointment } from '../../types/appointment.types';
@@ -107,23 +107,26 @@ const AppointmentCalendar: React.FC = () => {
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-white">Appointment Calendar</h2>
-                <div className="flex space-x-2">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="px-6 py-4 bg-[#E3D5CA] flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-[#3D2C2E]">Appointment Calendar</h3>
+                <div className="flex items-center space-x-2">
                     <button
-                        className="p-1.5 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30"
-                        onClick={prevWeek}
-                        title="Previous week"
+                        onClick={() => setCurrentDate(prev => subMonths(prev, 1))}
+                        className="p-2 rounded-lg hover:bg-[#D5BDAF] transition-colors duration-200"
+                        title="Previous month"
                     >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="h-4 w-4 text-[#3D2C2E]" />
                     </button>
+                    <span className="text-[#3D2C2E] font-medium">
+                        {format(currentDate, 'MMMM yyyy')}
+                    </span>
                     <button
-                        className="p-1.5 bg-white bg-opacity-20 rounded-full text-white hover:bg-opacity-30"
-                        onClick={nextWeek}
-                        title="Next week"
+                        onClick={() => setCurrentDate(prev => addMonths(prev, 1))}
+                        className="p-2 rounded-lg hover:bg-[#D5BDAF] transition-colors duration-200"
+                        title="Next month"
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="h-4 w-4 text-[#3D2C2E]" />
                     </button>
                 </div>
             </div>

@@ -115,7 +115,7 @@ const ManagerDashboard: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Manager Dashboard</h1>
+                <h3 className="text-xl font-bold">Manager Dashboard</h3>
                 <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-2">
                         <Filter className="h-5 w-5 text-gray-500" />

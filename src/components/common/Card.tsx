@@ -25,21 +25,21 @@ const Card: React.FC<CardProps> = ({
                                        noPadding = false,
                                    }) => {
     const cardClass = classNames(
-        'bg-white rounded-xl shadow-md overflow-hidden',
+        'bg-[#EDEDE9] rounded-lg border border-[#D6CCC2] overflow-hidden',
         className
     );
 
     const headerClass = classNames(
-        'px-6 py-4',
+        'px-6 py-4 bg-[#E3D5CA]',
         {
-            'border-b': !subtitle,
+            'border-b border-[#D6CCC2]': !subtitle,
             'pb-2': subtitle,
         },
         headerClassName
     );
 
     const subtitleClass = classNames(
-        'px-6 py-2 border-b text-sm text-gray-500'
+        'px-6 py-2 border-b border-[#E3D5CA] text-sm text-[#6B5B47]'
     );
 
     const bodyClass = classNames(
@@ -50,7 +50,7 @@ const Card: React.FC<CardProps> = ({
     );
 
     const footerClass = classNames(
-        'px-6 py-4 bg-gray-50 border-t',
+        'px-6 py-4 bg-[#F5EBE0] border-t border-[#E3D5CA]',
         footerClassName
     );
 
@@ -58,7 +58,7 @@ const Card: React.FC<CardProps> = ({
         <div className={cardClass}>
             {title && (
                 <div className={headerClass}>
-                    <h3 className="text-lg font-medium">{title}</h3>
+                    <h3 className="text-lg font-semibold text-[#3D2C2E]">{title}</h3>
                 </div>
             )}
 

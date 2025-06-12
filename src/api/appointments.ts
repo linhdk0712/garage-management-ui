@@ -1,6 +1,12 @@
 import apiClient from './apiClient';
 import { Appointment, AppointmentFormData, TimeSlot } from '../types/appointment.types';
+import { Vehicle } from '../types/vehicle.types';
 import { PaginatedResponse } from '../types/response.types';
+
+export interface CustomerDashboardData {
+    appointments: Appointment[];
+    vehicles: Vehicle[];
+}
 
 /**
  * Fetch appointments for a customer or staff member with pagination
@@ -18,6 +24,15 @@ export const fetchAppointments = async (apiUrl: string, params?: {
     sortDirection?: 'asc' | 'desc';
 }): Promise<PaginatedResponse<Appointment>> => {
     return await apiClient.get<PaginatedResponse<Appointment>>(apiUrl, { params });
+};
+
+/**
+ * Fetch customer dashboard data including appointments and vehicles
+ * @param apiUrl The API endpoint URL
+ * @returns Customer dashboard data with appointments and vehicles
+ */
+export const fetchCustomerDashboard = async (apiUrl: string): Promise<CustomerDashboardData> => {
+    return await apiClient.get<CustomerDashboardData>(`${apiUrl}/dashboard`);
 };
 
 /**
@@ -51,10 +66,10 @@ export const updateAppointment = async (apiUrl: string, data: AppointmentFormDat
 /**
  * Cancel an appointment
  * @param appointmentId ID of the appointment to cancel
- * @returns Success message
+ * @returns Success status
  */
-export const cancelAppointment = async (apiUrl: string,appointmentId: number): Promise<void> => {
-    await apiClient.delete(apiUrl, { params: { appointmentId } });
+export const cancelAppointment = async (apiUrl: string, appointmentId: number): Promise<boolean> => {
+    return await apiClient.delete<boolean>(apiUrl, { params: { appointmentId } });
 };
 
 /**

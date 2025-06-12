@@ -87,7 +87,7 @@ const CreateStaffPage: React.FC = () => {
 
             <Card>
                 <div className="p-6">
-                    <h1 className="text-2xl font-semibold mb-6">Create New Staff Member</h1>
+                    <h3 className="text-xl font-semibold mb-6">Create New Staff Member</h3>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Personal Information */}
                         <div className="space-y-4">

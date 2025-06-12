@@ -13,9 +13,10 @@ interface AppointmentFormProps {
     onClose: () => void;
     mode: 'add' | 'edit';
     appointmentId?: number;
+    onSuccess?: () => void;
 }
 
-const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appointmentId }) => {
+const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appointmentId, onSuccess }) => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<AppointmentFormData>();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -68,6 +69,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
                 await scheduleAppointment(ROUTES.customer.appointments, data);
             } else if (appointmentId) {
                 await updateAppointment(ROUTES.customer.appointments, data);
+            }
+
+            // Call onSuccess callback to refresh dashboard data
+            if (onSuccess) {
+                onSuccess();
             }
 
             onClose();

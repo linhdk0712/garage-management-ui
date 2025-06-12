@@ -35,37 +35,37 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         );
 
         const inputClass = classNames(
-            'block border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+            'block border rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8B7355] focus:ring-offset-2',
             {
                 'w-full': fullWidth,
                 'pl-10': LeftIcon,
                 'pr-10': RightIcon,
-                'border-red-300': error,
-                'border-gray-300': !error,
-                'bg-gray-50 text-gray-500': disabled,
+                'border-[#D5BDAF] focus:ring-[#D5BDAF]': error,
+                'border-[#D6CCC2] hover:border-[#D5BDAF]': !error,
+                'bg-[#F5EBE0] text-[#8B7355]': disabled,
             },
             'py-2.5 px-4',
-            'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'
+            'bg-[#EDEDE9] text-[#5A4A42]'
         );
 
         return (
             <div className={inputContainerClass}>
                 {label && (
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1.5">
+                    <label className="block text-sm font-medium text-[#5A4A42] mb-2">
                         {label}
                     </label>
                 )}
                 <div className="relative">
                     {LeftIcon && (
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span><LeftIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" /></span>
+                            <span><LeftIcon className="h-5 w-5 text-[#8B7355]" /></span>
                         </div>
                     )}
                     <input
                         ref={ref}
                         className={inputClass}
                         disabled={disabled}
-                        aria-invalid={error ? 'true' : 'false'}
+                        {...(error && { "aria-invalid": "true" })}
                         aria-describedby={`${props.id}-helper ${props.id}-error`}
                         {...props}
                     />
@@ -73,24 +73,25 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                         <button
                             type="button"
                             className={classNames(
-                                'absolute inset-y-0 right-0 pr-3 flex items-center',
-                                onRightIconClick ? 'cursor-pointer' : 'pointer-events-none'
+                                'absolute inset-y-0 right-0 pr-3 flex items-center transition-colors duration-200',
+                                onRightIconClick ? 'cursor-pointer hover:text-[#6B5B47]' : 'pointer-events-none'
                             )}
                             onClick={onRightIconClick}
+                            title="Toggle input action"
                         >
-                            <span><RightIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" /></span>
+                            <span><RightIcon className="h-5 w-5 text-[#8B7355]" /></span>
                         </button>
                     )}
                 </div>
                 {(helperText || error) && (
-                    <div className="mt-1.5">
+                    <div className="mt-2">
                         {helperText && !error && (
-                            <p id={`${props.id}-helper`} className="text-sm text-gray-600 dark:text-gray-400">
+                            <p id={`${props.id}-helper`} className="text-sm text-[#6B5B47]">
                                 {helperText}
                             </p>
                         )}
                         {error && (
-                            <p id={`${props.id}-error`} className="text-sm text-red-600 dark:text-red-400">
+                            <p id={`${props.id}-error`} className="text-sm text-[#8B7355]">
                                 {error}
                             </p>
                         )}

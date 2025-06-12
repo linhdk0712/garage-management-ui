@@ -19,6 +19,7 @@ import { Button } from '../../components/ui/button';
 import Spinner from '../../components/common/Spinner';
 import Badge from '../../components/common/Badge';
 import Select from '../../components/common/Select';
+import Pagination from '../../components/Pagination';
 import { Appointment } from '../../types/appointment.types';
 import { format, addDays, subDays, startOfWeek, startOfDay, endOfDay, parseISO, isToday } from 'date-fns';
 import Notification from '../../components/common/Notification';
@@ -47,11 +48,13 @@ const ManagerAppointmentsPage: React.FC = () => {
           to: format(endOfDay(addDays(currentDate, 29)), 'yyyy-MM-dd'),
         };
       case 'week':
-      default:
+      default: {
+        const weekStart = startOfWeek(currentDate);
         return {
-          from: format(startOfDay(currentDate), 'yyyy-MM-dd'),
-          to: format(endOfDay(addDays(currentDate, 6)), 'yyyy-MM-dd'),
+          from: format(startOfDay(weekStart), 'yyyy-MM-dd'),
+          to: format(endOfDay(addDays(weekStart, 6)), 'yyyy-MM-dd'),
         };
+      }
     }
   }, [currentDate, dateRangeFilter]);
   
@@ -59,28 +62,44 @@ const ManagerAppointmentsPage: React.FC = () => {
     appointments, 
     isLoading, 
     error, 
+    pagination,
     fetchAllAppointments,
-    updateStatus
+    updateStatus,
+    goToPage,
+    changePageSize
   } = useManagerAppointments({ 
     initialFetch: true,
     filters: dateRange
   });
 
-  // Fetch appointments when filters change
+  // Fetch appointments when filters or pagination changes
   useEffect(() => {
-    fetchAllAppointments(dateRange);
-  }, [dateRange]);
+    fetchAllAppointments(dateRange, pagination);
+  }, [dateRange, pagination.page, pagination.size]);
 
   const goToNextPeriod = () => {
-    setCurrentDate(addDays(currentDate, dateRangeFilter === 'month' ? 30 : 7));
+    if (dateRangeFilter === 'month') {
+      setCurrentDate(addDays(currentDate, 30));
+    } else if (dateRangeFilter === 'week') {
+      setCurrentDate(addDays(currentDate, 7));
+    } else {
+      setCurrentDate(addDays(currentDate, 1));
+    }
   };
 
   const goToPrevPeriod = () => {
-    setCurrentDate(subDays(currentDate, dateRangeFilter === 'month' ? 30 : 7));
+    if (dateRangeFilter === 'month') {
+      setCurrentDate(subDays(currentDate, 30));
+    } else if (dateRangeFilter === 'week') {
+      setCurrentDate(subDays(currentDate, 7));
+    } else {
+      setCurrentDate(subDays(currentDate, 1));
+    }
   };
 
   const goToToday = () => {
     setCurrentDate(new Date());
+    setDateRangeFilter('today');
   };
 
   const handleStatusChange = async (appointmentId: number, status: string) => {
@@ -91,7 +110,7 @@ const ManagerAppointmentsPage: React.FC = () => {
         message: `Appointment status updated to ${status}`
       });
       
-      // Refresh appointments
+      // Refresh appointments with current filters and pagination
       fetchAllAppointments(dateRange);
     } catch (err: unknown) {
       console.error('Error updating appointment status:', err);
@@ -116,6 +135,14 @@ const ManagerAppointmentsPage: React.FC = () => {
       type: 'success',
       message: 'Export functionality coming soon!'
     });
+  };
+
+  const handlePageChange = (page: number) => {
+    goToPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    changePageSize(size);
   };
 
   // Filter appointments based on search term and status
@@ -326,7 +353,7 @@ const ManagerAppointmentsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">All Appointments</h1>
+        <h3 className="text-xl font-bold">All Appointments</h3>
         <div className="flex mt-4 sm:mt-0 space-x-2">
           <Button
             variant="outline"
@@ -453,6 +480,17 @@ const ManagerAppointmentsPage: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {viewMode === 'list' && pagination.totalPages > 1 && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={handlePageChange}
+            onSizeChange={handlePageSizeChange}
+            showSizeSelector={true}
+            sizeOptions={[10, 25, 50, 100]}
+          />
+        )}
       </Card>
     </div>
   );
