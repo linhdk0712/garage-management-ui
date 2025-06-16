@@ -5,7 +5,6 @@ import {
     updateAppointmentStatus,
 } from '../api/appointments';
 import { Appointment } from '../types/appointment.types';
-import { PaginatedResponse } from '../types/response.types';
 import { ROUTES } from '../config/routes';
 
 interface UseManagerAppointmentsOptions {
@@ -57,7 +56,7 @@ const useManagerAppointments = (options: UseManagerAppointmentsOptions = {}) => 
     });
     const initialFetchRef = useRef(false);
 
-    const { initialFetch = true, filters: initialFilters = {}, pagination: initialPagination = {} } = options;
+    const { initialFetch = true, filters: initialFilters = {} } = options;
 
     // Memoize filters to prevent unnecessary re-renders
     const filters = useMemo(() => initialFilters, [initialFilters]);

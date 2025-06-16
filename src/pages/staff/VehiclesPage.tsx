@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { fetchStaffVehicles } from '../../api/vehicles';
 import { Vehicle } from '../../types/vehicle.types';
-import { PaginatedResponseData } from '../../types/response.types';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';

@@ -256,7 +256,7 @@ const StaffManagementPage: React.FC = () => {
                             Cancel
                         </Button>
                         <Button
-                            variant="danger"
+                            variant="destructive"
                             onClick={handleDeleteConfirm}
                         >
                             Delete

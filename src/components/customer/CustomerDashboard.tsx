@@ -15,7 +15,6 @@ import VehicleHealthDashboard from '../enhanced/VehicleHealthDashboard';
 import { useAuth } from '../../hooks/useAuth';
 import FeatureGate from '../common/FeatureGate';
 import useCustomerDashboard from '../../hooks/useCustomerDashboard';
-import { Appointment } from '../../types/appointment.types';
 
 const CustomerDashboard: React.FC = () => {
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -30,9 +29,7 @@ const CustomerDashboard: React.FC = () => {
         appointments, 
         vehicles: dashboardVehicles, 
         isLoading: dashboardLoading, 
-        error: dashboardError,
-        fetchDashboardData 
-    } = useCustomerDashboard({ initialFetch: true });
+        error: dashboardError    } = useCustomerDashboard({ initialFetch: true });
 
     useEffect(() => {
         const fetchDashboardData = async () => {

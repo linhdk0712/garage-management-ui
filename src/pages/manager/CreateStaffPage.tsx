@@ -10,7 +10,6 @@ import {
     Phone, 
     Lock, 
     MapPin, 
-    Building2, 
     Calendar, 
     DollarSign,
     Briefcase,

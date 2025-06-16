@@ -4,7 +4,6 @@ import { z } from 'zod';
 const phoneRegex = /^[+]?[0-9\s\-\(\)]+$/;
 const zipCodeRegex = /^[0-9A-Za-z\s\-]+$/;
 const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
-const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
 // Login validation
 export const loginSchema = z.object({

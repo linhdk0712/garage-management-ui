@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { format, startOfWeek, addDays, isSameDay, parseISO, isToday, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
+import { format, startOfWeek, addDays, isSameDay, parseISO, isToday, addMonths, subMonths } from 'date-fns';
 import { ChevronLeft, ChevronRight, Clock, User, Car, ArrowRight } from 'lucide-react';
 import { fetchStaffAppointments, updateAppointmentStatus } from '../../api/appointments';
 import { Appointment } from '../../types/appointment.types';
@@ -45,13 +45,7 @@ const AppointmentCalendar: React.FC = () => {
         fetchData();
     }, [currentDate]);
 
-    const nextWeek = () => {
-        setCurrentDate(addWeeks(currentDate, 1));
-    };
 
-    const prevWeek = () => {
-        setCurrentDate(subWeeks(currentDate, 1));
-    };
 
     const getAppointmentsForDate = (date: Date) => {
         return appointments.filter(appointment =>
