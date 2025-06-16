@@ -33,6 +33,7 @@ import { Appointment } from '../types/appointment.types';
 import { ROUTES } from '../config/routes';
 import { fetchManagerProfile, updateManagerProfile } from '../api/manager';
 import { Staff } from '../types/staff.types';
+import useNotification from '../hooks/useNotification';
 
 interface BaseProfile {
     firstName: string;
@@ -68,6 +69,7 @@ interface ManagerProfile extends BaseProfile {
 const ProfilePage: React.FC = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { notification, showSuccess, showError, clearNotification } = useNotification();
 
     const [profile, setProfile] = useState<CustomerProfile | StaffProfile | ManagerProfile | null>(null);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -76,7 +78,6 @@ const ProfilePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [editedProfile, setEditedProfile] = useState<CustomerProfile | StaffProfile | ManagerProfile | null>(null);
-    const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -91,20 +92,14 @@ const ProfilePage: React.FC = () => {
                 
                 if (!user) {
                     console.error('User object is null');
-                    setNotification({
-                        type: 'error',
-                        message: 'User information is not available. Please try logging in again.',
-                    });
+                    showError('User information is not available. Please try logging in again.', 'Authentication Error');
                     navigate('/auth/login');
                     return;
                 }
 
                 if (!user.id) {
                     console.error('User ID is missing');
-                    setNotification({
-                        type: 'error',
-                        message: 'User ID is missing. Please try logging in again.',
-                    });
+                    showError('User ID is missing. Please try logging in again.', 'Authentication Error');
                     navigate('/auth/login');
                     return;
                 }
@@ -143,10 +138,7 @@ const ProfilePage: React.FC = () => {
                 if (staffData) setStaff(staffData.content || []);
             } catch (error) {
                 console.error('Error loading profile data:', error);
-                setNotification({
-                    type: 'error',
-                    message: 'Failed to load profile information. Please try again.',
-                });
+                showError(error, 'Failed to Load Profile');
             } finally {
                 setIsLoading(false);
             }
@@ -193,16 +185,10 @@ const ProfilePage: React.FC = () => {
             }
             setProfile(editedProfile);
             setIsEditing(false);
-            setNotification({
-                type: 'success',
-                message: 'Profile updated successfully.',
-            });
+            showSuccess('Profile updated successfully.');
         } catch (error) {
             console.error('Error updating profile:', error);
-            setNotification({
-                type: 'error',
-                message: 'Failed to update profile. Please try again.',
-            });
+            showError(error, 'Failed to Update Profile');
         } finally {
             setIsSubmitting(false);
         }
@@ -653,9 +639,11 @@ const ProfilePage: React.FC = () => {
             {notification && (
                 <Notification
                     type={notification.type}
-                    title={notification.type === 'success' ? 'Success' : 'Error'}
+                    title={notification.title}
                     message={notification.message}
-                    onClose={() => setNotification(null)}
+                    errorDetails={notification.errorDetails}
+                    showErrorDetails={notification.showErrorDetails}
+                    onClose={clearNotification}
                 />
             )}
 

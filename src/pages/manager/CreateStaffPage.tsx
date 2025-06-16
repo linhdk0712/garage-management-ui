@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { staffSchema, StaffFormData } from '../../lib/validations';
+import { extractValidationErrors, isValidationError } from '../../utils/errorHandler';
 import { 
     User, 
     Mail, 
@@ -20,9 +23,9 @@ import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import Select from '../../components/common/Select';
-import { CreateStaffFormData } from '../../types/staff.types';
 import { createStaff } from '../../api/staff';
 import Notification from '../../components/common/Notification';
+import { AxiosError } from 'axios';
 
 const CreateStaffPage: React.FC = () => {
     const navigate = useNavigate();
@@ -33,17 +36,32 @@ const CreateStaffPage: React.FC = () => {
         control,
         handleSubmit,
         formState: { errors },
-    } = useForm<CreateStaffFormData>({
+        setError,
+    } = useForm<StaffFormData>({
+        resolver: zodResolver(staffSchema),
         defaultValues: {
+            username: '',
+            email: '',
+            phone: '',
+            password: '',
+            firstName: '',
+            lastName: '',
+            address: '',
+            city: '',
+            state: '',
+            zipCode: '',
             preferredContactMethod: 'EMAIL',
+            position: '',
+            specialization: '',
             hireDate: new Date().toISOString().split('T')[0],
             hourlyRate: 0,
         },
     });
 
-    const onSubmit = async (data: CreateStaffFormData) => {
+    const onSubmit = async (data: StaffFormData) => {
         try {
             setIsSubmitting(true);
+            setNotification(null);
             await createStaff(data);
             setNotification({
                 type: 'success',
@@ -55,10 +73,26 @@ const CreateStaffPage: React.FC = () => {
             }, 1500);
         } catch (error) {
             console.error('Error creating staff:', error);
-            setNotification({
-                type: 'error',
-                message: 'Failed to create staff member. Please try again.'
-            });
+            
+            if (error instanceof AxiosError && isValidationError(error)) {
+                const validationErrors = extractValidationErrors(error);
+                Object.entries(validationErrors).forEach(([field, message]) => {
+                    if (field !== 'general') {
+                        setError(field as keyof StaffFormData, { message });
+                    }
+                });
+                if (validationErrors.general) {
+                    setNotification({
+                        type: 'error',
+                        message: validationErrors.general
+                    });
+                }
+            } else {
+                setNotification({
+                    type: 'error',
+                    message: 'Failed to create staff member. Please try again.'
+                });
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -99,7 +133,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="firstName"
                                     control={control}
-                                    rules={{ required: 'First name is required' }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -113,7 +146,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="lastName"
                                     control={control}
-                                    rules={{ required: 'Last name is required' }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -137,13 +169,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="email"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Email is required',
-                                        pattern: {
-                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                            message: 'Invalid email address'
-                                        }
-                                    }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -158,7 +183,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="phone"
                                     control={control}
-                                    rules={{ required: 'Phone number is required' }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -183,7 +207,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="address"
                                     control={control}
-                                    rules={{ required: 'Address is required' }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -198,12 +221,10 @@ const CreateStaffPage: React.FC = () => {
                                     <Controller
                                         name="city"
                                         control={control}
-                                        rules={{ required: 'City is required' }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
                                                 label="City"
-                                                leftIcon={Building2}
                                                 error={errors.city?.message}
                                                 fullWidth
                                             />
@@ -212,12 +233,10 @@ const CreateStaffPage: React.FC = () => {
                                     <Controller
                                         name="state"
                                         control={control}
-                                        rules={{ required: 'State is required' }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
                                                 label="State"
-                                                leftIcon={Building2}
                                                 error={errors.state?.message}
                                                 fullWidth
                                             />
@@ -226,12 +245,10 @@ const CreateStaffPage: React.FC = () => {
                                     <Controller
                                         name="zipCode"
                                         control={control}
-                                        rules={{ required: 'ZIP code is required' }}
                                         render={({ field }) => (
                                             <Input
                                                 {...field}
-                                                label="ZIP Code"
-                                                leftIcon={MapPin}
+                                                label="Zip Code"
                                                 error={errors.zipCode?.message}
                                                 fullWidth
                                             />
@@ -251,13 +268,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="username"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Username is required',
-                                        minLength: {
-                                            value: 3,
-                                            message: 'Username must be at least 3 characters'
-                                        }
-                                    }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -271,13 +281,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="password"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Password is required',
-                                        minLength: {
-                                            value: 8,
-                                            message: 'Password must be at least 8 characters'
-                                        }
-                                    }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -302,13 +305,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="position"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Position is required',
-                                        maxLength: {
-                                            value: 50,
-                                            message: 'Position must be less than 50 characters'
-                                        }
-                                    }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -322,13 +318,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="specialization"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Specialization is required',
-                                        maxLength: {
-                                            value: 100,
-                                            message: 'Specialization must be less than 100 characters'
-                                        }
-                                    }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -339,10 +328,11 @@ const CreateStaffPage: React.FC = () => {
                                         />
                                     )}
                                 />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Controller
                                     name="hireDate"
                                     control={control}
-                                    rules={{ required: 'Hire date is required' }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -357,13 +347,6 @@ const CreateStaffPage: React.FC = () => {
                                 <Controller
                                     name="hourlyRate"
                                     control={control}
-                                    rules={{ 
-                                        required: 'Hourly rate is required',
-                                        min: {
-                                            value: 0,
-                                            message: 'Hourly rate cannot be negative'
-                                        }
-                                    }}
                                     render={({ field }) => (
                                         <Input
                                             {...field}
@@ -377,30 +360,31 @@ const CreateStaffPage: React.FC = () => {
                                         />
                                     )}
                                 />
+                            </div>
+                            <div className="grid grid-cols-1 gap-4">
                                 <Controller
                                     name="preferredContactMethod"
                                     control={control}
-                                    rules={{ required: 'Preferred contact method is required' }}
                                     render={({ field }) => (
                                         <Select
-                                            {...field}
                                             label="Preferred Contact Method"
                                             options={[
                                                 { value: 'EMAIL', label: 'Email' },
                                                 { value: 'PHONE', label: 'Phone' },
                                                 { value: 'SMS', label: 'SMS' },
                                             ]}
+                                            value={field.value}
+                                            onChange={field.onChange}
                                             error={errors.preferredContactMethod?.message}
-                                            fullWidth
                                         />
                                     )}
                                 />
                             </div>
                         </div>
 
-                        {/* Form Actions */}
-                        <div className="flex justify-end gap-4 pt-4">
+                        <div className="flex justify-end space-x-3 pt-6">
                             <Button
+                                type="button"
                                 variant="outline"
                                 onClick={() => navigate(ROUTES.manager.staff)}
                             >
@@ -408,11 +392,11 @@ const CreateStaffPage: React.FC = () => {
                             </Button>
                             <Button
                                 type="submit"
-                                variant="primary"
+                                variant="default"
+                                disabled={isSubmitting}
                                 icon={<Save className="w-4 h-4" />}
-                                isLoading={isSubmitting}
                             >
-                                {isSubmitting ? 'Creating...' : 'Create Staff'}
+                                {isSubmitting ? 'Creating...' : 'Create Staff Member'}
                             </Button>
                         </div>
                     </form>

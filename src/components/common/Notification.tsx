@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, CheckCircle, AlertTriangle, XCircle, Info } from 'lucide-react';
+import { X, CheckCircle, AlertTriangle, XCircle, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { ErrorDetails } from '../../utils/errorUtils';
 
 export type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
@@ -11,6 +12,9 @@ interface NotificationProps {
     showClose?: boolean;
     onClose?: () => void;
     className?: string;
+    // Enhanced error details for error notifications
+    errorDetails?: ErrorDetails;
+    showErrorDetails?: boolean;
 }
 
 const Notification: React.FC<NotificationProps> = ({
@@ -21,8 +25,11 @@ const Notification: React.FC<NotificationProps> = ({
                                                        showClose = true,
                                                        onClose,
                                                        className = '',
+                                                       errorDetails,
+                                                       showErrorDetails = false,
                                                    }) => {
     const [isVisible, setIsVisible] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(showErrorDetails);
 
     const handleClose = useCallback(() => {
         setIsVisible(false);
@@ -79,6 +86,96 @@ const Notification: React.FC<NotificationProps> = ({
 
     const style = typeStyles[type];
 
+    const renderErrorDetails = () => {
+        if (type !== 'error' || !errorDetails) {
+            return null;
+        }
+
+        const hasDetails = errorDetails.code || errorDetails.status || errorDetails.details || errorDetails.stack || errorDetails.context;
+
+        if (!hasDetails) {
+            return null;
+        }
+
+        return (
+            <div className="mt-3 border-t border-red-200 pt-3">
+                <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center text-sm font-medium text-red-700 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded"
+                >
+                    {isExpanded ? (
+                        <ChevronUp className="h-4 w-4 mr-1" />
+                    ) : (
+                        <ChevronDown className="h-4 w-4 mr-1" />
+                    )}
+                    Error Details
+                </button>
+                
+                {isExpanded && (
+                    <div className="mt-2 space-y-2">
+                        {errorDetails.code && (
+                            <div className="text-xs">
+                                <span className="font-medium text-red-700">Error Code:</span>
+                                <span className="ml-2 text-red-600 font-mono bg-red-100 px-2 py-1 rounded">
+                                    {errorDetails.code}
+                                </span>
+                            </div>
+                        )}
+                        
+                        {errorDetails.status && (
+                            <div className="text-xs">
+                                <span className="font-medium text-red-700">Status:</span>
+                                <span className="ml-2 text-red-600 font-mono bg-red-100 px-2 py-1 rounded">
+                                    {errorDetails.status}
+                                </span>
+                            </div>
+                        )}
+                        
+                        {errorDetails.timestamp && (
+                            <div className="text-xs">
+                                <span className="font-medium text-red-700">Timestamp:</span>
+                                <span className="ml-2 text-red-600">
+                                    {new Date(errorDetails.timestamp).toLocaleString()}
+                                </span>
+                            </div>
+                        )}
+                        
+                        {errorDetails.details && (
+                            <div className="text-xs">
+                                <span className="font-medium text-red-700">Details:</span>
+                                <div className="mt-1 text-red-600 bg-red-100 p-2 rounded font-mono text-xs break-words">
+                                    {errorDetails.details}
+                                </div>
+                            </div>
+                        )}
+                        
+                        {errorDetails.context && Object.keys(errorDetails.context).length > 0 && (
+                            <div className="text-xs">
+                                <span className="font-medium text-red-700">Context:</span>
+                                <div className="mt-1 text-red-600 bg-red-100 p-2 rounded font-mono text-xs break-words">
+                                    <pre className="whitespace-pre-wrap">
+                                        {JSON.stringify(errorDetails.context, null, 2)}
+                                    </pre>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {errorDetails.stack && (
+                            <div className="text-xs">
+                                <span className="font-medium text-red-700">Stack Trace:</span>
+                                <div className="mt-1 text-red-600 bg-red-100 p-2 rounded font-mono text-xs break-words max-h-32 overflow-y-auto">
+                                    <pre className="whitespace-pre-wrap">
+                                        {errorDetails.stack}
+                                    </pre>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div className={`rounded-md ${style.bg} border-l-4 ${style.border} p-4 ${className}`}>
             <div className="flex">
@@ -88,6 +185,7 @@ const Notification: React.FC<NotificationProps> = ({
                     <div className={`mt-2 text-sm ${style.text}`}>
                         <p>{message}</p>
                     </div>
+                    {renderErrorDetails()}
                 </div>
                 {showClose && (
                     <div className="ml-auto pl-3">

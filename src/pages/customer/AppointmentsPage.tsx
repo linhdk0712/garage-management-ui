@@ -7,11 +7,13 @@ import {
   Car
 } from 'lucide-react';
 import useCustomerDashboard from '../../hooks/useCustomerDashboard';
+import useNotification from '../../hooks/useNotification';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import BeautifulTabs from '../../components/common/BeautifulTabs';
 import Spinner from '../../components/common/Spinner';
+import Notification from '../../components/common/Notification';
 import AppointmentForm from '../../components/customer/appointments/AppointmentForm';
 import { Appointment } from '../../types/appointment.types';
 import AppointmentList from '../../components/customer/appointments/AppointmentList';
@@ -20,7 +22,7 @@ import { cancelAppointment } from '../../api/appointments';
 import { ROUTES } from '../../config/routes';
 
 const AppointmentsPage: React.FC = () => {
-  const [notification, setNotification] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const { notification, showSuccess, showError, clearNotification } = useNotification();
   const { appointments, vehicles, isLoading, error, fetchDashboardData } = useCustomerDashboard({ initialFetch: true });
   const navigate = useNavigate();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -41,17 +43,11 @@ const AppointmentsPage: React.FC = () => {
   const handleCancelAppointment = async (appointmentId: number) => {
     try {
       await cancelAppointment(ROUTES.customer.appointments, appointmentId);
-      setNotification({
-        type: 'success',
-        message: 'Appointment cancelled successfully.'
-      });
+      showSuccess('Appointment cancelled successfully.');
       // Refresh the dashboard data
       fetchDashboardData();
     } catch (err) {
-      setNotification({
-        type: 'error',
-        message: err instanceof Error ? err.message : 'Failed to cancel appointment. Please try again.'
-      });
+      showError(err, 'Failed to Cancel Appointment');
     }
   };
 
@@ -218,18 +214,14 @@ const AppointmentsPage: React.FC = () => {
       </div>
 
       {notification && (
-        <div className={`p-4 rounded-md ${notification.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className={`text-sm font-medium ${notification.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
-                {notification.type === 'success' ? 'Success' : 'Error'}
-              </h3>
-              <div className="mt-2 text-sm text-gray-700">
-                <p>{notification.message}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          message={notification.message}
+          errorDetails={notification.errorDetails}
+          showErrorDetails={notification.showErrorDetails}
+          onClose={clearNotification}
+        />
       )}
 
       {vehicles.length === 0 ? (

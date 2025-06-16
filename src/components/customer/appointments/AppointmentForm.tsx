@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { AppointmentFormData } from '../../../types/appointment.types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { appointmentSchema, AppointmentFormData } from '../../../lib/validations';
 import { scheduleAppointment, updateAppointment, fetchAppointmentDetails } from '../../../api/appointments';
 import { fetchAllVehicles } from '../../../api/vehicles';
 import { Vehicle } from '../../../types/vehicle.types';
+import { extractValidationErrors, isValidationError } from '../../../utils/errorHandler';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
 import Select from '../../common/Select';
 import { ROUTES } from '../../../config/routes';
+import { AxiosError } from 'axios';
 
 interface AppointmentFormProps {
     onClose: () => void;
@@ -17,9 +20,20 @@ interface AppointmentFormProps {
 }
 
 const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appointmentId, onSuccess }) => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<AppointmentFormData>();
+    const { register, handleSubmit, formState: { errors }, reset, setError } = useForm<AppointmentFormData>({
+        resolver: zodResolver(appointmentSchema),
+        defaultValues: {
+            vehicleId: 0,
+            serviceType: '',
+            description: '',
+            appointmentDate: '',
+            estimatedDuration: 1,
+            estimatedCost: 0,
+            notes: '',
+        }
+    });
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [generalError, setGeneralError] = useState<string | null>(null);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
 
     const loadAppointment = useCallback(async () => {
@@ -27,16 +41,17 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
             setIsLoading(true);
             const appointment = await fetchAppointmentDetails(ROUTES.customer.appointments, appointmentId!);
             reset({
+                appointmentId: appointment.appointmentId,
                 vehicleId: appointment.vehicle?.vehicleId || 0,
                 serviceType: appointment.serviceType,
                 description: appointment.description,
                 appointmentDate: appointment.appointmentDate,
-                estimatedDuration: appointment.estimatedDuration,
-                estimatedCost: appointment.estimatedCost,
-                notes: appointment.notes,
+                estimatedDuration: appointment.estimatedDuration || 1,
+                estimatedCost: appointment.estimatedCost || 0,
+                notes: appointment.notes || '',
             });
         } catch (err) {
-            setError('Failed to load appointment details. Please try again later.');
+            setGeneralError('Failed to load appointment details. Please try again later.');
             console.error('Error loading appointment:', err);
         } finally {
             setIsLoading(false);
@@ -56,14 +71,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
             setVehicles(data.data.content || []);
         } catch (err) {
             console.error('Error loading vehicles:', err);
-            setError('Failed to load vehicles. Please try again later.');
+            setGeneralError('Failed to load vehicles. Please try again later.');
         }
     };
 
     const onSubmit = async (data: AppointmentFormData) => {
         try {
             setIsLoading(true);
-            setError(null);
+            setGeneralError(null);
 
             if (mode === 'add') {
                 await scheduleAppointment(ROUTES.customer.appointments, data);
@@ -78,10 +93,22 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
 
             onClose();
         } catch (err) {
-            setError(mode === 'add' 
-                ? 'Failed to create appointment. Please try again later.'
-                : 'Failed to update appointment. Please try again later.'
-            );
+            if (err instanceof AxiosError && isValidationError(err)) {
+                const validationErrors = extractValidationErrors(err);
+                Object.entries(validationErrors).forEach(([field, message]) => {
+                    if (field !== 'general') {
+                        setError(field as keyof AppointmentFormData, { message });
+                    }
+                });
+                if (validationErrors.general) {
+                    setGeneralError(validationErrors.general);
+                }
+            } else {
+                setGeneralError(mode === 'add' 
+                    ? 'Failed to create appointment. Please try again later.'
+                    : 'Failed to update appointment. Please try again later.'
+                );
+            }
             console.error(`Error ${mode}ing appointment:`, err);
         } finally {
             setIsLoading(false);
@@ -94,9 +121,9 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
 
     return (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 w-full max-w-[1400px] mx-auto">
-            {error && (
+            {generalError && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-                    {error}
+                    {generalError}
                 </div>
             )}
 
@@ -118,7 +145,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
                 <Input
                     label="Service Type"
                     id="serviceType"
-                    {...register('serviceType', { required: 'Service type is required' })}
+                    {...register('serviceType')}
                     error={errors.serviceType?.message}
                 />
 
@@ -126,7 +153,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
                     label="Appointment Date"
                     id="appointmentDate"
                     type="datetime-local"
-                    {...register('appointmentDate', { required: 'Appointment date is required' })}
+                    {...register('appointmentDate')}
                     error={errors.appointmentDate?.message}
                 />
 
@@ -136,10 +163,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
                     type="number"
                     step="0.5"
                     min="0.5"
-                    {...register('estimatedDuration', {
-                        required: 'Estimated duration is required',
-                        min: { value: 0.5, message: 'Duration must be at least 0.5 hours' }
-                    })}
+                    {...register('estimatedDuration', { valueAsNumber: true })}
                     error={errors.estimatedDuration?.message}
                 />
 
@@ -149,17 +173,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onClose, mode, appoin
                     type="number"
                     step="0.01"
                     min="0"
-                    {...register('estimatedCost', {
-                        required: 'Estimated cost is required',
-                        min: { value: 0, message: 'Cost cannot be negative' }
-                    })}
+                    {...register('estimatedCost', { valueAsNumber: true })}
                     error={errors.estimatedCost?.message}
                 />
 
                 <Input
                     label="Description"
                     id="description"
-                    {...register('description', { required: 'Description is required' })}
+                    {...register('description')}
                     error={errors.description?.message}
                 />
 

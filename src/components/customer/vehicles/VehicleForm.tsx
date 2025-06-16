@@ -1,10 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { VehicleFormData, Vehicle } from '../../../types/vehicle.types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { vehicleSchema, VehicleFormData } from '../../../lib/validations';
+import { Vehicle } from '../../../types/vehicle.types';
 import { addVehicle, updateVehicle, fetchVehicleDetails } from '../../../api/vehicles';
+import { extractValidationErrors, isValidationError } from '../../../utils/errorHandler';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
 import { Plus } from 'lucide-react';
+import { AxiosError } from 'axios';
 
 interface VehicleFormProps {
     onClose: () => void;
@@ -15,9 +19,20 @@ interface VehicleFormProps {
 }
 
 const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onSuccess, initialData }) => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<VehicleFormData>();
+    const { register, handleSubmit, formState: { errors }, reset, setError } = useForm<VehicleFormData>({
+        resolver: zodResolver(vehicleSchema),
+        defaultValues: {
+            make: '',
+            model: '',
+            year: new Date().getFullYear(),
+            licensePlate: '',
+            vin: '',
+            color: '',
+            mileage: 0,
+        }
+    });
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [generalError, setGeneralError] = useState<string | null>(null);
 
     const loadVehicle = useCallback(async () => {
         try {
@@ -27,16 +42,17 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
             }
             const vehicle = await fetchVehicleDetails(vehicleId);
             reset({
+                vehicleId: vehicle.vehicleId,
                 make: vehicle.make,
                 model: vehicle.model,
                 year: vehicle.year,
                 licensePlate: vehicle.licensePlate,
-                vin: vehicle.vin,
-                color: vehicle.color,
+                vin: vehicle.vin || '',
+                color: vehicle.color || '',
                 mileage: vehicle.mileage,
             });
         } catch (err) {
-            setError('Failed to load vehicle details. Please try again later.');
+            setGeneralError('Failed to load vehicle details. Please try again later.');
             console.error('Error loading vehicle:', err);
         } finally {
             setIsLoading(false);
@@ -47,12 +63,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
         if (mode === 'edit' && vehicleId) {
             if (initialData) {
                 reset({
+                    vehicleId: initialData.vehicleId,
                     make: initialData.make,
                     model: initialData.model,
                     year: initialData.year,
                     licensePlate: initialData.licensePlate,
-                    vin: initialData.vin,
-                    color: initialData.color,
+                    vin: initialData.vin || '',
+                    color: initialData.color || '',
                     mileage: initialData.mileage,
                 });
             } else {
@@ -64,7 +81,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
     const onSubmit = async (data: VehicleFormData) => {
         try {
             setIsLoading(true);
-            setError(null);
+            setGeneralError(null);
 
             if (mode === 'add') {
                 await addVehicle(data);
@@ -75,10 +92,22 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
             onSuccess?.();
             onClose();
         } catch (err) {
-            setError(mode === 'add' 
-                ? 'Failed to add vehicle. Please try again later.'
-                : 'Failed to update vehicle. Please try again later.'
-            );
+            if (err instanceof AxiosError && isValidationError(err)) {
+                const validationErrors = extractValidationErrors(err);
+                Object.entries(validationErrors).forEach(([field, message]) => {
+                    if (field !== 'general') {
+                        setError(field as keyof VehicleFormData, { message });
+                    }
+                });
+                if (validationErrors.general) {
+                    setGeneralError(validationErrors.general);
+                }
+            } else {
+                setGeneralError(mode === 'add' 
+                    ? 'Failed to add vehicle. Please try again later.'
+                    : 'Failed to update vehicle. Please try again later.'
+                );
+            }
             console.error(`Error ${mode}ing vehicle:`, err);
         } finally {
             setIsLoading(false);
@@ -91,9 +120,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {error && (
+            {generalError && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    {error}
+                    {generalError}
                 </div>
             )}
 
@@ -101,14 +130,14 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
                 <Input
                     label="Make"
                     id="make"
-                    {...register('make', { required: 'Make is required' })}
+                    {...register('make')}
                     error={errors.make?.message}
                 />
 
                 <Input
                     label="Model"
                     id="model"
-                    {...register('model', { required: 'Model is required' })}
+                    {...register('model')}
                     error={errors.model?.message}
                 />
 
@@ -116,18 +145,14 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
                     label="Year"
                     id="year"
                     type="number"
-                    {...register('year', {
-                        required: 'Year is required',
-                        min: { value: 1900, message: 'Year must be after 1900' },
-                        max: { value: new Date().getFullYear() + 1, message: 'Year cannot be in the future' }
-                    })}
+                    {...register('year', { valueAsNumber: true })}
                     error={errors.year?.message}
                 />
 
                 <Input
                     label="License Plate"
                     id="licensePlate"
-                    {...register('licensePlate', { required: 'License plate is required' })}
+                    {...register('licensePlate')}
                     error={errors.licensePlate?.message}
                 />
 
@@ -149,10 +174,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onClose, mode, vehicleId, onS
                     label="Mileage"
                     id="mileage"
                     type="number"
-                    {...register('mileage', {
-                        required: 'Mileage is required',
-                        min: { value: 0, message: 'Mileage cannot be negative' }
-                    })}
+                    {...register('mileage', { valueAsNumber: true })}
                     error={errors.mileage?.message}
                 />
             </div>
